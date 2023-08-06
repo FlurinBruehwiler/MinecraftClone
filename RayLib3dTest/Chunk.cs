@@ -112,58 +112,58 @@ internal class Chunk : IDisposable
         switch (neighbour)
         {
             case Neighbour.Left:
-                AddVertices(block + _topLeftBack, vertices, new Vector2(0, 1));
-                AddVertices(block + _topLeftFront, vertices, new Vector2(1, 1));
-                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 0));
+                AddVertices(block + _topLeftBack, vertices, new Vector2(0, 0));
+                AddVertices(block + _topLeftFront, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 1));
 
-                AddVertices(block + _topLeftFront, vertices, new Vector2(1, 1));
-                AddVertices(block + _bottomLeftFront, vertices, new Vector2(1, 0));
-                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 0));
+                AddVertices(block + _topLeftFront, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomLeftFront, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 1));
                 break;
             case Neighbour.Right:
-                AddVertices(block + _topRightBack, vertices, new Vector2(1, 1));
-                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 0));
-                AddVertices(block + _topRightFront, vertices, new Vector2(0, 1));
+                AddVertices(block + _topRightBack, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 1));
+                AddVertices(block + _topRightFront, vertices, new Vector2(0, 0));
 
-                AddVertices(block + _bottomRightFront, vertices, new Vector2(0, 0));
-                AddVertices(block + _topRightFront, vertices, new Vector2(1, 1));
-                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomRightFront, vertices, new Vector2(0, 1));
+                AddVertices(block + _topRightFront, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 1));
                 break;
             case Neighbour.Bottom:
-                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 1));
-                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 0));
-                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 1));
+                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 1));
+                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 0));
 
-                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 0));
-                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 0));
-                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 1));
+                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 0));
                 break;
             case Neighbour.Top:
-                AddVertices(block + _topRightBack, vertices, new Vector2(1, 1));
-                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 0));
-                AddVertices(block + _topLeftBack, vertices, new Vector2(0, 1));
+                AddVertices(block + _topRightBack, vertices, new Vector2(1, 0));
+                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 1));
+                AddVertices(block + _topLeftBack, vertices, new Vector2(0, 0));
                 
-                AddVertices(block + _topRightFront, vertices, new Vector2(1, 0));
-                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 0));
-                AddVertices(block + _topRightBack, vertices, new Vector2(1, 1));
+                AddVertices(block + _topRightFront, vertices, new Vector2(1, 1));
+                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 1));
+                AddVertices(block + _topRightBack, vertices, new Vector2(1, 0));
                 break;
             case Neighbour.Back:
-                AddVertices(block + _topLeftBack, vertices, new Vector2(1, 1));
-                AddVertices(block + _bottomRightBack, vertices, new Vector2(0, 0));
-                AddVertices(block + _topRightBack, vertices, new Vector2(0, 1));
+                AddVertices(block + _topLeftBack, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomRightBack, vertices, new Vector2(0, 1));
+                AddVertices(block + _topRightBack, vertices, new Vector2(0, 0));
                 
-                AddVertices(block + _bottomLeftBack, vertices, new Vector2(1, 0));
-                AddVertices(block + _bottomRightBack, vertices, new Vector2(0, 0));
-                AddVertices(block + _topLeftBack, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomLeftBack, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomRightBack, vertices, new Vector2(0, 1));
+                AddVertices(block + _topLeftBack, vertices, new Vector2(1, 0));
                 break;
             case Neighbour.Front:
-                AddVertices(block + _topRightFront, vertices, new Vector2(1, 1));
-                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 0));
-                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 1));
+                AddVertices(block + _topRightFront, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 1));
+                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 0));
                 
-                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 0));
-                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 0));
-                AddVertices(block + _topRightFront, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 1));
+                AddVertices(block + _topRightFront, vertices, new Vector2(1, 0));
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

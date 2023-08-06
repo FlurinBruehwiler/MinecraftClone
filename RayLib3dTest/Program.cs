@@ -19,11 +19,11 @@ var chunks = new List<Chunk>();
 
 for (var x = 0; x < 1; x++)
 {
-    for (var y = 0; y < 1; y++)
+    for (var z = 0; z < 2; z++)
     {
         chunks.Add(new Chunk
         {
-            Pos = new Vector2(x, y)
+            Pos = new Vector2(x, z)
         });
     }
 }
@@ -61,10 +61,7 @@ foreach (var chunk in chunks)
 
 while (!WindowShouldClose())
 {
-    unsafe
-    {
-        UpdateCamera(&camera, CameraMode.CAMERA_FREE);
-    }
+    UpdateCamera(ref camera, CameraMode.CAMERA_CUSTOM);
 
     BeginDrawing();
 
@@ -76,7 +73,7 @@ while (!WindowShouldClose())
     
     foreach (var chunk in chunks)
     {
-        DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, 0), 1, Color.WHITE);
+        DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, 0, chunk.Pos.Y * 16), 1, Color.WHITE);
     }
     
     EndMode3D();
