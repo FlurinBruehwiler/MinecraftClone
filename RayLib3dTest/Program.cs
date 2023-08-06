@@ -1,11 +1,19 @@
 ﻿using System.Numerics;
-using System.Security.Cryptography.X509Certificates;
 using Raylib_cs;
 using static Raylib_cs.Raylib;
 using static Raylib_cs.Rlgl;
 
 const int screenWidth = 1000;
 const int screenHeight = 700;
+
+var bottomLeftFront = new IntVector3(0,0,0);
+var bottomRightFront = new IntVector3(1,0,0);
+var bottomLeftBack = new IntVector3(0,1,0);
+var bottomRightBack = new IntVector3(1,1,0);
+var topLeftFront = new IntVector3(0,0,1);
+var topRightFront = new IntVector3(1,0,1);
+var topLeftBack = new IntVector3(0,1,1);
+var topRightBack = new IntVector3(1,1,1);
 
 InitWindow(screenWidth, screenHeight, "3dtest");
 
@@ -14,18 +22,11 @@ var camera = new Camera3D(Vector3.Zero, Vector3.One, new Vector3(0, 1, 0), 60, C
 DisableCursor();
 SetTargetFPS(60);
 
-// var cubes = new List<Vector3>();
-//
-// for (var i = 0; i < 100; i++)
-// {
-//     cubes.Add(new Vector3(Random.Shared.NextSingle() * 10, Random.Shared.NextSingle() * 10, Random.Shared.NextSingle() * 10));
-// }
-
 var chunks = new List<Chunk>();
 
-for (var x = 0; x < 2; x++)
+for (var x = 0; x < 1; x++)
 {
-    for (var y = 0; y < 2; y++)
+    for (var y = 0; y < 1; y++)
     {
         chunks.Add(new Chunk
         {
@@ -46,6 +47,17 @@ foreach (var chunk in chunks)
             for (var z = 0; z < chunk.Blocks.GetLength(2); z++)
             {
                 chunk.Blocks[x, y, z].Color = Random.Shared.Next(2) == 1 ? col1 : col2;
+                chunk.Blocks[x, y, z].IsAir = true;
+                
+                if (x == 0 && y == 0 && z == 0)
+                {
+                    chunk.Blocks[x, y, z].IsAir = false;
+                }
+                
+                if (x == 0 && y == 0 && z == 1)
+                {
+                    chunk.Blocks[x, y, z].IsAir = false;
+                }
             }
         }
     }
@@ -59,13 +71,17 @@ foreach (var chunk in chunks)
         {
             for (var z = 0; z < chunk.Blocks.GetLength(2); z++)
             {
-                var pos = new IntVector3(x, y, z);
-                AddQuadFor(chunk, pos, Neighbour.Left);
-                AddQuadFor(chunk, pos, Neighbour.Right);
-                AddQuadFor(chunk, pos, Neighbour.Top);
-                AddQuadFor(chunk, pos, Neighbour.Bottom);
-                AddQuadFor(chunk, pos, Neighbour.Back);
-                AddQuadFor(chunk, pos, Neighbour.Front);
+                var block = chunk.Blocks[x, y, z];
+                if (!block.IsAir)
+                {
+                    var pos = new IntVector3(x, y, z);
+                    AddQuadFor(chunk, pos, Neighbour.Left);
+                    AddQuadFor(chunk, pos, Neighbour.Right);
+                    AddQuadFor(chunk, pos, Neighbour.Top);
+                    AddQuadFor(chunk, pos, Neighbour.Bottom);
+                    AddQuadFor(chunk, pos, Neighbour.Back);
+                    AddQuadFor(chunk, pos, Neighbour.Front);
+                }
             }
         }
     }
@@ -75,9 +91,9 @@ void AddQuadFor(Chunk chunk, IntVector3 block, Neighbour neighbour)
 {
     var neighbourBlock = GetBlockAtPos(chunk, block + GetOffset(neighbour));
 
-    if (neighbourBlock is { IsAir: false })
+    if (neighbourBlock is null || neighbourBlock.Value.IsAir)
     {
-        chunk.Faces.Add(new Face(block, neighbour));
+        chunk.Faces.Add(new Face(block, neighbour, chunk.Blocks[block.X, block.Y, block.Z].Color));
     }
 }
 
@@ -105,13 +121,13 @@ IntVector3 GetOffset(Neighbour neighbour)
 
 Block? GetBlockAtPos(Chunk chunk, IntVector3 intVector3)
 {
-    if (intVector3.X > 15)
+    if (intVector3.X is > 15 or < 0)
         return null;
 
-    if (intVector3.Y > 15)
+    if (intVector3.Y is > 15 or < 0)
         return null;
 
-    if (intVector3.Z > 15)
+    if (intVector3.Z is > 15 or < 0)
         return null;
 
     return chunk.Blocks[intVector3.X, intVector3.Y, intVector3.Z];
@@ -130,24 +146,70 @@ while (!WindowShouldClose())
     
     BeginMode3D(camera);
 
+    DrawGrid(10, 1.0f);
+    
+    rlPushMatrix();
+    rlTranslatef(0, 0, 0);
+        
+    rlBegin(DrawMode.QUADS);
+        
+    rlColor4ub(100, 100, 100, 255);
+    
     foreach (var chunk in chunks)
     {
-        for (var x = 0; x < chunk.Blocks.GetLength(0); x++)
+        foreach (var face in chunk.Faces)
         {
-            for (var y = 0; y < chunk.Blocks.GetLength(1); y++)
+            rlColor4ub(face.Color.r, face.Color.g, face.Color.b, face.Color.a);
+            // var normal = GetOffset(face.Neighbour);
+            // rlNormal3f(normal.X, normal.Y, normal.Z);
+            //
+            switch (face.Neighbour)
             {
-                for (var z = 0; z < chunk.Blocks.GetLength(2); z++)
-                {
-                    // DrawCube(new Vector3(x + (chunk.Pos.X * 16), y + (chunk.Pos.Y * 16), z), 1, 1, 1, chunk.Blocks[x, y, z].Color);
-                    
-                    
-                    rlBegin(DrawMode.QUADS);
-                    
-                    
-                }
+                case Neighbour.Left:
+                    DrawVertex(face.BlockPos + topLeftBack);
+                    DrawVertex(face.BlockPos + bottomLeftBack);
+                    DrawVertex(face.BlockPos + bottomLeftFront);
+                    DrawVertex(face.BlockPos + topLeftFront);
+                    break;
+                case Neighbour.Right:
+                    DrawVertex(face.BlockPos + topRightBack);
+                    DrawVertex(face.BlockPos + topRightFront);
+                    DrawVertex(face.BlockPos + bottomRightFront);
+                    DrawVertex(face.BlockPos + bottomRightBack);
+                    break;
+                case Neighbour.Bottom:
+                    DrawVertex(face.BlockPos + bottomRightFront);
+                    DrawVertex(face.BlockPos + bottomLeftFront);
+                    DrawVertex(face.BlockPos + bottomLeftBack);
+                    DrawVertex(face.BlockPos + bottomRightBack);
+                    break;
+                case Neighbour.Top:
+                    DrawVertex(face.BlockPos + topRightBack);
+                    DrawVertex(face.BlockPos + topLeftBack);
+                    DrawVertex(face.BlockPos + topLeftFront);
+                    DrawVertex(face.BlockPos + topRightFront);
+                    break;
+                case Neighbour.Back:
+                    DrawVertex(face.BlockPos + topLeftBack);
+                    DrawVertex(face.BlockPos + topRightBack);
+                    DrawVertex(face.BlockPos + bottomRightBack);
+                    DrawVertex(face.BlockPos + bottomLeftBack);
+                    break;
+                case Neighbour.Front:
+                    DrawVertex(face.BlockPos + topRightFront);
+                    DrawVertex(face.BlockPos + topLeftFront);
+                    DrawVertex(face.BlockPos + bottomLeftFront);
+                    DrawVertex(face.BlockPos + bottomRightFront);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }
+    
+    rlEnd();
+        
+    rlPopMatrix();
     
     EndMode3D();
     
@@ -155,6 +217,11 @@ while (!WindowShouldClose())
 }
 
 CloseWindow();
+
+void DrawVertex(IntVector3 intVector3)
+{
+    rlVertex3f(intVector3.X, intVector3.Y, intVector3.Z);
+}
 
 class Chunk
 {
@@ -164,11 +231,11 @@ class Chunk
     }
 
     public Block[,,] Blocks { get; set; }
-    public List<Face> Faces { get; set; }
+    public List<Face> Faces { get; set; } = new();
     public required Vector2 Pos { get; init; }
 }
 
-record struct Face(IntVector3 BlockPos, Neighbour Neighbour);
+record struct Face(IntVector3 BlockPos, Neighbour Neighbour, Color Color);
 
 record struct Block
 {
