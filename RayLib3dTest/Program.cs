@@ -14,6 +14,7 @@ var camera = new Camera3D(Vector3.Zero, Vector3.One, new Vector3(0, 1, 0), 60, C
 DisableCursor();
 SetTargetFPS(60);
 
+
 var chunks = new List<Chunk>();
 
 for (var x = 0; x < 1; x++)
@@ -39,14 +40,14 @@ foreach (var chunk in chunks)
             for (var z = 0; z < chunk.Blocks.GetLength(2); z++)
             {
                 chunk.Blocks[x, y, z].Color = Random.Shared.Next(2) == 1 ? col1 : col2;
-                chunk.Blocks[x, y, z].IsAir = true;
-                
-                if (x == 0 && y == 0 && z == 0)
-                {
-                    chunk.Blocks[x, y, z].IsAir = false;
-                }
+                // chunk.Blocks[x, y, z].IsAir = true;
                 //
-                // if (x == 0 && y == 1 && z == 0)
+                // if (x == 0 && y == 0 && z == 0)
+                // {
+                //     chunk.Blocks[x, y, z].IsAir = false;
+                // }
+                //
+                // if (x == 0 && y == 0 && z == 1)
                 // {
                 //     chunk.Blocks[x, y, z].IsAir = false;
                 // }
@@ -75,7 +76,7 @@ while (!WindowShouldClose())
     
     foreach (var chunk in chunks)
     {
-        DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, 0), 1, Color.BLUE);
+        DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, 0), 1, Color.WHITE);
     }
     
     EndMode3D();

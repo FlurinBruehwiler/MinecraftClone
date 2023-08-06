@@ -20,20 +20,24 @@ internal class Chunk : IDisposable
     private readonly IntVector3 _topLeftBack = new(0, 1, 1);
     private readonly IntVector3 _topRightBack = new(1, 1, 1);
 
+    private Texture2D _grasTexture;
+    
     public Chunk()
     {
         Blocks = new Block[16, 16, 16];
+        _grasTexture = LoadTexture("resources/grass_block_side.png");
     }
 
-    public void GenModel()
+    public unsafe void GenModel()
     {
         Model = LoadModelFromMesh(Mesh);
+        Model.materials[0].maps->texture = _grasTexture;
     }
 
     public void GenMesh()
     {
         var mesh = new Mesh();
-        var verticesList = new List<float>();
+        var verticesList = new List<Vertex>();
 
         for (var x = 0; x < Blocks.GetLength(0); x++)
         {
@@ -57,19 +61,28 @@ internal class Chunk : IDisposable
         }
 
         Span<float> vertices;
+        Span<float> texcoords;
 
-        mesh.vertexCount = verticesList.Count / 3;
-        mesh.triangleCount = mesh.vertexCount / 3;
+        mesh.vertexCount = verticesList.Count;
+        mesh.triangleCount = verticesList.Count * 3;
         
         unsafe
         {
-            mesh.vertices = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count, sizeof(float));
-            vertices =  new Span<float>(mesh.vertices, verticesList.Count);
+            mesh.vertices = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
+            vertices = new Span<float>(mesh.vertices, verticesList.Count * 3);
+            
+            mesh.texcoords = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 2, sizeof(float));
+            texcoords = new Span<float>(mesh.texcoords, verticesList.Count * 2);
         }
         
         for (var i = 0; i < verticesList.Count; i++)
         {
-            vertices[i] = verticesList[i];
+            vertices[i * 3] = verticesList[i].Pos.X;
+            vertices[i * 3 + 1] = verticesList[i].Pos.Y;
+            vertices[i * 3 + 2] = verticesList[i].Pos.Z;
+
+            texcoords[i * 2] = verticesList[i].TextCoord.X;
+            texcoords[i * 2 + 1] = verticesList[i].TextCoord.Y;
         }
 
         Mesh = mesh;
@@ -84,13 +97,13 @@ internal class Chunk : IDisposable
             Neighbour.Right => new IntVector3(1, 0, 0),
             Neighbour.Bottom => new IntVector3(0, -1, 0),
             Neighbour.Top => new IntVector3(0, 1, 0),
-            Neighbour.Back => new IntVector3(0, 0, -1),
-            Neighbour.Front => new IntVector3(0, 0, 1),
+            Neighbour.Back => new IntVector3(0, 0, 1),
+            Neighbour.Front => new IntVector3(0, 0, -1),
             _ => throw new ArgumentOutOfRangeException(nameof(neighbour), neighbour, null)
         };
     }
 
-    private void AddQuadFor(IntVector3 block, Neighbour neighbour, List<float> vertices)
+    private void AddQuadFor(IntVector3 block, Neighbour neighbour, List<Vertex> vertices)
     {
         var neighbourBlock = GetBlockAtPos(block + GetOffset(neighbour));
 
@@ -99,58 +112,58 @@ internal class Chunk : IDisposable
         switch (neighbour)
         {
             case Neighbour.Left:
-                AddVertices(block + _topLeftBack, vertices);
-                AddVertices(block + _bottomLeftBack, vertices);
-                AddVertices(block + _topLeftFront, vertices);
+                AddVertices(block + _topLeftBack, vertices, new Vector2(0, 1));
+                AddVertices(block + _topLeftFront, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 0));
 
-                AddVertices(block + _topLeftFront, vertices);
-                AddVertices(block + _bottomLeftBack, vertices);
-                AddVertices(block + _bottomLeftFront, vertices);
+                AddVertices(block + _topLeftFront, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomLeftFront, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 0));
                 break;
             case Neighbour.Right:
-                AddVertices(block + _topRightBack, vertices);
-                AddVertices(block + _topRightFront, vertices);
-                AddVertices(block + _bottomRightBack, vertices);
-                
-                AddVertices(block + _bottomRightFront, vertices);
-                AddVertices(block + _bottomRightBack, vertices);
-                AddVertices(block + _topRightFront, vertices);
+                AddVertices(block + _topRightBack, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 0));
+                AddVertices(block + _topRightFront, vertices, new Vector2(0, 1));
+
+                AddVertices(block + _bottomRightFront, vertices, new Vector2(0, 0));
+                AddVertices(block + _topRightFront, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 0));
                 break;
             case Neighbour.Bottom:
-                AddVertices(block + _bottomRightFront, vertices);
-                AddVertices(block + _bottomLeftFront, vertices);
-                AddVertices(block + _bottomLeftBack, vertices);
+                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 0));
+                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 1));
 
-                AddVertices(block + _bottomRightBack, vertices);
-                AddVertices(block + _bottomRightFront, vertices);
-                AddVertices(block + _bottomLeftBack, vertices);
+                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 0));
+                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 1));
                 break;
             case Neighbour.Top:
-                AddVertices(block + _topRightBack, vertices);
-                AddVertices(block + _topLeftBack, vertices);
-                AddVertices(block + _topLeftFront, vertices);
+                AddVertices(block + _topRightBack, vertices, new Vector2(1, 1));
+                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 0));
+                AddVertices(block + _topLeftBack, vertices, new Vector2(0, 1));
                 
-                AddVertices(block + _topRightFront, vertices);
-                AddVertices(block + _topRightBack, vertices);
-                AddVertices(block + _topLeftFront, vertices);
+                AddVertices(block + _topRightFront, vertices, new Vector2(1, 0));
+                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 0));
+                AddVertices(block + _topRightBack, vertices, new Vector2(1, 1));
                 break;
             case Neighbour.Back:
-                AddVertices(block + _topLeftBack, vertices);
-                AddVertices(block + _topRightBack, vertices);
-                AddVertices(block + _bottomRightBack, vertices);
+                AddVertices(block + _topLeftBack, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomRightBack, vertices, new Vector2(0, 0));
+                AddVertices(block + _topRightBack, vertices, new Vector2(0, 1));
                 
-                AddVertices(block + _bottomLeftBack, vertices);
-                AddVertices(block + _topLeftBack, vertices);
-                AddVertices(block + _bottomRightBack, vertices);
+                AddVertices(block + _bottomLeftBack, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomRightBack, vertices, new Vector2(0, 0));
+                AddVertices(block + _topLeftBack, vertices, new Vector2(1, 1));
                 break;
             case Neighbour.Front:
-                AddVertices(block + _topRightFront, vertices);
-                AddVertices(block + _topLeftFront, vertices);
-                AddVertices(block + _bottomLeftFront, vertices);
+                AddVertices(block + _topRightFront, vertices, new Vector2(1, 1));
+                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 0));
+                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 1));
                 
-                AddVertices(block + _bottomRightFront, vertices);
-                AddVertices(block + _topRightFront, vertices);
-                AddVertices(block + _bottomLeftFront, vertices);
+                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 0));
+                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 0));
+                AddVertices(block + _topRightFront, vertices, new Vector2(1, 1));
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -171,11 +184,9 @@ internal class Chunk : IDisposable
         return Blocks[intVector3.X, intVector3.Y, intVector3.Z];
     }
 
-    private void AddVertices(IntVector3 intVector3, List<float> vertices)
+    private void AddVertices(IntVector3 pos, List<Vertex> vertices, Vector2 texCoord)
     {
-        vertices.Add(intVector3.X);
-        vertices.Add(intVector3.Y);
-        vertices.Add(intVector3.Z);
+        vertices.Add(new Vertex(new Vector3(pos.X, pos.Y, pos.Z), texCoord));
     }
 
     public void Dispose()
@@ -183,3 +194,5 @@ internal class Chunk : IDisposable
         UnloadModel(Model);
     }
 }
+
+public record struct Vertex(Vector3 Pos, Vector2 TextCoord);
