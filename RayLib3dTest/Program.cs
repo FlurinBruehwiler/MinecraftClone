@@ -1,5 +1,4 @@
-﻿global using static Raylib_cs.Raylib;
-global using static Raylib_cs.Rlgl;
+﻿
 
 using System.Numerics;
 using Raylib_cs;
@@ -41,16 +40,16 @@ foreach (var chunk in chunks)
             {
                 chunk.Blocks[x, y, z].Color = Random.Shared.Next(2) == 1 ? col1 : col2;
                 chunk.Blocks[x, y, z].IsAir = true;
-
+                
                 if (x == 0 && y == 0 && z == 0)
                 {
                     chunk.Blocks[x, y, z].IsAir = false;
                 }
-                
-                if (x == 0 && y == 0 && z == 1)
-                {
-                    chunk.Blocks[x, y, z].IsAir = false;
-                }
+                //
+                // if (x == 0 && y == 1 && z == 0)
+                // {
+                //     chunk.Blocks[x, y, z].IsAir = false;
+                // }
             }
         }
     }
@@ -71,6 +70,8 @@ while (!WindowShouldClose())
     ClearBackground(Color.RAYWHITE);
 
     BeginMode3D(camera);
+    
+    DrawGrid(20, 0.5f);
     
     foreach (var chunk in chunks)
     {

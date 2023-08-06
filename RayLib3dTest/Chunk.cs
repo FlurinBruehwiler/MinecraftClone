@@ -13,10 +13,10 @@ internal class Chunk : IDisposable
 
     private readonly IntVector3 _bottomLeftFront = new(0, 0, 0);
     private readonly IntVector3 _bottomRightFront = new(1, 0, 0);
-    private readonly IntVector3 _bottomLeftBack = new(0, 1, 0);
-    private readonly IntVector3 _bottomRightBack = new(1, 1, 0);
-    private readonly IntVector3 _topLeftFront = new(0, 0, 1);
-    private readonly IntVector3 _topRightFront = new(1, 0, 1);
+    private readonly IntVector3 _bottomLeftBack = new(0, 0, 1);
+    private readonly IntVector3 _bottomRightBack = new(1, 0, 1);
+    private readonly IntVector3 _topLeftFront = new(0, 1, 0);
+    private readonly IntVector3 _topRightFront = new(1, 1, 0);
     private readonly IntVector3 _topLeftBack = new(0, 1, 1);
     private readonly IntVector3 _topRightBack = new(1, 1, 1);
 
@@ -142,7 +142,6 @@ internal class Chunk : IDisposable
                 AddVertices(block + _bottomLeftBack, vertices);
                 AddVertices(block + _topLeftBack, vertices);
                 AddVertices(block + _bottomRightBack, vertices);
-                
                 break;
             case Neighbour.Front:
                 AddVertices(block + _topRightFront, vertices);
