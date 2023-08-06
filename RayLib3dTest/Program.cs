@@ -90,7 +90,7 @@ foreach (var chunk in chunks)
 void AddQuadFor(Chunk chunk, IntVector3 block, Neighbour neighbour)
 {
     var neighbourBlock = GetBlockAtPos(chunk, block + GetOffset(neighbour));
-
+    
     if (neighbourBlock is null || neighbourBlock.Value.IsAir)
     {
         chunk.Faces.Add(new Face(block, neighbour, chunk.Blocks[block.X, block.Y, block.Z].Color));
