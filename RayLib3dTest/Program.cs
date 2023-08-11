@@ -1,6 +1,4 @@
-﻿
-
-using System.Numerics;
+﻿using System.Numerics;
 using Raylib_cs;
 using RayLib3dTest;
 
@@ -14,12 +12,11 @@ var camera = new Camera3D(Vector3.Zero, Vector3.One, new Vector3(0, 1, 0), 60, C
 DisableCursor();
 SetTargetFPS(60);
 
-
 var chunks = new List<Chunk>();
 
-for (var x = 0; x < 1; x++)
+for (var x = 0; x < 10; x++)
 {
-    for (var z = 0; z < 2; z++)
+    for (var z = 0; z < 10; z++)
     {
         chunks.Add(new Chunk
         {
@@ -30,27 +27,26 @@ for (var x = 0; x < 1; x++)
 
 foreach (var chunk in chunks)
 {
-    var col1 = new Color(Random.Shared.Next(255), Random.Shared.Next(255), Random.Shared.Next(255), 255);
-    var col2 = new Color(Random.Shared.Next(255), Random.Shared.Next(255), Random.Shared.Next(255), 255);
-
     for (var x = 0; x < chunk.Blocks.GetLength(0); x++)
     {
-        for (var y = 0; y < chunk.Blocks.GetLength(1); y++)
+        for (var z = 0; z < chunk.Blocks.GetLength(2); z++)
         {
-            for (var z = 0; z < chunk.Blocks.GetLength(2); z++)
+            var blockPosX = chunk.Pos.X * 16 + x; 
+            var heightX = Math.Sin(blockPosX*10*Math.PI/180);
+            var betterHeightX = (heightX + 1) * 4; 
+            
+            var blockPosZ = chunk.Pos.Y * 16 + z; 
+            var heightZ = Math.Sin(blockPosZ*10*Math.PI/180);
+            var betterHeightZ = (heightZ + 1) * 4;
+
+            var finalHeight = betterHeightX + betterHeightZ;
+            
+            for (var y = 0; y < chunk.Blocks.GetLength(1); y++)
             {
-                chunk.Blocks[x, y, z].Color = Random.Shared.Next(2) == 1 ? col1 : col2;
-                // chunk.Blocks[x, y, z].IsAir = true;
-                //
-                // if (x == 0 && y == 0 && z == 0)
-                // {
-                //     chunk.Blocks[x, y, z].IsAir = false;
-                // }
-                //
-                // if (x == 0 && y == 0 && z == 1)
-                // {
-                //     chunk.Blocks[x, y, z].IsAir = false;
-                // }
+                if (y > finalHeight)
+                {
+                    chunk.Blocks[x, y, z].IsAir = true;
+                }
             }
         }
     }
@@ -84,7 +80,7 @@ while (!WindowShouldClose())
 CloseWindow();
 
 
-record struct Block
+record struct Block()
 {
     public Color Color;
     public bool IsAir;
