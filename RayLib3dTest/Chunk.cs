@@ -117,9 +117,9 @@ public class Chunk : IDisposable
         AddVertices(block + p2, vertices, bottomRight);
         AddVertices(block + p3, vertices, topRight);
 
-        AddVertices(block + p4, vertices, bottomRight);
-        AddVertices(block + p2, vertices, bottomLeft);
-        AddVertices(block + p1, vertices, topRight);
+        AddVertices(block + p4, vertices, bottomLeft);
+        AddVertices(block + p2, vertices, bottomRight);
+        AddVertices(block + p1, vertices, topLeft);
     }
 
     private void AddQuadFor(IntVector3 block, int blockId, BlockFace blockFace, List<Vertex> vertices)
