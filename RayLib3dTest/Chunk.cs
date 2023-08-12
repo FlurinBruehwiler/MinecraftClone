@@ -47,9 +47,17 @@ public class Chunk : IDisposable
                 for (var z = 0; z < Blocks.GetLength(2); z++)
                 {
                     var block = Blocks[x, y, z];
-                    if (!block.IsAir)
+                    
+                    var pos = new IntVector3(x, y, z);
+                    
+                    
+                    if (!block.IsAir())
                     {
-                        var pos = new IntVector3(x, y, z);
+                        if (Pos * 16 + pos is { X: 63, Y: 9, Z: 51 })
+                        {
+            
+                        }
+                        
                         AddQuadFor(pos, block.BlockId, BlockFace.Left, verticesList);
                         AddQuadFor(pos, block.BlockId, BlockFace.Right, verticesList);
                         AddQuadFor(pos, block.BlockId, BlockFace.Top, verticesList);
@@ -124,12 +132,12 @@ public class Chunk : IDisposable
 
     private void AddQuadFor(IntVector3 block, int blockId, BlockFace blockFace, List<Vertex> vertices)
     {
-        var neighbourBlock = _globalBoy.GetBlockAtPos(block + GetOffset(blockFace) + Pos * 16);
-        
+        var neighbourBlock = _globalBoy.GetBlockAtPos(Pos * 16 + block + GetOffset(blockFace));
+
         if (neighbourBlock is null)
             return;
         
-        if(!neighbourBlock.Value.IsAir)
+        if(!neighbourBlock.Value.IsAir())
             return;
         
         switch (blockFace)

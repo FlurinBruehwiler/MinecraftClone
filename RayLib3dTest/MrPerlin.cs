@@ -4,7 +4,7 @@ namespace RayLib3dTest;
 
 public static class MrPerlin
 {
-    private static Random _random = new Random();
+    private static Random _random = new Random(10);
     private static int[] _permutation;
 
     private static Vector2[] _gradients;
