@@ -114,12 +114,14 @@ while (!WindowShouldClose())
             ref var b = ref globalBoy.TryGetBlockAtPos(col.Value, out var wasFound);
             if (wasFound)
             {
-                b.BlockId = Blocks.Air.ID;
-            }
+                // b.BlockId = Blocks.Air.ID;
+                //
+                // var chunk = globalBoy.GetChunk(col.Value);
+                // chunk.GenMesh();
+                // chunk.GenModel();
 
-            var chunk = globalBoy.GetChunk(col.Value);
-            chunk.GenMesh();
-            chunk.GenModel();
+                myBlock = new Vector3(col.Value.X, col.Value.Y, col.Value.Z);
+            }
         }
         else
         {
@@ -139,25 +141,15 @@ while (!WindowShouldClose())
         DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y, chunk.Pos.Z * 16), 1, Color.WHITE);
     }
     
-    // DrawCube(myBlock, 0.1f, 0.1f, 0.1f, Color.RED);
+    DrawCube(new Vector3(myBlock.X + 0.5f, myBlock.Y + 0.5f, myBlock.Z + 0.5f), 1.1f, 1.1f, 1.1f, Color.RED);
     
-    // unsafe
-    // {
-    //     var vertices = new Span<float>(chunk22.Mesh.vertices, chunk22.Mesh.vertexCount * 3);
-    //     for (var i = 0; i < chunk22.Mesh.vertexCount; i++)
-    //     {
-    //         var a = i * 3;
-    //         var pos = new Vector3(vertices[a], vertices[a + 1], vertices[a + 2]);
-    //         DrawCube(pos, 0.1f, 0.1f, 0.1f, Color.BLACK);
-    //     }
-    // }
-
     EndMode3D();
 
     DrawRectangle(90, 90, 200, 100, new Color(0, 0, 0, 100));
     DrawText($"{(int)camera.position.X}, {(int)camera.position.Y}, {(int)camera.position.Z}, ", 100, 120, 20,
         Color.RED);
 
+    //crosshair
     const int thikness = 5;
     const int length = 10;
 
