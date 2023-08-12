@@ -158,6 +158,15 @@ while (!WindowShouldClose())
     DrawText($"{(int)camera.position.X}, {(int)camera.position.Y}, {(int)camera.position.Z}, ", 100, 120, 20,
         Color.RED);
 
+    const int thikness = 5;
+    const int length = 10;
+
+    const int centerX = screenWidth / 2;
+    const int centerY = screenHeight / 2;
+    
+    DrawRectangle(centerX - thikness / 2, centerY - length, thikness, length * 2, Color.BLACK);
+    DrawRectangle(centerX - length, centerY - thikness / 2, length * 2, thikness, Color.BLACK);
+
     EndDrawing();
 }
 

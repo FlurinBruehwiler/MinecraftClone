@@ -31,8 +31,6 @@ public class Chunk : IDisposable
     
     public unsafe void GenModel()
     {
-        UnloadModel(Model);
-        
         Model = LoadModelFromMesh(Mesh);
         Model.materials[0].maps->texture = _globalBoy.Texture2D;
     }
