@@ -26,6 +26,8 @@ var globalBoy = new GlobalBoy(textures)
     Texture2D = texture
 };
 
+var colcol = new Colcol(globalBoy);
+
 var data = MrPerlin.GenerateNoiseMap(400, 400, 1, 5, 5);
 
 foreach (var chunk in globalBoy.Chunks)
@@ -59,6 +61,8 @@ foreach (var chunk in globalBoy.Chunks)
 
 float speed = 60;
 const float sens = 60;
+
+Vector3 myBlock = new Vector3();
 
 while (!WindowShouldClose())
 {
@@ -102,7 +106,29 @@ while (!WindowShouldClose())
 
     UpdateCameraPro(ref camera, movDelta * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);
 
+    if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
+    {
+        var col = colcol.Raycast(camera.position, camera.target - camera.position, 5);
+        if (col is not null)
+        {
+            ref var b = ref globalBoy.TryGetBlockAtPos(col.Value, out var wasFound);
+            if (wasFound)
+            {
+                b.BlockId = Blocks.Air.ID;
+            }
+
+            var chunk = globalBoy.GetChunk(col.Value);
+            chunk.GenMesh();
+            chunk.GenModel();
+        }
+        else
+        {
+            Console.WriteLine("no hit");
+        }
+    }
+
     BeginDrawing();
+
 
     ClearBackground(Color.RAYWHITE);
 
@@ -112,13 +138,23 @@ while (!WindowShouldClose())
     {
         DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y, chunk.Pos.Z * 16), 1, Color.WHITE);
     }
-
-    DrawCube(new Vector3(0, 0, 0), 1, 1, 1, Color.BLACK);
+    
+    // DrawCube(myBlock, 0.1f, 0.1f, 0.1f, Color.RED);
+    
+    // unsafe
+    // {
+    //     var vertices = new Span<float>(chunk22.Mesh.vertices, chunk22.Mesh.vertexCount * 3);
+    //     for (var i = 0; i < chunk22.Mesh.vertexCount; i++)
+    //     {
+    //         var a = i * 3;
+    //         var pos = new Vector3(vertices[a], vertices[a + 1], vertices[a + 2]);
+    //         DrawCube(pos, 0.1f, 0.1f, 0.1f, Color.BLACK);
+    //     }
+    // }
 
     EndMode3D();
 
     DrawRectangle(90, 90, 200, 100, new Color(0, 0, 0, 100));
-    DrawText((1 / GetFrameTime()).ToString(), 100, 100, 20, Color.RED);
     DrawText($"{(int)camera.position.X}, {(int)camera.position.Y}, {(int)camera.position.Z}, ", 100, 120, 20,
         Color.RED);
 

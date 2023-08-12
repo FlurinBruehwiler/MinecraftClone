@@ -31,12 +31,16 @@ public class Chunk : IDisposable
     
     public unsafe void GenModel()
     {
+        UnloadModel(Model);
+        
         Model = LoadModelFromMesh(Mesh);
         Model.materials[0].maps->texture = _globalBoy.Texture2D;
     }
 
     public void GenMesh()
     {
+        UnloadMesh(ref Mesh);
+        
         var mesh = new Mesh();
         var verticesList = new List<Vertex>();
 
@@ -132,12 +136,14 @@ public class Chunk : IDisposable
 
     private void AddQuadFor(IntVector3 block, int blockId, BlockFace blockFace, List<Vertex> vertices)
     {
-        var neighbourBlock = _globalBoy.GetBlockAtPos(Pos * 16 + block + GetOffset(blockFace));
+        var neighbourBlock = _globalBoy.TryGetBlockAtPos(Pos * 16 + block + GetOffset(blockFace), out var wasFound);
 
-        if (neighbourBlock is null)
+        //is unloaded chunk
+        if (!wasFound)
             return;
         
-        if(!neighbourBlock.Value.IsAir())
+        //is solid block
+        if(!neighbourBlock.IsAir())
             return;
         
         switch (blockFace)

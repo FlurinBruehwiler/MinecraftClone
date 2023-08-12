@@ -1,4 +1,5 @@
-﻿using Raylib_cs;
+﻿using System.Numerics;
+using Raylib_cs;
 
 namespace RayLib3dTest;
 
@@ -6,6 +7,8 @@ public class GlobalBoy
 {
     public Chunk[,,] Chunks;
     public Texture2D Texture2D;
+
+    private Block _emptyBlock = new Block();
     
     public GlobalBoy(Textures textures)
     {
@@ -25,8 +28,15 @@ public class GlobalBoy
         }
     }
 
-    public Block? GetBlockAtPos(IntVector3 pos)
-    { 
+    public ref Block TryGetBlockAtPos(Vector3 pos, out bool wasFound)
+    {
+        return ref TryGetBlockAtPos(new IntVector3((int)pos.X, (int)pos.Y, (int)pos.Z), out wasFound);
+    }
+    
+    public ref Block TryGetBlockAtPos(IntVector3 pos, out bool wasFound)
+    {
+        wasFound = true;
+        
         var chunkPosX = GetChunk(pos.X);
         var chunkPosY = GetChunk(pos.Y);
         var chunkPosZ = GetChunk(pos.Z);
@@ -36,15 +46,24 @@ public class GlobalBoy
 
         if (chunkPosX is > 15 or < 0 || chunkPosY != 0 || chunkPosZ is > 15 or < 0)
         {
-            return null;
+            wasFound = false;
+            return ref _emptyBlock;
         }
 
         if (blockPosX is > 15 or < 0 || blockPosY is > 15 or < 0 || blockPosZ is > 15 or < 0)
-            return null;
+        {
+            wasFound = false;
+            return ref _emptyBlock;
+        }
 
-        return Chunks[chunkPosX, chunkPosY, chunkPosZ].Blocks[blockPosX, blockPosY, blockPosZ];
+        return ref Chunks[chunkPosX, chunkPosY, chunkPosZ].Blocks[blockPosX, blockPosY, blockPosZ];
     }
 
+    public Chunk GetChunk(IntVector3 pos)
+    {
+        return Chunks[GetChunk(pos.X),GetChunk(pos.Y),GetChunk(pos.Z)];
+    }
+    
     private int GetChunk(float x)
     {
         if(x < 0)
