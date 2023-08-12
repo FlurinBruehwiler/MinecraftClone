@@ -5,45 +5,34 @@ using RayLib3dTest;
 const int screenWidth = 1000;
 const int screenHeight = 700;
 
+
 InitWindow(screenWidth, screenHeight, "3dtest");
 
 var camera = new Camera3D(Vector3.Zero, Vector3.One, new Vector3(0, 1, 0), 60, CameraProjection.CAMERA_PERSPECTIVE);
 
 DisableCursor();
 SetTargetFPS(60);
+SetConfigFlags(ConfigFlags.FLAG_MSAA_4X_HINT);
 
-var chunks = new List<Chunk>();
+var texture = LoadTexture("resources/grass_block_side.png");
 
-for (var x = 0; x < 10; x++)
+var globalBoy = new GlobalBoy()
 {
-    for (var z = 0; z < 10; z++)
-    {
-        chunks.Add(new Chunk
-        {
-            Pos = new Vector2(x, z)
-        });
-    }
-}
+    Texture2D = texture
+};
 
-foreach (var chunk in chunks)
+var data = MrPerlin.GenerateNoiseMap(400, 400, 1, 5, 5);
+
+foreach (var chunk in globalBoy.Chunks)
 {
     for (var x = 0; x < chunk.Blocks.GetLength(0); x++)
     {
         for (var z = 0; z < chunk.Blocks.GetLength(2); z++)
         {
-            var blockPosX = chunk.Pos.X * 16 + x; 
-            var heightX = Math.Sin(blockPosX*10*Math.PI/180);
-            var betterHeightX = (heightX + 1) * 4; 
-            
-            var blockPosZ = chunk.Pos.Y * 16 + z; 
-            var heightZ = Math.Sin(blockPosZ*10*Math.PI/180);
-            var betterHeightZ = (heightZ + 1) * 4;
-
-            var finalHeight = betterHeightX + betterHeightZ;
-            
+            var height = Math.Clamp(data[(chunk.Pos.X * 16 + x) * 400 + (chunk.Pos.Z * 16 + z)], 0f, 1f) * 16;
             for (var y = 0; y < chunk.Blocks.GetLength(1); y++)
             {
-                if (y > finalHeight)
+                if (y > height)
                 {
                     chunk.Blocks[x, y, z].IsAir = true;
                 }
@@ -55,38 +44,73 @@ foreach (var chunk in chunks)
     chunk.GenModel();
 }
 
+const float playerSpeed = 1;
+
 while (!WindowShouldClose())
 {
-    UpdateCamera(ref camera, CameraMode.CAMERA_CUSTOM);
+    var movDelta = new Vector3();
+    var rotDelta = GetMouseDelta();
+    
+    if (IsKeyDown(KeyboardKey.KEY_W))
+    {
+        movDelta.X += playerSpeed;
+    }
+    
+    if (IsKeyDown(KeyboardKey.KEY_S))
+    {
+        movDelta.X -= playerSpeed;
+    }
+    
+    if (IsKeyDown(KeyboardKey.KEY_D))
+    {
+        movDelta.Y += playerSpeed;
+    }
+    
+    if (IsKeyDown(KeyboardKey.KEY_A))
+    {
+        movDelta.Y -= playerSpeed;
+    }
+    
+    if (IsKeyDown(KeyboardKey.KEY_SPACE))
+    {
+        movDelta.Z += playerSpeed;
+    }
+    
+    if (IsKeyDown(KeyboardKey.KEY_LEFT_SHIFT))
+    {
+        movDelta.Z -= playerSpeed;
+    }
+    
+    UpdateCameraPro(ref camera, movDelta, new Vector3(rotDelta * 0.5f, 0), 0);    
 
     BeginDrawing();
 
     ClearBackground(Color.RAYWHITE);
 
     BeginMode3D(camera);
-    
-    DrawGrid(20, 0.5f);
-    
-    foreach (var chunk in chunks)
+
+    foreach (var chunk in globalBoy.Chunks)
     {
-        DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, 0, chunk.Pos.Y * 16), 1, Color.WHITE);
+        DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, 0, chunk.Pos.Z * 16), 1, Color.WHITE);
     }
     
     EndMode3D();
 
+    DrawText((1 / GetFrameTime()).ToString(), 100, 100, 20, Color.RED);
+    
     EndDrawing();
 }
 
 CloseWindow();
 
 
-record struct Block()
+public record struct Block()
 {
     public Color Color;
     public bool IsAir;
 }
 
-enum Neighbour
+public enum Neighbour
 {
     Left,
     Right,
@@ -96,7 +120,7 @@ enum Neighbour
     Front
 }
 
-record struct IntVector3(int X, int Y, int Z)
+public record struct IntVector3(int X, int Y, int Z)
 {
     public static IntVector3 operator +(IntVector3 left, IntVector3 right)
     {
@@ -104,6 +128,15 @@ record struct IntVector3(int X, int Y, int Z)
             left.X + right.X,
             left.Y + right.Y,
             left.Z + right.Z
+        );
+    }
+    
+    public static IntVector3 operator *(IntVector3 left, int factor)
+    {
+        return new IntVector3(
+            left.X * factor,
+            left.Y * factor,
+            left.Z * factor
         );
     }
 }

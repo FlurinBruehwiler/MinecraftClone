@@ -4,12 +4,13 @@ using Raylib_cs;
 
 namespace RayLib3dTest;
 
-internal class Chunk : IDisposable
+public class Chunk : IDisposable
 {
+    private readonly GlobalBoy _globalBoy;
     public Mesh Mesh;
     public Model Model { get; set; }
     public Block[,,] Blocks { get; set; }
-    public required Vector2 Pos { get; init; }
+    public required IntVector3 Pos;
 
     private readonly IntVector3 _bottomLeftFront = new(0, 0, 0);
     private readonly IntVector3 _bottomRightFront = new(1, 0, 0);
@@ -19,19 +20,17 @@ internal class Chunk : IDisposable
     private readonly IntVector3 _topRightFront = new(1, 1, 0);
     private readonly IntVector3 _topLeftBack = new(0, 1, 1);
     private readonly IntVector3 _topRightBack = new(1, 1, 1);
-
-    private Texture2D _grasTexture;
     
-    public Chunk()
+    public Chunk(GlobalBoy globalBoy)
     {
+        _globalBoy = globalBoy;
         Blocks = new Block[16, 16, 16];
-        _grasTexture = LoadTexture("resources/grass_block_side.png");
     }
-
+    
     public unsafe void GenModel()
     {
         Model = LoadModelFromMesh(Mesh);
-        Model.materials[0].maps->texture = _grasTexture;
+        Model.materials[0].maps->texture = _globalBoy.Texture2D;
     }
 
     public void GenMesh()
@@ -105,10 +104,14 @@ internal class Chunk : IDisposable
 
     private void AddQuadFor(IntVector3 block, Neighbour neighbour, List<Vertex> vertices)
     {
-        var neighbourBlock = GetBlockAtPos(block + GetOffset(neighbour));
-
-        if (neighbourBlock is not null && !neighbourBlock.Value.IsAir) return;
-
+        var neighbourBlock = _globalBoy.GetBlockAtPos(block + GetOffset(neighbour) + Pos * 16);
+        
+        if (neighbourBlock is null)
+            return;
+        
+        if(!neighbourBlock.Value.IsAir)
+            return;
+        
         switch (neighbour)
         {
             case Neighbour.Left:
@@ -168,20 +171,6 @@ internal class Chunk : IDisposable
             default:
                 throw new ArgumentOutOfRangeException();
         }
-    }
-
-    private Block? GetBlockAtPos(IntVector3 intVector3)
-    {
-        if (intVector3.X is > 15 or < 0)
-            return null;
-
-        if (intVector3.Y is > 15 or < 0)
-            return null;
-
-        if (intVector3.Z is > 15 or < 0)
-            return null;
-
-        return Blocks[intVector3.X, intVector3.Y, intVector3.Z];
     }
 
     private void AddVertices(IntVector3 pos, List<Vertex> vertices, Vector2 texCoord)
