@@ -7,7 +7,7 @@ public class GlobalBoy
     public Chunk[,,] Chunks;
     public Texture2D Texture2D;
     
-    public GlobalBoy()
+    public GlobalBoy(Textures textures)
     {
         Chunks = new Chunk[16,1,16];
         for (var x = 0; x < 16; x++)
@@ -16,7 +16,7 @@ public class GlobalBoy
             {
                 for (var z = 0; z < 16; z++)
                 {
-                    Chunks[x, y, z] = new Chunk(this)
+                    Chunks[x, y, z] = new Chunk(this, textures)
                     {
                         Pos = new IntVector3(x, y, z)
                     };

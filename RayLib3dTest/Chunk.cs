@@ -7,6 +7,7 @@ namespace RayLib3dTest;
 public class Chunk : IDisposable
 {
     private readonly GlobalBoy _globalBoy;
+    private readonly Textures _textures;
     public Mesh Mesh;
     public Model Model { get; set; }
     public Block[,,] Blocks { get; set; }
@@ -21,9 +22,10 @@ public class Chunk : IDisposable
     private readonly IntVector3 _topLeftBack = new(0, 1, 1);
     private readonly IntVector3 _topRightBack = new(1, 1, 1);
     
-    public Chunk(GlobalBoy globalBoy)
+    public Chunk(GlobalBoy globalBoy, Textures textures)
     {
         _globalBoy = globalBoy;
+        _textures = textures;
         Blocks = new Block[16, 16, 16];
     }
     
@@ -48,12 +50,12 @@ public class Chunk : IDisposable
                     if (!block.IsAir)
                     {
                         var pos = new IntVector3(x, y, z);
-                        AddQuadFor(pos, Neighbour.Left, verticesList);
-                        AddQuadFor(pos, Neighbour.Right, verticesList);
-                        AddQuadFor(pos, Neighbour.Top, verticesList);
-                        AddQuadFor(pos, Neighbour.Bottom, verticesList);
-                        AddQuadFor(pos, Neighbour.Back, verticesList);
-                        AddQuadFor(pos, Neighbour.Front, verticesList);
+                        AddQuadFor(pos, block.BlockId, BlockFace.Left, verticesList);
+                        AddQuadFor(pos, block.BlockId, BlockFace.Right, verticesList);
+                        AddQuadFor(pos, block.BlockId, BlockFace.Top, verticesList);
+                        AddQuadFor(pos, block.BlockId, BlockFace.Bottom, verticesList);
+                        AddQuadFor(pos, block.BlockId, BlockFace.Back, verticesList);
+                        AddQuadFor(pos, block.BlockId, BlockFace.Front, verticesList);
                     }
                 }
             }
@@ -88,23 +90,41 @@ public class Chunk : IDisposable
         UploadMesh(ref Mesh, false);
     }
 
-    private IntVector3 GetOffset(Neighbour neighbour)
+    private IntVector3 GetOffset(BlockFace blockFace)
     {
-        return neighbour switch
+        return blockFace switch
         {
-            Neighbour.Left => new IntVector3(-1, 0, 0),
-            Neighbour.Right => new IntVector3(1, 0, 0),
-            Neighbour.Bottom => new IntVector3(0, -1, 0),
-            Neighbour.Top => new IntVector3(0, 1, 0),
-            Neighbour.Back => new IntVector3(0, 0, 1),
-            Neighbour.Front => new IntVector3(0, 0, -1),
-            _ => throw new ArgumentOutOfRangeException(nameof(neighbour), neighbour, null)
+            BlockFace.Left => new IntVector3(-1, 0, 0),
+            BlockFace.Right => new IntVector3(1, 0, 0),
+            BlockFace.Bottom => new IntVector3(0, -1, 0),
+            BlockFace.Top => new IntVector3(0, 1, 0),
+            BlockFace.Back => new IntVector3(0, 0, 1),
+            BlockFace.Front => new IntVector3(0, 0, -1),
+            _ => throw new ArgumentOutOfRangeException(nameof(blockFace), blockFace, null)
         };
     }
 
-    private void AddQuadFor(IntVector3 block, Neighbour neighbour, List<Vertex> vertices)
+    private void AddBetterVertices(IntVector3 block, IntVector3 p1, IntVector3 p2, IntVector3 p3, IntVector3 p4, List<Vertex> vertices,
+        int blockId, BlockFace blockFace)
     {
-        var neighbourBlock = _globalBoy.GetBlockAtPos(block + GetOffset(neighbour) + Pos * 16);
+        var texture = _textures.GetTexturePosForFace(blockId, blockFace);
+        var topLeft = new Vector2(0.1f * texture.X, 0.1f * texture.Y);
+        var topRight = new Vector2(topLeft.X + 0.1f, topLeft.Y);
+        var bottomLeft = new Vector2(topLeft.X, topLeft.Y + 0.1f);
+        var bottomRight = new Vector2(topRight.X, bottomLeft.Y);
+        
+        AddVertices(block + p1, vertices, topLeft);
+        AddVertices(block + p2, vertices, bottomRight);
+        AddVertices(block + p3, vertices, topRight);
+
+        AddVertices(block + p4, vertices, bottomRight);
+        AddVertices(block + p2, vertices, bottomLeft);
+        AddVertices(block + p1, vertices, topRight);
+    }
+
+    private void AddQuadFor(IntVector3 block, int blockId, BlockFace blockFace, List<Vertex> vertices)
+    {
+        var neighbourBlock = _globalBoy.GetBlockAtPos(block + GetOffset(blockFace) + Pos * 16);
         
         if (neighbourBlock is null)
             return;
@@ -112,61 +132,25 @@ public class Chunk : IDisposable
         if(!neighbourBlock.Value.IsAir)
             return;
         
-        switch (neighbour)
+        switch (blockFace)
         {
-            case Neighbour.Left:
-                AddVertices(block + _topLeftBack, vertices, new Vector2(0, 0));
-                AddVertices(block + _topLeftFront, vertices, new Vector2(1, 0));
-                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 1));
-
-                AddVertices(block + _topLeftFront, vertices, new Vector2(1, 0));
-                AddVertices(block + _bottomLeftFront, vertices, new Vector2(1, 1));
-                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 1));
+            case BlockFace.Left:
+                AddBetterVertices(block, _topLeftFront, _bottomLeftBack, _topLeftBack, _bottomLeftFront, vertices, blockId, blockFace);
                 break;
-            case Neighbour.Right:
-                AddVertices(block + _topRightBack, vertices, new Vector2(1, 0));
-                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 1));
-                AddVertices(block + _topRightFront, vertices, new Vector2(0, 0));
-
-                AddVertices(block + _bottomRightFront, vertices, new Vector2(0, 1));
-                AddVertices(block + _topRightFront, vertices, new Vector2(1, 0));
-                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 1));
+            case BlockFace.Right:
+                AddBetterVertices(block, _topRightBack, _bottomRightFront, _topRightFront, _bottomRightBack, vertices, blockId, blockFace);
                 break;
-            case Neighbour.Bottom:
-                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 0));
-                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 1));
-                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 0));
-
-                AddVertices(block + _bottomRightBack, vertices, new Vector2(1, 1));
-                AddVertices(block + _bottomLeftBack, vertices, new Vector2(0, 1));
-                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 0));
+            case BlockFace.Bottom:
+                AddBetterVertices(block, _bottomRightFront, _bottomLeftBack, _bottomLeftFront, _bottomRightBack, vertices, blockId, blockFace);
                 break;
-            case Neighbour.Top:
-                AddVertices(block + _topRightBack, vertices, new Vector2(1, 0));
-                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 1));
-                AddVertices(block + _topLeftBack, vertices, new Vector2(0, 0));
-                
-                AddVertices(block + _topRightFront, vertices, new Vector2(1, 1));
-                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 1));
-                AddVertices(block + _topRightBack, vertices, new Vector2(1, 0));
+            case BlockFace.Top:
+                AddBetterVertices(block, _topRightBack, _topLeftFront, _topLeftBack, _topRightFront, vertices, blockId, blockFace);
                 break;
-            case Neighbour.Back:
-                AddVertices(block + _topLeftBack, vertices, new Vector2(1, 0));
-                AddVertices(block + _bottomRightBack, vertices, new Vector2(0, 1));
-                AddVertices(block + _topRightBack, vertices, new Vector2(0, 0));
-                
-                AddVertices(block + _bottomLeftBack, vertices, new Vector2(1, 1));
-                AddVertices(block + _bottomRightBack, vertices, new Vector2(0, 1));
-                AddVertices(block + _topLeftBack, vertices, new Vector2(1, 0));
+            case BlockFace.Back:
+                AddBetterVertices(block, _topLeftBack, _bottomRightBack, _topRightBack, _bottomLeftBack, vertices, blockId, blockFace);
                 break;
-            case Neighbour.Front:
-                AddVertices(block + _topRightFront, vertices, new Vector2(1, 0));
-                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 1));
-                AddVertices(block + _topLeftFront, vertices, new Vector2(0, 0));
-                
-                AddVertices(block + _bottomRightFront, vertices, new Vector2(1, 1));
-                AddVertices(block + _bottomLeftFront, vertices, new Vector2(0, 1));
-                AddVertices(block + _topRightFront, vertices, new Vector2(1, 0));
+            case BlockFace.Front:
+                AddBetterVertices(block, _topRightFront, _bottomLeftFront, _topLeftFront, _bottomRightFront, vertices, blockId, blockFace);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

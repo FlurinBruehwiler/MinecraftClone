@@ -11,12 +11,17 @@ InitWindow(screenWidth, screenHeight, "3dtest");
 var camera = new Camera3D(Vector3.Zero, Vector3.One, new Vector3(0, 1, 0), 60, CameraProjection.CAMERA_PERSPECTIVE);
 
 DisableCursor();
-SetTargetFPS(60);
+SetTargetFPS(120);
 SetConfigFlags(ConfigFlags.FLAG_MSAA_4X_HINT);
 
-var texture = LoadTexture("resources/grass_block_side.png");
+var blocks = new Blocks();
+var textures = new Textures(blocks);
+var merger = new TextureManager(textures);
+merger.Merge();
 
-var globalBoy = new GlobalBoy()
+var texture = LoadTexture("resources/textureatlas.png");
+
+var globalBoy = new GlobalBoy(textures)
 {
     Texture2D = texture
 };
@@ -36,6 +41,8 @@ foreach (var chunk in globalBoy.Chunks)
                 {
                     chunk.Blocks[x, y, z].IsAir = true;
                 }
+
+                chunk.Blocks[x, y, z].BlockId = Blocks.Gras.ID;
             }
         }
     }
@@ -44,12 +51,15 @@ foreach (var chunk in globalBoy.Chunks)
     chunk.GenModel();
 }
 
-const float playerSpeed = 1;
+float speed = 60;
+const float sens = 60;
 
 while (!WindowShouldClose())
 {
     var movDelta = new Vector3();
     var rotDelta = GetMouseDelta();
+
+    var playerSpeed = speed * GetFrameTime();
     
     if (IsKeyDown(KeyboardKey.KEY_W))
     {
@@ -80,8 +90,10 @@ while (!WindowShouldClose())
     {
         movDelta.Z -= playerSpeed;
     }
+
+    speed += GetMouseWheelMoveV().Y * 5;
     
-    UpdateCameraPro(ref camera, movDelta, new Vector3(rotDelta * 0.5f, 0), 0);    
+    UpdateCameraPro(ref camera, movDelta * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);    
 
     BeginDrawing();
 
@@ -104,13 +116,13 @@ while (!WindowShouldClose())
 CloseWindow();
 
 
-public record struct Block()
+public record struct Block
 {
-    public Color Color;
+    public int BlockId;
     public bool IsAir;
 }
 
-public enum Neighbour
+public enum BlockFace
 {
     Left,
     Right,
@@ -137,6 +149,25 @@ public record struct IntVector3(int X, int Y, int Z)
             left.X * factor,
             left.Y * factor,
             left.Z * factor
+        );
+    }
+}
+
+public record struct IntVector2(int X, int Y)
+{
+    public static IntVector2 operator +(IntVector2 left, IntVector2 right)
+    {
+        return new IntVector2(
+            left.X + right.X,
+            left.Y + right.Y
+        );
+    }
+    
+    public static IntVector2 operator *(IntVector2 left, int factor)
+    {
+        return new IntVector2(
+            left.X * factor,
+            left.Y * factor
         );
     }
 }
