@@ -5,33 +5,24 @@ namespace RayLib3dTest;
 
 public class GlobalBoy
 {
-    public Chunk[,,] Chunks;
-    public Texture2D Texture2D;
-    public Shader Shader;
-
-    private Block _emptyBlock = new Block();
-    
-    public GlobalBoy(Textures textures)
+    public GlobalBoy(Texture2D texture2D)
     {
-        Chunks = new Chunk[16,1,16];
-        for (var x = 0; x < 16; x++)
-        {
-            for (var y = 0; y < 1; y++)
-            {
-                for (var z = 0; z < 16; z++)
-                {
-                    Chunks[x, y, z] = new Chunk(this, textures)
-                    {
-                        Pos = new IntVector3(x, y, z)
-                    };
-                }
-            }
-        }
+        Texture2D = texture2D;
     }
+    
+    public Dictionary<IntVector3, Chunk> Chunks = new();
+    public Texture2D Texture2D;
+
+    private Block _emptyBlock;
 
     public ref Block TryGetBlockAtPos(Vector3 pos, out bool wasFound)
     {
         return ref TryGetBlockAtPos(new IntVector3((int)pos.X, (int)pos.Y, (int)pos.Z), out wasFound);
+    }
+
+    public static IntVector3 GetChunkPos(Vector3 pos)
+    {
+        return new IntVector3(GetChunk(pos.X), GetChunk(pos.Y), GetChunk(pos.Z));
     }
     
     public ref Block TryGetBlockAtPos(IntVector3 pos, out bool wasFound)
@@ -57,15 +48,15 @@ public class GlobalBoy
             return ref _emptyBlock;
         }
 
-        return ref Chunks[chunkPosX, chunkPosY, chunkPosZ].Blocks[blockPosX, blockPosY, blockPosZ];
+        return ref Chunks[new IntVector3(chunkPosX, chunkPosY, chunkPosZ)].Blocks[blockPosX, blockPosY, blockPosZ];
     }
 
     public Chunk GetChunk(IntVector3 pos)
     {
-        return Chunks[GetChunk(pos.X),GetChunk(pos.Y),GetChunk(pos.Z)];
+        return Chunks[new IntVector3(GetChunk(pos.X),GetChunk(pos.Y),GetChunk(pos.Z))];
     }
     
-    private int GetChunk(float x)
+    private static int GetChunk(float x)
     {
         if(x < 0)
             return (int)Math.Floor(-(-x / 16));

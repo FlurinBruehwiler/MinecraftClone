@@ -8,7 +8,10 @@ const int screenHeight = 1080;
 
 InitWindow(screenWidth, screenHeight, "3dtest");
 
-var camera = new Camera3D(Vector3.Zero, Vector3.One, new Vector3(0, 1, 0), 60, CameraProjection.CAMERA_PERSPECTIVE);
+var camera = new Camera3D(Vector3.Zero, Vector3.One, new Vector3(0, 1, 0), 60, CameraProjection.CAMERA_PERSPECTIVE)
+{
+    fovy = 100
+};
 
 DisableCursor();
 SetTargetFPS(120);
@@ -25,45 +28,12 @@ var texture = LoadTexture("resources/textureatlas.png");
 var grassModel = LoadModel("grass.obj");
 
 // merger.GenerateBlockPreviews(texture);
-var globalBoy = new GlobalBoy(textures)
-{
-    Texture2D = texture,
-    // Shader = shader
-};
+var globalBoy = new GlobalBoy(texture);
 
 var colcol = new Colcol(globalBoy);
 var sirPhysics = new SirPhysics(colcol);
 
-var data = MrPerlin.GenerateNoiseMap(400, 400, 2, 5, 5);
-
-foreach (var chunk in globalBoy.Chunks)
-{
-    for (var x = 0; x < chunk.Blocks.GetLength(0); x++)
-    {
-        for (var z = 0; z < chunk.Blocks.GetLength(2); z++)
-        {
-            var height = (int)(Math.Clamp(data[(chunk.Pos.X * 16 + x) * 400 + (chunk.Pos.Z * 16 + z)], 0, 1) * 16);
-            for (var y = 0; y < chunk.Blocks.GetLength(1); y++)
-            {
-                if (y > height)
-                {
-                    chunk.Blocks[x, y, z].BlockId = Blocks.Air.ID;
-                }
-                else if (y == height)
-                {
-                    chunk.Blocks[x, y, z].BlockId = Blocks.Gras.ID;
-                }
-                else
-                {
-                    chunk.Blocks[x, y, z].BlockId = Blocks.Dirt.ID;
-                }
-            }
-        }
-    }
-
-    chunk.GenMesh();
-    chunk.GenModel();
-}
+var chunker = new Chunker(globalBoy, textures);
 
 float speed = 60;
 const float sens = 60;
@@ -74,9 +44,11 @@ List<Vector3> debugPoints = new();
 
 var selectedBlock = blocks.BlockList.First().Value;
 
+var stefano = new Vector3(50, 16, 50);
+
 while (!WindowShouldClose())
 {
-    var movDelta = new Vector3(0, 0,  isFlying ? 0 : -.1f);
+    var movDelta = new Vector3(0, isFlying ? 0 : -.1f, 0);
     var rotDelta = GetMouseDelta();
 
     var playerSpeed = speed * GetFrameTime();
@@ -104,27 +76,27 @@ while (!WindowShouldClose())
 
     if (IsKeyDown(KeyboardKey.KEY_D))
     {
-        movDelta.Y += playerSpeed;
+        movDelta.Z += playerSpeed;
     }
 
     if (IsKeyDown(KeyboardKey.KEY_A))
     {
-        movDelta.Y -= playerSpeed;
+        movDelta.Z -= playerSpeed;
     }
 
     if (IsKeyDown(KeyboardKey.KEY_SPACE))
     {
-        movDelta.Z += playerSpeed;
+        movDelta.Y += playerSpeed;
     }
 
     if (IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL))
     {
-        movDelta.Z -= playerSpeed;
+        movDelta.Y -= playerSpeed;
     }
     
     if (!isFlying)
     {
-        sirPhysics.VerticalCollisions(ref movDelta);
+        sirPhysics.VerticalCollisions(ref movDelta, camera.position);
     }
 
     if (IsKeyPressed(KeyboardKey.KEY_ENTER))
@@ -137,8 +109,10 @@ while (!WindowShouldClose())
     speed += GetMouseWheelMoveV().Y * 5;
     speed = Math.Max(speed, 0);
 
-    UpdateCameraPro(ref camera, movDelta * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);
+    UpdateCameraPro(ref camera, new Vector3(movDelta.X, movDelta.Z, movDelta.Y) * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);
 
+    chunker.LoadChunksIfNeccesary(camera.position);
+    
     if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
     {
         debugPoints.Clear();
@@ -182,19 +156,20 @@ while (!WindowShouldClose())
 
     BeginMode3D(camera);
 
-    foreach (var chunk in globalBoy.Chunks)
+    foreach (var (_, chunk) in globalBoy.Chunks)
     {
         DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y, chunk.Pos.Z * 16), 1, Color.WHITE);
-        
-        
     }
-
+    
+    DrawCube(stefano, 1, 1, 1, Color.BROWN);
+    DrawCube(stefano with { Y = stefano.Y - 1 }, 1, 1, 1, Color.BROWN);
+    
     EndMode3D();
 
     DrawRectangle(90, 90, 200, 100, new Color(0, 0, 0, 100));
     DrawText((1 / GetFrameTime()).ToString(), 100, 100, 20,
         Color.RED);
-    DrawText($"{(int)camera.position.X}, {(int)camera.position.Y}, {(int)camera.position.Z}, ", 100, 120, 20,
+    DrawText($"{camera.position.X}, {camera.position.Y}, {camera.position.Z}", 100, 120, 20,
         Color.RED);
 
     var topLeft = screenWidth / 2 - 100 * blocks.BlockList.Count / 2;

@@ -20,18 +20,36 @@ public class SirPhysics
         _colcol = colcol;
     }
     
-    public void VerticalCollisions(ref Vector3 velocity)
+    public void HorizontalCollisions(ref Vector3 velocity, Vector3 playerPos)
     {
-        float rayLength = Math.Abs(velocity.Z) + skinWidth;
+        float directionX = Math.Sign(velocity.X);
+        float rayLength = Math.Abs(velocity.X) + skinWidth;
 
         foreach (var verticalRayOrigin in _verticalRayOrigins)
         {
-            var origin = verticalRayOrigin;
+            var origin = verticalRayOrigin + playerPos;
             var hit = _colcol.Raycast(origin, new Vector3(0, -1, 0), rayLength, out _, out var distance);
 
             if (hit is not null)
             {
-                velocity.Z = -(distance - skinWidth);
+                velocity.Y = -(distance - skinWidth);
+                rayLength = distance;
+            }
+        }
+    }
+    
+    public void VerticalCollisions(ref Vector3 velocity, Vector3 playerPos)
+    {
+        float rayLength = Math.Abs(velocity.Y) + skinWidth;
+
+        foreach (var verticalRayOrigin in _verticalRayOrigins)
+        {
+            var origin = verticalRayOrigin + playerPos;
+            var hit = _colcol.Raycast(origin, new Vector3(0, -1, 0), rayLength, out _, out var distance);
+
+            if (hit is not null)
+            {
+                velocity.Y = -(distance - skinWidth);
                 rayLength = distance;
             }
         }
