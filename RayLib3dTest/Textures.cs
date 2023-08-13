@@ -8,6 +8,9 @@ public class Textures
     public const string Dirt = "dirt";
     public const string Grass = "grass";
     public const string GrassTop = "grasstop";
+    public const string OakPlank = "oak_planks";
+    public const string Cobblestone = "cobblestone";
+    public const string DiamonBlock = "diamond_block";
 
     public Dictionary<string, int> TextureList { get; }
 

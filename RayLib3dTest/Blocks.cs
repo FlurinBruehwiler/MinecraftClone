@@ -26,6 +26,27 @@ public class Blocks
         Texture = Textures.Dirt,
     };
     
+    public static BlockDefinition WoodenPlank = new()
+    {
+        ID = 3,
+        Name = "WoodenPlank",
+        Texture = Textures.OakPlank,
+    };
+    
+    public static BlockDefinition Cobblestone = new()
+    {
+        ID = 4,
+        Name = "Cobblestone",
+        Texture = Textures.Cobblestone,
+    };
+    
+    public static BlockDefinition DiamondBlock = new()
+    {
+        ID = 5,
+        Name = "Diamon Block",
+        Texture = Textures.DiamonBlock,
+    };
+    
     public Dictionary<int, BlockDefinition> BlockList { get; }
 
     public Blocks()

@@ -11,11 +11,10 @@ public class Colcol
         _globalBoy = globalBoy;
     }
     
-    public IntVector3? Raycast(Vector3 pos, Vector3 dir, float length, out IntVector3 previousBlock)
+    public IntVector3? Raycast(Vector3 pos, Vector3 dir, float length, out IntVector3 previousBlock, out float distance)
     {
         dir = Vector3.Normalize(dir);
-
-        var t = 0.0f;
+        distance = 0f;
         var start = pos.ToIntVector3();
         previousBlock = new IntVector3();
         
@@ -41,14 +40,16 @@ public class Colcol
         
         var steppedIndex = -1;
         
-        while (t <= length)
+        while (distance <= length)
         {
             var b = _globalBoy.TryGetBlockAtPos(start, out var wasFound);
 
             if (wasFound)
             {
                 if (!b.IsAir())
+                {
                     return start;
+                }
             }
             
             previousBlock = start;
@@ -58,14 +59,14 @@ public class Colcol
                 if (tMax.X < tMax.Z)
                 {
                     start.X += step.X;
-                    t = tMax.X;
+                    distance = tMax.X;
                     tMax.X += delta.X;
                     steppedIndex = 0;
                 }
                 else
                 {
                     start.Z += step.Z;
-                    t = tMax.Z;
+                    distance = tMax.Z;
                     tMax.Z += delta.Z;
                     steppedIndex = 2;
                 }
@@ -75,14 +76,14 @@ public class Colcol
                 if (tMax.Y < tMax.Z)
                 {
                     start.Y += step.Y;
-                    t = tMax.Y;
+                    distance = tMax.Y;
                     tMax.Y += delta.Y;
                     steppedIndex = 1;
                 }
                 else
                 {
                     start.Z += step.Z;
-                    t = tMax.Z;
+                    distance = tMax.Z;
                     tMax.Z += delta.Z;
                     steppedIndex = 2;
                 }

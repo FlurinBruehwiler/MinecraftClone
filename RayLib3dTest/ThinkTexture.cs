@@ -1,12 +1,13 @@
-﻿using SkiaSharp;
+﻿using Raylib_cs;
+using SkiaSharp;
 
 namespace RayLib3dTest;
 
-public class TextureManager
+public class ThinkTexture
 {
     private readonly Textures _textures;
 
-    public TextureManager(Textures textures)
+    public ThinkTexture(Textures textures)
     {
         _textures = textures;
     }
@@ -22,6 +23,34 @@ public class TextureManager
         using var data = img.Encode(SKEncodedImageFormat.Png, 80);
         using var stream = File.OpenWrite("Resources/textureatlas.png");
         data.SaveTo(stream);
+    }
+
+    public void GenerateBlockPreviews(Texture2D texture2D)
+    {
+        var renderTarget = new RenderTexture2D
+        {
+            texture = new Texture2D
+            {
+                height = 1000,
+                width = 1000,
+                format = PixelFormat.PIXELFORMAT_COMPRESSED_DXT1_RGBA
+            }
+        };
+        BeginTextureMode(renderTarget);
+
+        var camera = new Camera3D
+        {
+            projection = CameraProjection.CAMERA_ORTHOGRAPHIC
+        };
+
+        BeginMode3D(camera);
+        
+        
+        
+        EndMode3D();
+        
+        EndTextureMode();
+
     }
 
     private void Draw(SKCanvas canvas)

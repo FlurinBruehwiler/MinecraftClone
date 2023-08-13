@@ -2,8 +2,8 @@
 using Raylib_cs;
 using RayLib3dTest;
 
-const int screenWidth = 1000;
-const int screenHeight = 700;
+const int screenWidth = 1920;
+const int screenHeight = 1080;
 
 
 InitWindow(screenWidth, screenHeight, "3dtest");
@@ -16,12 +16,15 @@ SetConfigFlags(ConfigFlags.FLAG_MSAA_4X_HINT);
 
 var blocks = new Blocks();
 var textures = new Textures(blocks);
-var merger = new TextureManager(textures);
+var merger = new ThinkTexture(textures);
 merger.Merge();
 
 var texture = LoadTexture("resources/textureatlas.png");
 // var shader = LoadShader("Resources/shader.glsl", "Resources/shader.glsl");
 
+var grassModel = LoadModel("grass.obj");
+
+// merger.GenerateBlockPreviews(texture);
 var globalBoy = new GlobalBoy(textures)
 {
     Texture2D = texture,
@@ -29,6 +32,7 @@ var globalBoy = new GlobalBoy(textures)
 };
 
 var colcol = new Colcol(globalBoy);
+var sirPhysics = new SirPhysics(colcol);
 
 var data = MrPerlin.GenerateNoiseMap(400, 400, 2, 5, 5);
 
@@ -64,15 +68,30 @@ foreach (var chunk in globalBoy.Chunks)
 float speed = 60;
 const float sens = 60;
 
+bool isFlying = true;
+
 List<Vector3> debugPoints = new();
+
+var selectedBlock = blocks.BlockList.First().Value;
 
 while (!WindowShouldClose())
 {
-    var movDelta = new Vector3();
+    var movDelta = new Vector3(0, 0,  isFlying ? 0 : -.1f);
     var rotDelta = GetMouseDelta();
 
     var playerSpeed = speed * GetFrameTime();
 
+    var x = GetKeyPressed();
+
+    if (x is >= 48 and <= 57)
+    {
+        var idx = x - 49;
+        if (blocks.BlockList.TryGetValue(idx, out var bd))
+        {
+            selectedBlock = bd;
+        }
+    }
+    
     if (IsKeyDown(KeyboardKey.KEY_W))
     {
         movDelta.X += playerSpeed;
@@ -102,6 +121,18 @@ while (!WindowShouldClose())
     {
         movDelta.Z -= playerSpeed;
     }
+    
+    if (!isFlying)
+    {
+        sirPhysics.VerticalCollisions(ref movDelta);
+    }
+
+    if (IsKeyPressed(KeyboardKey.KEY_ENTER))
+    {
+        isFlying = !isFlying;
+    }
+    
+    //list of nice names: deepsign
 
     speed += GetMouseWheelMoveV().Y * 5;
     speed = Math.Max(speed, 0);
@@ -112,7 +143,7 @@ while (!WindowShouldClose())
     {
         debugPoints.Clear();
         
-        var col = colcol.Raycast(camera.position, camera.target - camera.position, 10, out _);
+        var col = colcol.Raycast(camera.position, camera.target - camera.position, 10, out _, out _);
         if (col is not null)
         {
             ref var b = ref globalBoy.TryGetBlockAtPos(col.Value, out var wasFound);
@@ -129,13 +160,13 @@ while (!WindowShouldClose())
 
     if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT))
     {
-        var col = colcol.Raycast(camera.position, camera.target - camera.position, 10, out var previousBlock);
+        var col = colcol.Raycast(camera.position, camera.target - camera.position, 10, out var previousBlock, out _);
         if (col is not null)
         {
             ref var b = ref globalBoy.TryGetBlockAtPos(previousBlock, out var wasFound);
             if (wasFound)
             {
-                b.BlockId = Blocks.Dirt.ID;
+                b.BlockId = selectedBlock.ID;
                 
                 var chunk = globalBoy.GetChunk(previousBlock);
                 chunk.GenMesh();
@@ -154,13 +185,10 @@ while (!WindowShouldClose())
     foreach (var chunk in globalBoy.Chunks)
     {
         DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y, chunk.Pos.Z * 16), 1, Color.WHITE);
+        
+        
     }
-    
-    foreach (var debugPoint in debugPoints)
-    {
-        // DrawCube(debugPoint, .1f, .1f, .1f, Color.RED);
-    }
-    
+
     EndMode3D();
 
     DrawRectangle(90, 90, 200, 100, new Color(0, 0, 0, 100));
@@ -168,6 +196,18 @@ while (!WindowShouldClose())
         Color.RED);
     DrawText($"{(int)camera.position.X}, {(int)camera.position.Y}, {(int)camera.position.Z}, ", 100, 120, 20,
         Color.RED);
+
+    var topLeft = screenWidth / 2 - 100 * blocks.BlockList.Count / 2;
+    DrawRectangle(topLeft, screenHeight - 100, 100 * blocks.BlockList.Count, 100, new Color(0, 0, 0, 100));
+    foreach (var blockDefinition in blocks.BlockList)
+    {
+        if (blockDefinition.Value == selectedBlock)
+        {
+            DrawRectangle(topLeft, screenHeight - 100, 100, 100, new Color(0, 0, 0, 200));
+        }
+        DrawText(blockDefinition.Value.Name, topLeft, screenHeight - 100, 12, Color.WHITE);
+        topLeft += 100;
+    }
     
 
     //crosshair
