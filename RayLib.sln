@@ -5,8 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RayLib3dTest", "RayLib3dTest\RayLib3dTest.csproj", "{E66894AB-1437-4ADA-9DE1-DCC5CAE5313E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RayLibTest", "RayLibTest\RayLibTest.csproj", "{184AF643-1268-4EC5-A575-E0FF83DD7C36}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,9 +18,5 @@ Global
 		{E66894AB-1437-4ADA-9DE1-DCC5CAE5313E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E66894AB-1437-4ADA-9DE1-DCC5CAE5313E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E66894AB-1437-4ADA-9DE1-DCC5CAE5313E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{184AF643-1268-4EC5-A575-E0FF83DD7C36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{184AF643-1268-4EC5-A575-E0FF83DD7C36}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{184AF643-1268-4EC5-A575-E0FF83DD7C36}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{184AF643-1268-4EC5-A575-E0FF83DD7C36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

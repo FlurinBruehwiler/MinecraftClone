@@ -33,7 +33,7 @@ public class Chunker
 
     private Chunk GenGhunk(IntVector3 pos)
     {
-        var data = MrPerlin.GenerateNoiseMap(400, 400, 2, 5, 5);
+        var data = MrPerlin.GenerateNoiseMap(pos.X * 16, pos.Z * 16, 16, 16, 2, 5, 5);
 
         var chunk = new Chunk(_globalBoy, _textures)
         {
@@ -44,7 +44,7 @@ public class Chunker
         {
             for (var z = 0; z < 16; z++)
             {
-                var height = (int)(Math.Clamp(data[(pos.X * 16 + x) * 400 + (pos.Z * 16 + z)], 0, 1) * 16);
+                var height = (int)(Math.Clamp(data[x * 16 + z], 0, 1) * 16);
                 for (var y = 0; y < 16; y++)
                 {
                     if (y > height)

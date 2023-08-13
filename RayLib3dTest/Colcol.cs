@@ -38,8 +38,6 @@ public class Colcol
             delta.Y * dist.Y, 
             delta.Z * dist.Z);
         
-        var steppedIndex = -1;
-        
         while (distance <= length)
         {
             var b = _globalBoy.TryGetBlockAtPos(start, out var wasFound);
@@ -61,14 +59,12 @@ public class Colcol
                     start.X += step.X;
                     distance = tMax.X;
                     tMax.X += delta.X;
-                    steppedIndex = 0;
                 }
                 else
                 {
                     start.Z += step.Z;
                     distance = tMax.Z;
                     tMax.Z += delta.Z;
-                    steppedIndex = 2;
                 }
             }
             else
@@ -78,14 +74,12 @@ public class Colcol
                     start.Y += step.Y;
                     distance = tMax.Y;
                     tMax.Y += delta.Y;
-                    steppedIndex = 1;
                 }
                 else
                 {
                     start.Z += step.Z;
                     distance = tMax.Z;
                     tMax.Z += delta.Z;
-                    steppedIndex = 2;
                 }
             }
         }

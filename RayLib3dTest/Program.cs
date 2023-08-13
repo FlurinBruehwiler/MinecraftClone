@@ -25,7 +25,7 @@ merger.Merge();
 var texture = LoadTexture("resources/textureatlas.png");
 // var shader = LoadShader("Resources/shader.glsl", "Resources/shader.glsl");
 
-var grassModel = LoadModel("grass.obj");
+// var grassModel = LoadModel("grass.obj");
 
 // merger.GenerateBlockPreviews(texture);
 var globalBoy = new GlobalBoy(texture);

@@ -36,7 +36,7 @@ public class GlobalBoy
         var blockPosY = GetBlock(pos.Y);
         var blockPosZ = GetBlock(pos.Z);
 
-        if (chunkPosX is > 15 or < 0 || chunkPosY != 0 || chunkPosZ is > 15 or < 0)
+        if (!Chunks.ContainsKey(new IntVector3(chunkPosX, chunkPosY, chunkPosZ)))
         {
             wasFound = false;
             return ref _emptyBlock;
