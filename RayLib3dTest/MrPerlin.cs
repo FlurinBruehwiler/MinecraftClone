@@ -92,7 +92,7 @@ public static class MrPerlin
         return Math.Max(Math.Min(total, 1f), -1f);
     }
 
-    public static float[] GenerateNoiseMap(int x, int z, int width, int height, int octaves, float frequency = 0.5f, float amplitude = 1f)
+    public static float[] GenerateNoiseMap(int x, int z, int width, int height, int octaves, float frequency = 0.5f, float amplitude = .5f)
     {
         var data = new float[width * height];
 
@@ -109,7 +109,7 @@ public static class MrPerlin
                 {
                     var i = offset % width;
                     var j = offset / width;
-                    var noise = Noise((i) * frequency *1f / width, (j) * frequency * 1f / height);
+                    var noise =  Noise(i * frequency / width, j * frequency / height);
                     noise = data[j * width + i] += noise * amplitude;
 
                     min = Math.Min(min, noise);
