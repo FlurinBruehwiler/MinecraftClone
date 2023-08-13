@@ -20,17 +20,17 @@ var merger = new TextureManager(textures);
 merger.Merge();
 
 var texture = LoadTexture("resources/textureatlas.png");
-var shader = LoadShader("Resources/shader.glsl", "Resources/shader.glsl");
+// var shader = LoadShader("Resources/shader.glsl", "Resources/shader.glsl");
 
 var globalBoy = new GlobalBoy(textures)
 {
     Texture2D = texture,
-    Shader = shader
+    // Shader = shader
 };
 
 var colcol = new Colcol(globalBoy);
 
-var data = MrPerlin.GenerateNoiseMap(400, 400, 1, 5, 5);
+var data = MrPerlin.GenerateNoiseMap(400, 400, 2, 5, 5);
 
 foreach (var chunk in globalBoy.Chunks)
 {
@@ -61,7 +61,7 @@ foreach (var chunk in globalBoy.Chunks)
     chunk.GenModel();
 }
 
-float speed = 600;
+float speed = 60;
 const float sens = 60;
 
 List<Vector3> debugPoints = new();
