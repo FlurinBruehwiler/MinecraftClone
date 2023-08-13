@@ -7,6 +7,7 @@ public class GlobalBoy
 {
     public Chunk[,,] Chunks;
     public Texture2D Texture2D;
+    public Shader Shader;
 
     private Block _emptyBlock = new Block();
     

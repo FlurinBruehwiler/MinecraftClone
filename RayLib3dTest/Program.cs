@@ -20,10 +20,12 @@ var merger = new TextureManager(textures);
 merger.Merge();
 
 var texture = LoadTexture("resources/textureatlas.png");
+var shader = LoadShader("Resources/shader.glsl", "Resources/shader.glsl");
 
 var globalBoy = new GlobalBoy(textures)
 {
-    Texture2D = texture
+    Texture2D = texture,
+    Shader = shader
 };
 
 var colcol = new Colcol(globalBoy);
@@ -59,10 +61,10 @@ foreach (var chunk in globalBoy.Chunks)
     chunk.GenModel();
 }
 
-float speed = 60;
+float speed = 600;
 const float sens = 60;
 
-Vector3 myBlock = new Vector3();
+List<Vector3> debugPoints = new();
 
 while (!WindowShouldClose())
 {
@@ -96,7 +98,7 @@ while (!WindowShouldClose())
         movDelta.Z += playerSpeed;
     }
 
-    if (IsKeyDown(KeyboardKey.KEY_LEFT_SHIFT))
+    if (IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL))
     {
         movDelta.Z -= playerSpeed;
     }
@@ -108,24 +110,37 @@ while (!WindowShouldClose())
 
     if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
     {
-        var col = colcol.Raycast(camera.position, camera.target - camera.position, 5);
+        debugPoints.Clear();
+        
+        var col = colcol.Raycast(camera.position, camera.target - camera.position, 10, out _);
         if (col is not null)
         {
             ref var b = ref globalBoy.TryGetBlockAtPos(col.Value, out var wasFound);
             if (wasFound)
             {
-                // b.BlockId = Blocks.Air.ID;
-                //
-                // var chunk = globalBoy.GetChunk(col.Value);
-                // chunk.GenMesh();
-                // chunk.GenModel();
-
-                myBlock = new Vector3(col.Value.X, col.Value.Y, col.Value.Z);
+                b.BlockId = Blocks.Air.ID;
+                
+                var chunk = globalBoy.GetChunk(col.Value);
+                chunk.GenMesh();
+                chunk.GenModel();
             }
         }
-        else
+    }
+
+    if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT))
+    {
+        var col = colcol.Raycast(camera.position, camera.target - camera.position, 10, out var previousBlock);
+        if (col is not null)
         {
-            Console.WriteLine("no hit");
+            ref var b = ref globalBoy.TryGetBlockAtPos(previousBlock, out var wasFound);
+            if (wasFound)
+            {
+                b.BlockId = Blocks.Dirt.ID;
+                
+                var chunk = globalBoy.GetChunk(previousBlock);
+                chunk.GenMesh();
+                chunk.GenModel();
+            }
         }
     }
 
@@ -141,13 +156,19 @@ while (!WindowShouldClose())
         DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y, chunk.Pos.Z * 16), 1, Color.WHITE);
     }
     
-    DrawCube(new Vector3(myBlock.X + 0.5f, myBlock.Y + 0.5f, myBlock.Z + 0.5f), 1.1f, 1.1f, 1.1f, Color.RED);
+    foreach (var debugPoint in debugPoints)
+    {
+        // DrawCube(debugPoint, .1f, .1f, .1f, Color.RED);
+    }
     
     EndMode3D();
 
     DrawRectangle(90, 90, 200, 100, new Color(0, 0, 0, 100));
+    DrawText((1 / GetFrameTime()).ToString(), 100, 100, 20,
+        Color.RED);
     DrawText($"{(int)camera.position.X}, {(int)camera.position.Y}, {(int)camera.position.Z}, ", 100, 120, 20,
         Color.RED);
+    
 
     //crosshair
     const int thikness = 5;

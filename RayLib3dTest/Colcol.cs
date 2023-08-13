@@ -11,12 +11,13 @@ public class Colcol
         _globalBoy = globalBoy;
     }
     
-    public IntVector3? Raycast(Vector3 pos, Vector3 dir, float length)
+    public IntVector3? Raycast(Vector3 pos, Vector3 dir, float length, out IntVector3 previousBlock)
     {
         dir = Vector3.Normalize(dir);
 
         var t = 0.0f;
-        var start = pos.GetContainingBlock();
+        var start = pos.ToIntVector3();
+        previousBlock = new IntVector3();
         
         var step = new IntVector3(
             dir.X > 0 ? 1 : -1, 
@@ -24,9 +25,9 @@ public class Colcol
             dir.Z > 0 ? 1 : -1);
         
         var delta = new Vector3(
-            1 / dir.X, 
-            1 / dir.Y, 
-            1 / dir.Z);
+            Math.Abs(1 / dir.X), 
+            Math.Abs(1 / dir.Y), 
+            Math.Abs(1 / dir.Z));
         
         var dist = new Vector3(
             step.X > 0 ? start.X + 1 - pos.X : pos.X - start.X,
@@ -39,17 +40,19 @@ public class Colcol
             delta.Z * dist.Z);
         
         var steppedIndex = -1;
-
+        
         while (t <= length)
         {
             var b = _globalBoy.TryGetBlockAtPos(start, out var wasFound);
 
-            if (!wasFound)
-                return null;
+            if (wasFound)
+            {
+                if (!b.IsAir())
+                    return start;
+            }
             
-            if (!b.IsAir())
-                return start;
-
+            previousBlock = start;
+            
             if (tMax.X < tMax.Y)
             {
                 if (tMax.X < tMax.Z)

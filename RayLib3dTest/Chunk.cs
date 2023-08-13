@@ -33,6 +33,11 @@ public class Chunk : IDisposable
     {
         Model = LoadModelFromMesh(Mesh);
         Model.materials[0].maps->texture = _globalBoy.Texture2D;
+        Model.materials[0].shader = _globalBoy.Shader;
+    }
+
+    public void Shaddrus()
+    {
     }
 
     public void GenMesh()
