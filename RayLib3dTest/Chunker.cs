@@ -43,7 +43,7 @@ public class Chunker
 
     private Chunk GetChunk(IntVector3 pos)
     {
-        var data = MrPerlin.GenerateNoiseMap(pos.X * 16, pos.Z * 16, 16, 16, 1, 2, 2);
+        var data = MrPerlin.GenerateNoiseMap(pos.X * 16, pos.Z * 16, 16, 16, 1, 1, 2);
 
         var chunk = new Chunk(_globalBoy, _textures)
         {

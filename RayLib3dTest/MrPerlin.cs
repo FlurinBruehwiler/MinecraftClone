@@ -4,7 +4,7 @@ namespace RayLib3dTest;
 
 public static class MrPerlin
 {
-    private static Random _random = new Random(10);
+    private static Random _random = new(10);
     private static int[] _permutation;
 
     private static Vector2[] _gradients;
@@ -70,6 +70,9 @@ public static class MrPerlin
 
     public static float Noise(float x, float y)
     {
+        Console.WriteLine(x);
+        Console.WriteLine(y);
+        
         var cell = new Vector2((float)Math.Floor(x), (float)Math.Floor(y));
 
         var total = 0f;
