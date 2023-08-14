@@ -16,7 +16,7 @@ public class MrPerlin {
 		for(int i=0;i<octaves;i++) {
 			total += perlin(x * frequency, y * frequency, z * frequency) * amplitude;
 			
-			maxValue += amplitude;
+			maxValue += amplitude; 
 			
 			amplitude *= persistence;
 			frequency *= 2;
