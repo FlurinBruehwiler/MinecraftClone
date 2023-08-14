@@ -84,8 +84,8 @@ public static class MrPerlin
             var ij = cell + n;
             var uv = new Vector2(x - ij.X, y - ij.Y);
 
-            var index = _permutation[(int)ij.X % _permutation.Length];
-            index = _permutation[(index + (int)ij.Y) % _permutation.Length];
+            var index = _permutation[(int)Math.Abs(ij.X) % _permutation.Length];
+            index = _permutation[(index + (int)Math.Abs(ij.Y)) % _permutation.Length];
 
             var grad = _gradients[index % _gradients.Length];
 
@@ -95,30 +95,58 @@ public static class MrPerlin
         return Math.Max(Math.Min(total, 1f), -1f);
     }
 
-    public static float[] GenerateNoiseMap(int x, int z, int width, int height, int octaves, float frequency = 0.5f, float amplitude = .5f)
+    public static float[] GenerateNoiseMap(int xStart, int zStart, int width, int height, int octaves, float frequency = 0.5f, float amplitude = .5f)
     {
         var data = new float[width * height];
 
+        for (var x = 0; x < width; x++)
+        {
+            for (var z = 0; z < height; z++)
+            {
+                var actualX = xStart + x;
+                var heightX = Math.Sin((actualX + 8) *10*Math.PI/180);
+
+                var actualZ = zStart + z;
+                var heightZ = Math.Sin((actualZ)*10*Math.PI/180);
+                
+                data[x * width + z] = ((float)(heightX + heightZ) / 4) + 0.4f;
+            }
+        }
+        
+
+        return data;
         var min = float.MaxValue;
         var max = float.MinValue;
+
+        var xSign = Math.Sign(xStart);
+        var zSign = Math.Sign(zStart);
+
+        var xAbs = Math.Abs(xStart);
+        var zAbs = Math.Abs(zStart);
         
         Reseed();
 
         for (var octave = 0; octave < octaves; octave++)
         {
-            Parallel.For(0
-                ,width * height
-                ,offset =>
-                {
-                    var i = offset % width;
-                    var j = offset / width;
-                    var noise =  Noise(i * frequency / width, j * frequency / height);
-                    noise = data[j * width + i] += noise * amplitude;
+            for (int offset = 0; offset < width * height; offset++)
+            {
+                var i = offset % width;
+                var j = offset / width;
+                var noise =  Noise(  xSign * ((i + xAbs) * frequency / (width + xAbs)),
+                    zSign * ((j + zAbs) * frequency / (height + zAbs)));
+                noise = data[j * width + i] += noise * amplitude;
 
-                    min = Math.Min(min, noise);
-                    max = Math.Max(max, noise);
-                }
-            );
+                min = Math.Min(min, noise);
+                max = Math.Max(max, noise);
+            }
+            
+            // Parallel.For(0
+            //     ,width * height
+            //     ,offset =>
+            //     {
+            //
+            //     }
+            // );
 
             frequency *= 2;
             amplitude /= 2;

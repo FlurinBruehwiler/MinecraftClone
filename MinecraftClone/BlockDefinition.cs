@@ -9,7 +9,7 @@ public class BlockDefinition
     public string BackTexture { get; set; } = null!;
     public string FrontTexture { get; set; } = null!;
     public required string Name { get; set; }
-    public required int ID { get; set; }
+    public required ushort ID { get; set; }
 
     public string SideTexture
     {

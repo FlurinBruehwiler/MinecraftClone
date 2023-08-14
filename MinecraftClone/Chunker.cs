@@ -15,7 +15,7 @@ public class Chunker
     
     public void LoadChunksIfNeccesary(Vector3 playerPos)
     {
-        const int renderDistance = 1;
+        const int renderDistance = 8;
         var chunkPos = GlobalBoy.GetChunkPos(playerPos);
 
         var addedChunks = new List<Chunk>();

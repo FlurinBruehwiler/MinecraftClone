@@ -123,7 +123,7 @@ public class Chunk : IDisposable
 
     private void AddBetterVertices(IntVector3 block, IntVector3 p1, IntVector3 p2, IntVector3 p3, IntVector3 p4,
         List<Vertex> vertices,
-        int blockId, BlockFace blockFace)
+        ushort blockId, BlockFace blockFace)
     {
         var texture = _textures.GetTexturePosForFace(blockId, blockFace);
         var topLeft = new Vector2(0.1f * texture.X, 0.1f * texture.Y);
@@ -234,7 +234,7 @@ public class Chunk : IDisposable
     }
 
 
-    private void AddQuadFor(IntVector3 block, int blockId, BlockFace blockFace, List<Vertex> vertices)
+    private void AddQuadFor(IntVector3 block, ushort blockId, BlockFace blockFace, List<Vertex> vertices)
     {
         var neighbourBlock = _globalBoy.TryGetBlockAtPos(Pos * 16 + block + GetOffset(blockFace), out var wasFound);
 

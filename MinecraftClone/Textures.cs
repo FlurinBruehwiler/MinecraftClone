@@ -25,7 +25,7 @@ public class Textures
             .ToDictionary(x => x, _ => counter++);
     }
 
-    public IntVector2 GetTexturePosForFace(int blockId, BlockFace blockFace)
+    public IntVector2 GetTexturePosForFace(ushort blockId, BlockFace blockFace)
     {
         var blockDefinition = _blocks.BlockList[blockId];
         var tex = blockFace switch

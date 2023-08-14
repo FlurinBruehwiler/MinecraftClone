@@ -47,7 +47,7 @@ public class Blocks
         Texture = Textures.DiamonBlock,
     };
     
-    public Dictionary<int, BlockDefinition> BlockList { get; }
+    public Dictionary<ushort, BlockDefinition> BlockList { get; }
 
     public Blocks()
     {

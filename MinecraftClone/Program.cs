@@ -35,7 +35,7 @@ var sirPhysics = new SirPhysics(colcol);
 
 var chunker = new Chunker(globalBoy, textures);
 
-float speed = 60;
+float speed = 1;
 const float sens = 60;
 
 bool isFlying = true;
@@ -51,14 +51,14 @@ while (!WindowShouldClose())
     var movDelta = new Vector3(0, isFlying ? 0 : -.1f, 0);
     var rotDelta = GetMouseDelta();
 
-    var playerSpeed = speed * GetFrameTime();
+    var playerSpeed = speed;
 
     var x = GetKeyPressed();
 
     if (x is >= 48 and <= 57)
     {
         var idx = x - 49;
-        if (blocks.BlockList.TryGetValue(idx, out var bd))
+        if (blocks.BlockList.TryGetValue((ushort)idx, out var bd))
         {
             selectedBlock = bd;
         }
@@ -106,7 +106,7 @@ while (!WindowShouldClose())
     
     //list of nice names: deepsign
 
-    speed += GetMouseWheelMoveV().Y * 5;
+    speed += GetMouseWheelMoveV().Y * 0.5f;
     speed = Math.Max(speed, 0);
 
     UpdateCameraPro(ref camera, new Vector3(movDelta.X, movDelta.Z, movDelta.Y) * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);
@@ -203,7 +203,7 @@ CloseWindow();
 
 public record struct Block
 {
-    public int BlockId;
+    public ushort BlockId;
 
     public bool IsAir()
     {
