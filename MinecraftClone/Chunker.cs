@@ -6,11 +6,13 @@ public class Chunker
 {
     private readonly GlobalBoy _globalBoy;
     private readonly Textures _textures;
+    private readonly MrPerlin _mrPerlin;
 
-    public Chunker(GlobalBoy globalBoy, Textures textures)
+    public Chunker(GlobalBoy globalBoy, Textures textures, MrPerlin mrPerlin)
     {
         _globalBoy = globalBoy;
         _textures = textures;
+        _mrPerlin = mrPerlin;
     }
     
     public void LoadChunksIfNeccesary(Vector3 playerPos)
@@ -43,8 +45,6 @@ public class Chunker
 
     private Chunk GetChunk(IntVector3 pos)
     {
-        var data = MrPerlin.GenerateNoiseMap(pos.X * 16, pos.Z * 16, 16, 16, 1, 1, 2);
-
         var chunk = new Chunk(_globalBoy, _textures)
         {
             Pos = pos
@@ -54,7 +54,8 @@ public class Chunker
         {
             for (var z = 0; z < 16; z++)
             {
-                var height = (int)(Math.Clamp(data[x * 16 + z], 0, 1) * 16);
+                var height = (int)Math.Clamp(_mrPerlin.OctavePerlin((x + chunk.Pos.X * 16) / 10.0f, 0,
+                    (z + chunk.Pos.Z * 16) / 10.0f, 1, 2) * 16, 0, 15);
                 for (var y = 0; y < 16; y++)
                 {
                     if (y > height)

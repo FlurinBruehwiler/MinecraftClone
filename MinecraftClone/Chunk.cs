@@ -73,7 +73,7 @@ public class Chunk : IDisposable
         Span<byte> colors;
 
         mesh.vertexCount = verticesList.Count;
-        mesh.triangleCount = verticesList.Count * 3;
+        mesh.triangleCount = verticesList.Count / 3;
 
         unsafe
         {

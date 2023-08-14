@@ -33,7 +33,9 @@ var globalBoy = new GlobalBoy(texture);
 var colcol = new Colcol(globalBoy);
 var sirPhysics = new SirPhysics(colcol);
 
-var chunker = new Chunker(globalBoy, textures);
+var mrPerlin = new MrPerlin(1);
+
+var chunker = new Chunker(globalBoy, textures, mrPerlin);
 
 float speed = 1;
 const float sens = 60;
@@ -106,7 +108,7 @@ while (!WindowShouldClose())
     
     //list of nice names: deepsign
 
-    speed += GetMouseWheelMoveV().Y * 0.5f;
+    speed += GetMouseWheelMoveV().Y * 0.1f;
     speed = Math.Max(speed, 0);
 
     UpdateCameraPro(ref camera, new Vector3(movDelta.X, movDelta.Z, movDelta.Y) * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);
