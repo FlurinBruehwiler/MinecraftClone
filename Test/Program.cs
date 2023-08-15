@@ -13,11 +13,14 @@ var mrPerlin = new MrPerlin();
 InitWindow(screenWidth, screenHeight, "Hello World");
 SetTargetFPS(60);
 
-var scale = .1;
+var scale = .1f;
 
-var chunkSize = screenWidth / 1;
+var chunkSize = 16;
 
-HashSet<IntVector2> activatedChunks = new();
+HashSet<IntVector2> activatedChunks = new()
+{
+    new IntVector2(0, 0)
+};
 
 while (!WindowShouldClose())
 {
@@ -26,6 +29,15 @@ while (!WindowShouldClose())
         var pos = GetMousePosition();
         var chunk = new IntVector2((int)pos.X / chunkSize, (int)pos.Y / chunkSize);
         activatedChunks.Add(chunk);
+    }
+
+    if (GetMouseWheelMoveV().Y > 0)
+    {
+        scale += 0.01f;
+    }
+    if (GetMouseWheelMoveV().Y < 0)
+    {
+        scale -= 0.01f;
     }
     
     BeginDrawing();
@@ -38,13 +50,25 @@ while (!WindowShouldClose())
         {
             for (var y = 0; y < chunkSize; y++)
             {
-                var res = mrPerlin.OctavePerlin((float)(x + chunk.X * chunkSize) * scale, 0, (float)(y + chunk.Y * chunkSize) * scale, 1, 2);
-                Console.WriteLine(res);
-                var dat = (int)(Math.Clamp(res, 0f, 1f) * 255);
+                var globalX = x + chunk.X * chunkSize;
+                var globalZ = y + chunk.Y * chunkSize;
+                
+                var res = mrPerlin.OctavePerlin(
+                    globalX * scale, 
+                    0, 
+                    globalZ * scale, 1, 2);
+                
+                var dat = (int)(res * 255);
+                
                 DrawPixel(x + chunk.X * chunkSize, y + chunk.Y * chunkSize, new Color(dat, dat, dat, 255));
             }
         }
     }
+
+    return;
+    
+    DrawText(scale.ToString(), 100, 100, 20, Color.RED);
+    DrawText($"{0} - {screenWidth * scale}", 100, 200, 20, Color.RED);
     
     EndDrawing();
 }

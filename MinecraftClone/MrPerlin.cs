@@ -22,7 +22,7 @@ public class MrPerlin {
 			frequency *= 2;
 		}
 		
-		return total/maxValue;
+		return total / maxValue;
 	}
 	
 	private static readonly int[] permutation = { 151,160,137,91,90,15,					// Hash lookup table as defined by Ken Perlin.  This is a randomly

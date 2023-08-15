@@ -50,18 +50,24 @@ public class Chunker
             Pos = pos
         };
 
-        const float scale = 0.001f;
+        const float scale = .05f;
         
         for (var x = 0; x < 16; x++)
         {
             for (var z = 0; z < 16; z++)
             {
+                var globalX = x + chunk.Pos.X * 16;
+                var globalZ = z + chunk.Pos.Z * 16;
+
+                
+                
                 var res = _mrPerlin.OctavePerlin(
-                    (x + Math.Abs(chunk.Pos.X) * 16) * scale,
+                    globalX * scale,
                     0,
-                    (z + Math.Abs(chunk.Pos.Z) * 16) * scale, 1, 1);
-                Console.WriteLine(res);
-                var height = (int)Math.Clamp(res, 0, 1) * 16;
+                    globalZ * scale, 1, 2);
+                
+                var height = (int)(res * 16);
+                
                 for (var y = 0; y < 16; y++)
                 {
                     if (y > height)

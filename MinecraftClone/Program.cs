@@ -33,7 +33,7 @@ var globalBoy = new GlobalBoy(texture);
 var colcol = new Colcol(globalBoy);
 var sirPhysics = new SirPhysics(colcol);
 
-var mrPerlin = new MrPerlin(1);
+var mrPerlin = new MrPerlin(0);
 
 var chunker = new Chunker(globalBoy, textures, mrPerlin);
 
