@@ -156,19 +156,17 @@ public class Chunk : IDisposable
         {
             BlockFace.Left => corner2d switch
             {
-                Corner2d.TopLeft => (new IntVector3(-1, 0, +1), new IntVector3(-1, -1, 0)),
-                Corner2d.TopRight => (new IntVector3(-1, 0, -1), new IntVector3(-1, -1, 0)),
-                Corner2d.BottomLeft => (new IntVector3(-1, 0, +1), new IntVector3(-1, +1, 0)),
-                Corner2d.BottomRight => (new IntVector3(-1, 0, -1), new IntVector3(-1, +1, 0)),
-                _ => throw new ArgumentOutOfRangeException(nameof(corner2d), corner2d, null)
+                Corner2d.TopRight => (new IntVector3(-1, 0, +1), new IntVector3(-1, +1, 0)),
+                Corner2d.TopLeft => (new IntVector3(-1, 0, -1), new IntVector3(-1, +1, 0)),
+                Corner2d.BottomRight => (new IntVector3(-1, 0, +1), new IntVector3(-1, -1, 0)),
+                Corner2d.BottomLeft => (new IntVector3(-1, 0, -1), new IntVector3(-1, -1, 0)),
             },
             BlockFace.Right => corner2d switch
             {
-                Corner2d.TopLeft => (new IntVector3(+1, 0, -1), new IntVector3(+1, +1, 0)),
-                Corner2d.TopRight => (new IntVector3(+1, 0, +1), new IntVector3(+1, +1, 0)),
-                Corner2d.BottomLeft => (new IntVector3(+1, 0, -1), new IntVector3(+1, -1, 0)),
-                Corner2d.BottomRight => (new IntVector3(+1, 0, +1), new IntVector3(+1, -1, 0)),
-                _ => throw new ArgumentOutOfRangeException(nameof(corner2d), corner2d, null)
+                Corner2d.TopRight => (new IntVector3(+1, 0, -1), new IntVector3(+1, +1, 0)),
+                Corner2d.TopLeft => (new IntVector3(+1, 0, +1), new IntVector3(+1, +1, 0)),
+                Corner2d.BottomRight => (new IntVector3(+1, 0, -1), new IntVector3(+1, -1, 0)),
+                Corner2d.BottomLeft => (new IntVector3(+1, 0, +1), new IntVector3(+1, -1, 0)),
             },
             BlockFace.Bottom => corner2d switch
             {
@@ -181,25 +179,25 @@ public class Chunk : IDisposable
             BlockFace.Top => corner2d switch
             {
                 Corner2d.TopLeft => (new IntVector3(0, +1, +1), new IntVector3(+1, +1, 0)),
-                Corner2d.TopRight => (new IntVector3(+1, +1, 0), new IntVector3(0, +1, -1)),
-                Corner2d.BottomLeft => (new IntVector3(0, +1, +1), new IntVector3(-1, +1, 0)),
+                Corner2d.TopRight => (new IntVector3(-1, +1, 0), new IntVector3(0, +1, +1)),
+                Corner2d.BottomLeft => (new IntVector3(0, +1, -1), new IntVector3(+1, +1, 0)),
                 Corner2d.BottomRight => (new IntVector3(-1, +1, 0), new IntVector3(0, +1, -1)),
                 _ => throw new ArgumentOutOfRangeException(nameof(corner2d), corner2d, null)
             },
             BlockFace.Back => corner2d switch
             {
-                Corner2d.TopLeft => (new IntVector3(+1, 0, +1), new IntVector3(0, +1, +1)),
-                Corner2d.TopRight => (new IntVector3(-1, 0, +1), new IntVector3(0, +1, +1)),
-                Corner2d.BottomLeft => (new IntVector3(+1, 0, +1), new IntVector3(0, -1, +1)),
-                Corner2d.BottomRight => (new IntVector3(-1, 0, +1), new IntVector3(0, -1, +1)),
+                Corner2d.TopLeft => (new IntVector3(-1, 0, +1), new IntVector3(0, +1, +1)),
+                Corner2d.TopRight => (new IntVector3(+1, 0, +1), new IntVector3(0, +1, +1)),
+                Corner2d.BottomLeft => (new IntVector3(-1, 0, +1), new IntVector3(0, -1, +1)),
+                Corner2d.BottomRight => (new IntVector3(+1, 0, +1), new IntVector3(0, -1, +1)),
                 _ => throw new ArgumentOutOfRangeException(nameof(corner2d), corner2d, null)
             },
             BlockFace.Front => corner2d switch
             {
-                Corner2d.TopLeft => (new IntVector3(-1, 0, -1), new IntVector3(0, +1, -1)),
-                Corner2d.TopRight => (new IntVector3(+1, 0, -1), new IntVector3(0, +1, -1)),
-                Corner2d.BottomLeft => (new IntVector3(-1, 0, -1), new IntVector3(0, -1, -1)),
-                Corner2d.BottomRight => (new IntVector3(+1, 0, -1), new IntVector3(0, -1, -1)),
+                Corner2d.TopLeft => (new IntVector3(+1, 0, -1), new IntVector3(0, +1, -1)),
+                Corner2d.TopRight => (new IntVector3(-1, 0, -1), new IntVector3(0, +1, -1)),
+                Corner2d.BottomLeft => (new IntVector3(+1, 0, -1), new IntVector3(0, -1, -1)),
+                Corner2d.BottomRight => (new IntVector3(-1, 0, -1), new IntVector3(0, -1, -1)),
                 _ => throw new ArgumentOutOfRangeException(nameof(corner2d), corner2d, null)
             },
             _ => throw new ArgumentOutOfRangeException(nameof(blockFace), blockFace, null)
