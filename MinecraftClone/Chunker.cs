@@ -39,7 +39,30 @@ public class Chunker
         foreach (var addedChunk in addedChunks)
         {
             addedChunk.GenMesh();
-            addedChunk.GenModel();
+
+            if (_globalBoy.Chunks.TryGetValue(addedChunk.Pos with { X = addedChunk.Pos.X + 1},
+                    out var chunk))
+            {
+                chunk.GenMesh();
+            }
+            
+            if (_globalBoy.Chunks.TryGetValue(addedChunk.Pos with { X = addedChunk.Pos.X - 1},
+                    out var chunk1))
+            {
+                chunk1.GenMesh();
+            }
+            
+            if (_globalBoy.Chunks.TryGetValue(addedChunk.Pos with { Z = addedChunk.Pos.Y + 1 },
+                    out var chunk2))
+            {
+                chunk2.GenMesh();
+            }
+            
+            if (_globalBoy.Chunks.TryGetValue(addedChunk.Pos with { Z = addedChunk.Pos.Y - 1 },
+                    out var chunk3))
+            {
+                chunk3.GenMesh();
+            }
         }
     }
 

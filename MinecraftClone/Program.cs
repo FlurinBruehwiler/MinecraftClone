@@ -136,7 +136,6 @@ while (!WindowShouldClose())
                 
                 var chunk = globalBoy.GetChunk(col.Value);
                 chunk.GenMesh();
-                chunk.GenModel();
             }
         }
     }
@@ -153,7 +152,6 @@ while (!WindowShouldClose())
                 
                 var chunk = globalBoy.GetChunk(previousBlock);
                 chunk.GenMesh();
-                chunk.GenModel();
             }
         }
     }

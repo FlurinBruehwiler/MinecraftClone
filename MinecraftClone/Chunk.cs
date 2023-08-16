@@ -29,7 +29,7 @@ public class Chunk : IDisposable
         Blocks = new Block[16, 16, 16];
     }
 
-    public unsafe void GenModel()
+    private unsafe void GenModel()
     {
         Model = LoadModelFromMesh(Mesh);
         Model.materials[0].maps->texture = _globalBoy.Texture2D;
@@ -105,6 +105,7 @@ public class Chunk : IDisposable
 
         Mesh = mesh;
         UploadMesh(ref Mesh, false);
+        GenModel();
     }
 
     private IntVector3 GetOffset(BlockFace blockFace)
@@ -239,7 +240,6 @@ public class Chunk : IDisposable
 
         vertices.Add(new Vertex((blockPos + corner).ToVector3(), texCoord, color));
     }
-
 
     private void AddQuadFor(IntVector3 block, ushort blockId, BlockFace blockFace, List<Vertex> vertices)
     {
