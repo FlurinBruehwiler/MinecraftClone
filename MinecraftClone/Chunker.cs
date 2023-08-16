@@ -58,13 +58,11 @@ public class Chunker
             {
                 var globalX = x + chunk.Pos.X * 16;
                 var globalZ = z + chunk.Pos.Z * 16;
-
-                
                 
                 var res = _mrPerlin.OctavePerlin(
-                    globalX * scale,
+                    (globalX + 100_000) * scale,
                     0,
-                    globalZ * scale, 1, 2);
+                    (globalZ + 100_000) * scale, 1, 2);
                 
                 var height = (int)(res * 16);
                 

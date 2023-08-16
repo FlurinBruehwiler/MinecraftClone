@@ -37,7 +37,7 @@ var mrPerlin = new MrPerlin(0);
 
 var chunker = new Chunker(globalBoy, textures, mrPerlin);
 
-float speed = 1;
+float speed = 1f;
 const float sens = 60;
 
 bool isFlying = true;
@@ -100,7 +100,7 @@ while (!WindowShouldClose())
     {
         sirPhysics.VerticalCollisions(ref movDelta, camera.position);
     }
-
+ 
     if (IsKeyPressed(KeyboardKey.KEY_ENTER))
     {
         isFlying = !isFlying;
@@ -108,7 +108,14 @@ while (!WindowShouldClose())
     
     //list of nice names: deepsign
 
-    speed += GetMouseWheelMoveV().Y * 0.1f;
+    if (GetMouseWheelMoveV().Y > 0)
+    {
+        speed *= 1.1f;
+    }else if (GetMouseWheelMoveV().Y < 0)
+    {
+        speed *= 0.9f;
+    }
+    
     speed = Math.Max(speed, 0);
 
     UpdateCameraPro(ref camera, new Vector3(movDelta.X, movDelta.Z, movDelta.Y) * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);
