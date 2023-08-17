@@ -96,15 +96,20 @@ while (!WindowShouldClose())
         movDelta.Y -= playerSpeed;
     }
     
+    if (float.IsInfinity(movDelta.Y))
+        return;
+
     if (!isFlying)
     {
         sirPhysics.VerticalCollisions(ref movDelta, camera.position);
+        sirPhysics.ForwardCollisions(ref movDelta, camera.position);
+        sirPhysics.SidewardCollisions(ref movDelta, camera.position);
     }
  
     if (IsKeyPressed(KeyboardKey.KEY_ENTER))
     {
         isFlying = !isFlying;
-    }
+    } 
     
     //list of nice names: deepsign
 
@@ -118,8 +123,14 @@ while (!WindowShouldClose())
     
     speed = Math.Max(speed, 0);
 
+    if (float.IsInfinity(movDelta.Y))
+        return;
+    
     UpdateCameraPro(ref camera, new Vector3(movDelta.X, movDelta.Z, movDelta.Y) * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);
 
+    if (float.IsNaN(camera.position.Z))
+        return;
+    
     chunker.LoadChunksIfNeccesary(camera.position);
     
     if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
@@ -157,8 +168,7 @@ while (!WindowShouldClose())
     }
 
     BeginDrawing();
-
-
+    
     ClearBackground(Color.RAYWHITE);
 
     BeginMode3D(camera);

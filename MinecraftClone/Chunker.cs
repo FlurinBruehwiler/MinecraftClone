@@ -20,7 +20,7 @@ public class Chunker
         const int renderDistance = 8;
         var chunkPos = GlobalBoy.GetChunkPos(playerPos);
 
-        var addedChunks = new List<Chunk>();
+        var newChunks = new List<Chunk>();
         
         for (var x = -renderDistance; x < renderDistance; x++)
         {
@@ -29,44 +29,20 @@ public class Chunker
                 var neededChunk = new IntVector3(chunkPos.X + x, 0, chunkPos.Z + z);
                 if (!_globalBoy.Chunks.ContainsKey(neededChunk))
                 {
-                    var newChunk = GetChunk(neededChunk);
-                    addedChunks.Add(newChunk);
+                    var newChunk = GenChunk(neededChunk);
+                    newChunks.Add(newChunk);
                     _globalBoy.Chunks.Add(neededChunk, newChunk);
                 }
             }
         }
         
-        foreach (var addedChunk in addedChunks)
+        foreach (var newChunk in newChunks)
         {
-            addedChunk.GenMesh();
-
-            if (_globalBoy.Chunks.TryGetValue(addedChunk.Pos with { X = addedChunk.Pos.X + 1},
-                    out var chunk))
-            {
-                chunk.GenMesh();
-            }
-            
-            if (_globalBoy.Chunks.TryGetValue(addedChunk.Pos with { X = addedChunk.Pos.X - 1},
-                    out var chunk1))
-            {
-                chunk1.GenMesh();
-            }
-            
-            if (_globalBoy.Chunks.TryGetValue(addedChunk.Pos with { Z = addedChunk.Pos.Y + 1 },
-                    out var chunk2))
-            {
-                chunk2.GenMesh();
-            }
-            
-            if (_globalBoy.Chunks.TryGetValue(addedChunk.Pos with { Z = addedChunk.Pos.Y - 1 },
-                    out var chunk3))
-            {
-                chunk3.GenMesh();
-            }
+            newChunk.GenMesh();
         }
     }
 
-    private Chunk GetChunk(IntVector3 pos)
+    private Chunk GenChunk(IntVector3 pos)
     {
         var chunk = new Chunk(_globalBoy, _textures)
         {
