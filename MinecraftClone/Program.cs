@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using Raylib_cs;
 using RayLib3dTest;
 
@@ -50,7 +51,7 @@ var stefano = new Vector3(50, 16, 50);
 
 while (!WindowShouldClose())
 {
-    var movDelta = new Vector3(0, isFlying ? 0 : -.1f, 0);
+    var localMoveDelta = new Vector3(0, isFlying ? 0 : -.1f, 0);
     var rotDelta = GetMouseDelta();
 
     var playerSpeed = speed;
@@ -68,43 +69,61 @@ while (!WindowShouldClose())
     
     if (IsKeyDown(KeyboardKey.KEY_W))
     {
-        movDelta.X += playerSpeed;
+        localMoveDelta.X += playerSpeed;
     }
 
     if (IsKeyDown(KeyboardKey.KEY_S))
     {
-        movDelta.X -= playerSpeed;
+        localMoveDelta.X -= playerSpeed;
     }
 
     if (IsKeyDown(KeyboardKey.KEY_D))
     {
-        movDelta.Z += playerSpeed;
+        localMoveDelta.Z += playerSpeed;
     }
 
     if (IsKeyDown(KeyboardKey.KEY_A))
     {
-        movDelta.Z -= playerSpeed;
+        localMoveDelta.Z -= playerSpeed;
     }
 
     if (IsKeyDown(KeyboardKey.KEY_SPACE))
     {
-        movDelta.Y += playerSpeed;
+        localMoveDelta.Y += playerSpeed;
     }
 
     if (IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL))
     {
-        movDelta.Y -= playerSpeed;
+        localMoveDelta.Y -= playerSpeed;
     }
     
-    if (float.IsInfinity(movDelta.Y))
+    if (float.IsInfinity(localMoveDelta.Y))
         return;
 
+    Vector3 globalMoveDelta;
+
+    {
+        var xComponent = camera.GetRight() * localMoveDelta.X;
+        var zComponent = camera.GetForward() * localMoveDelta.Z;
+
+        globalMoveDelta = xComponent + zComponent;
+        DrawText(xComponent.ToString(), 300, 300, 20, Color.RED);
+    }
+    
     if (!isFlying)
     {
-        sirPhysics.VerticalCollisions(ref movDelta, camera.position);
-        sirPhysics.ForwardCollisions(ref movDelta, camera.position);
-        sirPhysics.SidewardCollisions(ref movDelta, camera.position);
+        sirPhysics.VerticalCollisions(ref globalMoveDelta, camera.position);
+        sirPhysics.ForwardCollisions(ref globalMoveDelta, camera.position);
+        sirPhysics.SidewardCollisions(ref globalMoveDelta, camera.position);
     }
+    
+    {
+        var xComponent = Vector3.Dot(camera.GetRight(), globalMoveDelta);
+        var zComponent = Vector3.Dot(camera.GetForward(), globalMoveDelta);
+
+        localMoveDelta = new Vector3(xComponent, localMoveDelta.Y, zComponent);
+    }
+    
  
     if (IsKeyPressed(KeyboardKey.KEY_ENTER))
     {
@@ -123,10 +142,10 @@ while (!WindowShouldClose())
     
     speed = Math.Max(speed, 0);
 
-    if (float.IsInfinity(movDelta.Y))
+    if (float.IsInfinity(localMoveDelta.Y))
         return;
     
-    UpdateCameraPro(ref camera, new Vector3(movDelta.X, movDelta.Z, movDelta.Y) * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);
+    UpdateCameraPro(ref camera, new Vector3(localMoveDelta.X, localMoveDelta.Z, localMoveDelta.Y) * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);
 
     if (float.IsNaN(camera.position.Z))
         return;
