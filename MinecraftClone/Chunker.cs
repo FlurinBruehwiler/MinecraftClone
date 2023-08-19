@@ -20,8 +20,6 @@ public class Chunker
         const int renderDistance = 8;
         var chunkPos = GlobalBoy.GetChunkPos(playerPos);
 
-        var newChunks = new List<Chunk>();
-        
         for (var x = -renderDistance; x < renderDistance; x++)
         {
             for (var z = -renderDistance; z < renderDistance; z++)
@@ -30,16 +28,13 @@ public class Chunker
                 if (!_globalBoy.Chunks.ContainsKey(neededChunk))
                 {
                     var newChunk = GenChunk(neededChunk);
-                    newChunks.Add(newChunk);
                     _globalBoy.Chunks.Add(neededChunk, newChunk);
+                    newChunk.GenMesh();
+                    return;
                 }
             }
         }
         
-        foreach (var newChunk in newChunks)
-        {
-            newChunk.GenMesh();
-        }
     }
 
     private Chunk GenChunk(IntVector3 pos)

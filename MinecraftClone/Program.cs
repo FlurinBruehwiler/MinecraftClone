@@ -1,10 +1,9 @@
 ﻿using System.Numerics;
-using System.Runtime.InteropServices;
 using Raylib_cs;
 using RayLib3dTest;
 
-const int screenWidth = 1920;
-const int screenHeight = 1080;
+const int screenWidth = 1800;
+const int screenHeight = 1000;
 
 
 InitWindow(screenWidth, screenHeight, "3dtest");
@@ -40,6 +39,10 @@ var chunker = new Chunker(globalBoy, textures, mrPerlin);
 
 float speed = 1f;
 const float sens = 60;
+List<PrintMessage> printMessages = new();
+List<DebugLine> debugLines = new();
+List<DebugLine2d> debugLines2d = new();
+
 
 bool isFlying = true;
 
@@ -100,30 +103,34 @@ while (!WindowShouldClose())
     if (float.IsInfinity(localMoveDelta.Y))
         return;
 
-    Vector3 globalMoveDelta;
+    Print(localMoveDelta, nameof(localMoveDelta));
 
-    {
-        var xComponent = camera.GetRight() * localMoveDelta.X;
-        var zComponent = camera.GetForward() * localMoveDelta.Z;
-
-        globalMoveDelta = xComponent + zComponent;
-        DrawText(xComponent.ToString(), 300, 300, 20, Color.RED);
-    }
+    var right = Vector3.Normalize(new Vector3(camera.GetRight().X, 0, camera.GetRight().Z));
+    var forward = Vector3.Normalize(new Vector3(-camera.GetRight().Z, 0, camera.GetRight().X));
     
+    Print(camera.GetRight(), "realright");
+    Print(right, nameof(right));
+    Print(forward, nameof(forward));
+    
+    var xComponent = right * localMoveDelta.X;
+    var zComponent = forward * localMoveDelta.Z;
+    
+    var globalMoveDelta = xComponent + zComponent;
+    globalMoveDelta.Y = localMoveDelta.Y;
+
     if (!isFlying)
     {
         sirPhysics.VerticalCollisions(ref globalMoveDelta, camera.position);
         sirPhysics.ForwardCollisions(ref globalMoveDelta, camera.position);
         sirPhysics.SidewardCollisions(ref globalMoveDelta, camera.position);
     }
-    
-    {
-        var xComponent = Vector3.Dot(camera.GetRight(), globalMoveDelta);
-        var zComponent = Vector3.Dot(camera.GetForward(), globalMoveDelta);
 
-        localMoveDelta = new Vector3(xComponent, localMoveDelta.Y, zComponent);
-    }
+    var localX = Vector3.Dot(right, globalMoveDelta);
+    var localZ = Vector3.Dot(forward, globalMoveDelta);
+
+    var newlocalMoveDelta = new Vector3(localX, globalMoveDelta.Y, localZ);
     
+    Print(newlocalMoveDelta, nameof(newlocalMoveDelta) + "2");
  
     if (IsKeyPressed(KeyboardKey.KEY_ENTER))
     {
@@ -142,13 +149,15 @@ while (!WindowShouldClose())
     
     speed = Math.Max(speed, 0);
 
-    if (float.IsInfinity(localMoveDelta.Y))
+    if (float.IsInfinity(newlocalMoveDelta.Y))
         return;
     
-    UpdateCameraPro(ref camera, new Vector3(localMoveDelta.X, localMoveDelta.Z, localMoveDelta.Y) * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);
+    UpdateCameraPro(ref camera, new Vector3(newlocalMoveDelta.X, newlocalMoveDelta.Z, newlocalMoveDelta.Y) * sens * GetFrameTime(), new Vector3(rotDelta * 0.5f, 0), 0);
 
     if (float.IsNaN(camera.position.Z))
         return;
+    
+    Print(camera.position, "pos");
     
     chunker.LoadChunksIfNeccesary(camera.position);
     
@@ -197,16 +206,28 @@ while (!WindowShouldClose())
         DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y, chunk.Pos.Z * 16), 1, Color.WHITE);
     }
     
-    DrawCube(stefano, 1, 1, 1, Color.BROWN);
-    DrawCube(stefano with { Y = stefano.Y - 1 }, 1, 1, 1, Color.BROWN);
+    foreach (var debugLine in debugLines)
+    {
+        DrawLine3D(debugLine.start, debugLine.start + debugLine.direction, debugLine.Color);
+    }
+    debugLines.Clear();
     
     EndMode3D();
 
-    DrawRectangle(90, 90, 200, 100, new Color(0, 0, 0, 100));
-    DrawText((1 / GetFrameTime()).ToString(), 100, 100, 20,
-        Color.RED);
-    DrawText($"{camera.position.X}, {camera.position.Y}, {camera.position.Z}", 100, 120, 20,
-        Color.RED);
+    DrawRectangle(10, 10, 600, 600, new Color(0, 0, 0, 100));
+    for (var i = 0; i < printMessages.Count; i++)
+    {
+        var printMessage = printMessages[i];
+        DrawText($"{printMessage.name}: {printMessage.value}", 20, i * 30 + 20, 20, Color.WHITE);
+    }
+    printMessages.Clear();
+    
+    for (var i = 0; i < debugLines2d.Count; i++)
+    {
+        var debugLine = debugLines2d[i];
+        DrawLine(300, 300, (int)(300 + debugLine.direction.X * 100), (int)(debugLine.direction.Y * 100 + 300), debugLine.Color);
+    }
+    debugLines2d.Clear();
 
     var topLeft = screenWidth / 2 - 100 * blocks.BlockList.Count / 2;
     DrawRectangle(topLeft, screenHeight - 100, 100 * blocks.BlockList.Count, 100, new Color(0, 0, 0, 100));
@@ -236,6 +257,26 @@ while (!WindowShouldClose())
 
 CloseWindow();
 
+
+void Print(object value, string name)
+{
+    printMessages.Add(new PrintMessage(value.ToString(), name));
+}
+
+void DrawDebugLine(Vector3 start, Vector3 direction, Color color)
+{
+    debugLines.Add(new DebugLine(start, direction, color));
+}
+
+void DrawDebugLine2d(Vector2 direction, Color color)
+{
+    debugLines2d.Add(new DebugLine2d(direction, color));
+}
+
+
+record struct PrintMessage(string value, string name);
+record struct DebugLine(Vector3 start, Vector3 direction, Color Color);
+record struct DebugLine2d(Vector2 direction, Color Color);
 
 public record struct Block
 {
