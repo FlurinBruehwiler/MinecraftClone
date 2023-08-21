@@ -1,6 +1,6 @@
 ﻿namespace RayLib3dTest;
 
-public class Chunker
+public class Chunker : I3DDrawable
 {
     private readonly GlobalBoy _globalBoy;
     private readonly Textures _textures;
@@ -11,6 +11,14 @@ public class Chunker
         _globalBoy = globalBoy;
         _textures = textures;
         _mrPerlin = mrPerlin;
+    }
+    
+    public void Draw3d()
+    {
+        foreach (var (_, chunk) in _globalBoy.Chunks)
+        {
+            DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y, chunk.Pos.Z * 16), 1, Color.WHITE);
+        }
     }
     
     public void LoadChunksIfNeccesary(Vector3 playerPos)
@@ -89,5 +97,4 @@ public class Chunker
 
         return chunk;
     }
-    
 }

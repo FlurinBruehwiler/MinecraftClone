@@ -25,27 +25,17 @@ var mrPerlin = new MrPerlin(0);
 
 var chunker = new Chunker(globalBoy, textures, mrPerlin);
 var player = new Player(sirPhysics, colcol, globalBoy);
-var cameraManager = new CameraManager();
+var cameraManager = new CameraManager(player);
 
-while (!WindowShouldClose())
-{
-    chunker.LoadChunksIfNeccesary(player.Position);
-    
-    BeginDrawing();
-    
-    ClearBackground(Color.RAYWHITE);
+var gamus = new Gamus();
 
-    BeginMode3D(cameraManager.Camera);
+gamus.RegisterDraw2d(new Debuggerus());
 
-    foreach (var (_, chunk) in globalBoy.Chunks)
-    {
-        DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y, chunk.Pos.Z * 16), 1, Color.WHITE);
-    }
-    
-    EndMode3D();
+gamus.RegisterDraw3d(chunker);
 
-    EndDrawing();
-}
+gamus.re
+
+gamus.GameLoop();
 
 CloseWindow();
 

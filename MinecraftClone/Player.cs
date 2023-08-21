@@ -16,7 +16,7 @@ public class Player : IControlable
         _globalBoy = globalBoy;
     }
 
-    public void SetPositionWithPhysics(Vector3 posChangeInWorldSpace)
+    public void Move(Vector3 posChangeInWorldSpace)
     {
         _sirPhysics.VerticalCollisions(ref posChangeInWorldSpace, Position);
         _sirPhysics.ForwardCollisions(ref posChangeInWorldSpace, Position);
