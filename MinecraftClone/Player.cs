@@ -18,9 +18,11 @@ public class Player : IControlable
 
     public void Move(Vector3 posChangeInWorldSpace)
     {
-        _sirPhysics.VerticalCollisions(ref posChangeInWorldSpace, Position);
-        _sirPhysics.ForwardCollisions(ref posChangeInWorldSpace, Position);
-        _sirPhysics.SidewardCollisions(ref posChangeInWorldSpace, Position);
+        // _sirPhysics.VerticalCollisions(ref posChangeInWorldSpace, Position);
+        // _sirPhysics.ForwardCollisions(ref posChangeInWorldSpace, Position);
+        // _sirPhysics.SidewardCollisions(ref posChangeInWorldSpace, Position);
+
+        Position += posChangeInWorldSpace;
     }
     
     public Vector3 Forward => Direction;

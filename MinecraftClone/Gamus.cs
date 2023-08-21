@@ -5,7 +5,12 @@ public class Gamus
     private List<I2DDrawable> _2dDrawables = new();
     private List<I3DDrawable> _3dDrawables = new();
     private List<IServus> _services = new();
-    private CameraManager _cameraManager = new();
+    private CameraManager _cameraManager;
+
+    public Gamus(CameraManager cameraManager)
+    {
+        _cameraManager = cameraManager;
+    }
 
     public void RegisterDraw2d(I2DDrawable instance)
     {
@@ -26,6 +31,8 @@ public class Gamus
     {
         while (!WindowShouldClose())
         {
+            MakeTheServus();
+            
             BeginDrawing();
     
                 ClearBackground(Color.RAYWHITE);
@@ -42,9 +49,20 @@ public class Gamus
         }
     }
 
+    private void MakeTheServus()
+    {
+        foreach (var service in _services)
+        {
+            service.Update();
+        }
+    }
+
     private void Draw2d()
     {
-        
+        foreach (var drawable in _2dDrawables)
+        {
+            drawable.Draw2d();
+        }
     }
 
     private void Draw3d()

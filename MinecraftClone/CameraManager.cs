@@ -5,11 +5,13 @@ public class CameraManager : IServus
     public Camera3D Camera;
     private float _sens = 60;
     private Player _player;
+    private readonly Chunker _chunker;
     private float _playerSpeed = 1f;
 
-    public CameraManager(Player player)
+    public CameraManager(Player player, Chunker chunker)
     {
         _player = player;
+        _chunker = chunker;
         Camera = new Camera3D(Vector3.Zero, Vector3.One, new Vector3(0, 1, 0), 60, CameraProjection.CAMERA_PERSPECTIVE)
         {
             fovy = 100
@@ -20,6 +22,7 @@ public class CameraManager : IServus
     {
         HandleInput(_player);
         UpdateCamera(_player);
+        _chunker.LoadChunksIfNeccesary(_player.Position);
     }
 
     private void UpdateCamera(IControlable controlable)
