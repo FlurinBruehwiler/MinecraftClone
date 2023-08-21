@@ -1,7 +1,4 @@
-﻿using System.Numerics;
-using Raylib_cs;
-
-namespace RayLib3dTest;
+﻿namespace RayLib3dTest;
 
 public class GlobalBoy
 {

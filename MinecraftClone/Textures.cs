@@ -4,7 +4,6 @@ namespace RayLib3dTest;
 
 public class Textures
 {
-    private readonly Blocks _blocks;
     public const string Dirt = "dirt";
     public const string Grass = "grass";
     public const string GrassTop = "grasstop";
@@ -14,9 +13,8 @@ public class Textures
 
     public Dictionary<string, int> TextureList { get; }
 
-    public Textures(Blocks blocks)
+    public Textures()
     {
-        _blocks = blocks;
         var counter = 0;
         TextureList = typeof(Textures)
             .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
@@ -27,7 +25,7 @@ public class Textures
 
     public IntVector2 GetTexturePosForFace(ushort blockId, BlockFace blockFace)
     {
-        var blockDefinition = _blocks.BlockList[blockId];
+        var blockDefinition = Blocks.BlockList[blockId];
         var tex = blockFace switch
         {
             BlockFace.Left => blockDefinition.LeftTexture,

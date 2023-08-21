@@ -1,5 +1,4 @@
-﻿using Raylib_cs;
-using SkiaSharp;
+﻿using SkiaSharp;
 
 namespace RayLib3dTest;
 

@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace RayLib3dTest;
+﻿namespace RayLib3dTest;
 
 public static class Exxtensions
 {

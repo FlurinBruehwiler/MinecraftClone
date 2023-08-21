@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace RayLib3dTest;
+﻿namespace RayLib3dTest;
 
 public class Chunker
 {
@@ -33,7 +31,6 @@ public class Chunker
                         _globalBoy.Chunks.Add(neededChunk, chunk);
                     }
                     
-
                     if (_globalBoy.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z + 1 })
                         && _globalBoy.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z - 1 })
                         && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X + 1 })
@@ -76,15 +73,15 @@ public class Chunker
                 {
                     if (y > height)
                     {
-                        chunk.Blocks[x, y, z].BlockId = Blocks.Air.ID;
+                        chunk.Blocks[x, y, z].BlockId = Blocks.Air.Id;
                     }
                     else if (y == height)
                     {
-                        chunk.Blocks[x, y, z].BlockId = Blocks.Gras.ID;
+                        chunk.Blocks[x, y, z].BlockId = Blocks.Gras.Id;
                     }
                     else
                     {
-                        chunk.Blocks[x, y, z].BlockId = Blocks.Dirt.ID;
+                        chunk.Blocks[x, y, z].BlockId = Blocks.Dirt.Id;
                     }
                 }
             }

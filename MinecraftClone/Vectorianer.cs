@@ -1,7 +1,4 @@
-﻿using System.Numerics;
-using Raylib_cs;
-
-namespace RayLib3dTest;
+﻿namespace RayLib3dTest;
 
 public static class Vectorianer
 {
@@ -21,5 +18,4 @@ public static class Vectorianer
     {
         return Vector3.Normalize(camera.up);
     }
-
 }

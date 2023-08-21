@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using System.Runtime.InteropServices;
-using Raylib_cs;
+﻿using System.Runtime.InteropServices;
 
 namespace RayLib3dTest;
 

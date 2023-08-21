@@ -1,6 +1,5 @@
 ﻿global using static Raylib_cs.Raylib;
 global using static Raylib_cs.Rlgl;
-using System.Globalization;
 using Raylib_cs;
 using RayLib3dTest;
 
