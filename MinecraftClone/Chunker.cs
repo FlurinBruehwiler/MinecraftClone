@@ -25,12 +25,24 @@ public class Chunker
             for (var z = -renderDistance; z < renderDistance; z++)
             {
                 var neededChunk = new IntVector3(chunkPos.X + x, 0, chunkPos.Z + z);
-                if (!_globalBoy.Chunks.ContainsKey(neededChunk))
+                if (!_globalBoy.Chunks.TryGetValue(neededChunk, out var chunk) || !chunk.HasMesh)
                 {
-                    var newChunk = GenChunk(neededChunk);
-                    _globalBoy.Chunks.Add(neededChunk, newChunk);
-                    newChunk.GenMesh();
-                    return;
+                    if (chunk is null)
+                    {
+                        chunk = GenChunk(neededChunk);
+                        _globalBoy.Chunks.Add(neededChunk, chunk);
+                    }
+                    
+
+                    if (_globalBoy.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z + 1 })
+                        && _globalBoy.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z - 1 })
+                        && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X + 1 })
+                        && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X - 1 }))
+                    {
+                        chunk.GenMesh();
+                        chunk.HasMesh = true;
+                        return;
+                    }
                 }
             }
         }

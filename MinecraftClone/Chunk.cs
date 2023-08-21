@@ -12,6 +12,7 @@ public class Chunk : IDisposable
     public Model Model { get; set; }
     public Block[,,] Blocks { get; set; }
     public required IntVector3 Pos;
+    public bool HasMesh;
 
     private readonly IntVector3 _bottomLeftFront = new(0, 0, 0);
     private readonly IntVector3 _bottomRightFront = new(1, 0, 0);
