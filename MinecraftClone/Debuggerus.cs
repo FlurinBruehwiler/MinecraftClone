@@ -46,8 +46,13 @@ public class Debuggerus : I2DDrawable
 
             var index = -1;
             float previousValue = 0;
+
+            var sum = 0;
+            
             foreach (var value in queue)
             {
+                sum += value;
+                
                 if (index == -1)
                 {
                     index++;
@@ -66,6 +71,11 @@ public class Debuggerus : I2DDrawable
 
                 previousValue = finalValue;
             }
+
+            var average = sum / queue.Count;
+            
+            DrawText(plotable.Name, 500, plotIndex * 200, 20, Color.RED);
+            DrawText($"Average: {average.ToString()}", 500, plotIndex * 200 + 30, 20, Color.RED);
             
             plotIndex++;
 
