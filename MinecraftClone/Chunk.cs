@@ -48,7 +48,6 @@ public class Chunk : IDisposable
 
         var startTime = Stopwatch.GetTimestamp();
 
-
         for (var x = 0; x < Blocks.GetLength(0); x++)
         {
             for (var y = 0; y < Blocks.GetLength(1); y++)
@@ -78,6 +77,11 @@ public class Chunk : IDisposable
         Span<float> vertices;
         Span<float> texcoords;
         Span<byte> colors;
+
+        if (verticesList.Count == 0)
+        {
+            return;
+        }
 
         mesh.vertexCount = verticesList.Count;
         mesh.triangleCount = verticesList.Count / 3;

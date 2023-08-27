@@ -6,7 +6,7 @@ public class Player : IControlable
     private readonly Colcol _colcol;
     private readonly GlobalBoy _globalBoy;
     private readonly Debuggerus _debuggerus;
-    public Vector3 Position { get; set; } = new(0, 16, 0);
+    public Vector3 Position { get; set; } = new(0, 100, 0);
     public Vector3 Velocity;
     public Vector3 Direction { get; set; } = new(0, 0, 1);
 
@@ -27,16 +27,16 @@ public class Player : IControlable
 
         _debuggerus.Print(posChangeInWorldSpace, "GlobalMoveDelta");
 
-        // Velocity.Y += -.2f * GetFrameTime();
+        Velocity.Y += -.2f * GetFrameTime();
 
         posChangeInWorldSpace += Velocity;
 
-        // _sirPhysics.VerticalCollisions(ref posChangeInWorldSpace, Position, out var isHorizontalHit);
-        // _sirPhysics.ForwardCollisions(ref posChangeInWorldSpace, Position);
-        // _sirPhysics.SidewardCollisions(ref posChangeInWorldSpace, Position);
-        //
-        // if (isHorizontalHit)
-        //     Velocity.Y = 0;
+        _sirPhysics.VerticalCollisions(ref posChangeInWorldSpace, Position, out var isHorizontalHit);
+        _sirPhysics.ForwardCollisions(ref posChangeInWorldSpace, Position);
+        _sirPhysics.SidewardCollisions(ref posChangeInWorldSpace, Position);
+
+        if (isHorizontalHit)
+            Velocity.Y = 0;
 
         Position += posChangeInWorldSpace;
 
