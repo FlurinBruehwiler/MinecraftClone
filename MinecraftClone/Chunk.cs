@@ -207,9 +207,9 @@ public class Chunk : IDisposable
 
         var occlusionCount = 0;
 
-        var neighbourBlock1 = _globalBoy.TryGetBlockAtPos(Pos * 16 + blockPos + blocksToCheck.Item1, out var wasFound1);
-        var neighbourBlock2 = _globalBoy.TryGetBlockAtPos(Pos * 16 + blockPos + blocksToCheck.Item2, out var wasFound2);
-        var neighbourBlock3 = _globalBoy.TryGetBlockAtPos(Pos * 16 + blockPos + blocksToCheck.Item3, out var wasFound3);
+        var neighbourBlock1 = TryGetBlockAtPos(blockPos + blocksToCheck.Item1, out var wasFound1);
+        var neighbourBlock2 = TryGetBlockAtPos(blockPos + blocksToCheck.Item2, out var wasFound2);
+        var neighbourBlock3 = TryGetBlockAtPos(blockPos + blocksToCheck.Item3, out var wasFound3);
 
         if (wasFound1 && !neighbourBlock1.IsAir())
             occlusionCount++;
@@ -240,9 +240,23 @@ public class Chunk : IDisposable
         vertices.Add(new Vertex((blockPos + corner).ToVector3(), texCoord, color));
     }
 
+    private Block TryGetBlockAtPos(IntVector3 blockInChunk, out bool wasFound)
+    {
+        if (blockInChunk.X is < 0 or > 15
+            || blockInChunk.Y is < 0 or > 15
+            || blockInChunk.Z is < 0 or > 15)
+        {
+            return _globalBoy.TryGetBlockAtPos(Pos * 16 + blockInChunk, out wasFound);
+        }
+
+        wasFound = true;
+
+        return Blocks[blockInChunk.X, blockInChunk.Y, blockInChunk.Z];
+    }
+
     private void AddQuadFor(IntVector3 block, ushort blockId, BlockFace blockFace, List<Vertex> vertices)
     {
-        var neighbourBlock = _globalBoy.TryGetBlockAtPos(Pos * 16 + block + GetOffset(blockFace), out var wasFound);
+        var neighbourBlock = TryGetBlockAtPos(block + GetOffset(blockFace), out var wasFound);
 
         //is unloaded chunk
         if (!wasFound)

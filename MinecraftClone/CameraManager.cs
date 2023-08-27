@@ -7,7 +7,7 @@ public class CameraManager : IServus
     private Player _player;
     private readonly Chunker _chunker;
     private readonly Debuggerus _debuggerus;
-    private float _playerSpeed = 1f;
+    private float _playerSpeed = 0.1f;
 
     public CameraManager(Player player, Chunker chunker, Debuggerus debuggerus)
     {

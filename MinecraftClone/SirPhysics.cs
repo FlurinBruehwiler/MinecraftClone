@@ -118,8 +118,10 @@ public class SirPhysics
         }
     }
 
-    public void VerticalCollisions(ref Vector3 velocity, Vector3 playerPos)
+    public void VerticalCollisions(ref Vector3 velocity, Vector3 playerPos, out bool isHit)
     {
+        isHit = false;
+
         var direction = Math.Sign(velocity.Y);
         float rayLength = Math.Abs(velocity.Y) + SkinWidth;
 
@@ -133,7 +135,18 @@ public class SirPhysics
             {
                 velocity.Y = (distance - SkinWidth) * direction;
                 rayLength = distance;
+                isHit = true;
             }
         }
+    }
+}
+
+public struct CollisionInfo
+{
+    public bool Up, Down, Left, Right, Forward, Backwards;
+
+    public void Reset()
+    {
+        Up = Down = Left = Right = Forward = Backwards = false;
     }
 }

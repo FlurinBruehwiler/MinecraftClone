@@ -6,9 +6,11 @@ public class Player : IControlable
     private readonly Colcol _colcol;
     private readonly GlobalBoy _globalBoy;
     private readonly Debuggerus _debuggerus;
-    public Vector3 Position { get; set; }
-
+    public Vector3 Position { get; set; } = new(0, 16, 0);
+    public Vector3 Velocity;
     public Vector3 Direction { get; set; } = new(0, 0, 1);
+
+    public CollisionInfo CollisionInfo;
     // public Camera3D Camera { get; }
 
     public Player(SirPhysics sirPhysics, Colcol colcol, GlobalBoy globalBoy, Debuggerus debuggerus)
@@ -21,11 +23,20 @@ public class Player : IControlable
 
     public void Move(Vector3 posChangeInWorldSpace)
     {
+        CollisionInfo.Reset();
+
         _debuggerus.Print(posChangeInWorldSpace, "GlobalMoveDelta");
-        //
-        // _sirPhysics.VerticalCollisions(ref posChangeInWorldSpace, Position);
-        // _sirPhysics.ForwardCollisions(ref posChangeInWorldSpace, Position);
-        // _sirPhysics.SidewardCollisions(ref posChangeInWorldSpace, Position);
+
+        Velocity.Y += -.2f * GetFrameTime();
+
+        posChangeInWorldSpace += Velocity;
+
+        _sirPhysics.VerticalCollisions(ref posChangeInWorldSpace, Position, out var isHorizontalHit);
+        _sirPhysics.ForwardCollisions(ref posChangeInWorldSpace, Position);
+        _sirPhysics.SidewardCollisions(ref posChangeInWorldSpace, Position);
+
+        if (isHorizontalHit)
+            Velocity.Y = 0;
 
         Position += posChangeInWorldSpace;
     }

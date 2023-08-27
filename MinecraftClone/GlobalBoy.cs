@@ -63,7 +63,7 @@ public class GlobalBoy
     private int GetBlock(float x)
     {
         if(x < 0)
-            return (int)(15 + ((x + 1) % 16));
+            return (int)(15 + (x + 1) % 16);
         return (int)(x % 16);
     }
 }
