@@ -27,18 +27,22 @@ public class Player : IControlable
 
         _debuggerus.Print(posChangeInWorldSpace, "GlobalMoveDelta");
 
-        Velocity.Y += -.2f * GetFrameTime();
+        // Velocity.Y += -.2f * GetFrameTime();
 
         posChangeInWorldSpace += Velocity;
 
-        _sirPhysics.VerticalCollisions(ref posChangeInWorldSpace, Position, out var isHorizontalHit);
-        _sirPhysics.ForwardCollisions(ref posChangeInWorldSpace, Position);
-        _sirPhysics.SidewardCollisions(ref posChangeInWorldSpace, Position);
-
-        if (isHorizontalHit)
-            Velocity.Y = 0;
+        // _sirPhysics.VerticalCollisions(ref posChangeInWorldSpace, Position, out var isHorizontalHit);
+        // _sirPhysics.ForwardCollisions(ref posChangeInWorldSpace, Position);
+        // _sirPhysics.SidewardCollisions(ref posChangeInWorldSpace, Position);
+        //
+        // if (isHorizontalHit)
+        //     Velocity.Y = 0;
 
         Position += posChangeInWorldSpace;
+
+        HandleHotBarInput();
+        HandleBlockDestroy();
+        HandleBlockPlacement();
     }
 
     public Vector3 Forward => Direction;
@@ -74,7 +78,7 @@ public class Player : IControlable
                 if (wasFound)
                 {
                     b.BlockId = _selectedBlock.Id;
-                
+
                     var chunk = _globalBoy.GetChunk(previousBlock);
                     chunk.GenMesh();
                 }
@@ -93,7 +97,7 @@ public class Player : IControlable
                 if (wasFound)
                 {
                     b.BlockId = Blocks.Air.Id;
-                
+
                     var chunk = _globalBoy.GetChunk(col.Value);
                     chunk.GenMesh();
                 }

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace RayLib3dTest;
 
@@ -6,6 +7,7 @@ public class Chunk : IDisposable
 {
     private readonly GlobalBoy _globalBoy;
     private readonly Textures _textures;
+    private readonly Debuggerus _debuggerus;
     public Mesh Mesh;
     public Model Model { get; set; }
     public Block[,,] Blocks { get; set; }
@@ -21,10 +23,11 @@ public class Chunk : IDisposable
     private readonly IntVector3 _topLeftBack = new(0, 1, 1);
     private readonly IntVector3 _topRightBack = new(1, 1, 1);
 
-    public Chunk(GlobalBoy globalBoy, Textures textures)
+    public Chunk(GlobalBoy globalBoy, Textures textures, Debuggerus debuggerus)
     {
         _globalBoy = globalBoy;
         _textures = textures;
+        _debuggerus = debuggerus;
         Blocks = new Block[16, 16, 16];
     }
 
@@ -43,6 +46,9 @@ public class Chunk : IDisposable
 
         var verticesList = new List<Vertex>();
 
+        var startTime = Stopwatch.GetTimestamp();
+
+
         for (var x = 0; x < Blocks.GetLength(0); x++)
         {
             for (var y = 0; y < Blocks.GetLength(1); y++)
@@ -52,7 +58,6 @@ public class Chunk : IDisposable
                     var block = Blocks[x, y, z];
 
                     var pos = new IntVector3(x, y, z);
-
 
                     if (!block.IsAir())
                     {
@@ -66,6 +71,9 @@ public class Chunk : IDisposable
                 }
             }
         }
+
+        _debuggerus.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable("mesh gen", 0, 1200));
+
 
         Span<float> vertices;
         Span<float> texcoords;

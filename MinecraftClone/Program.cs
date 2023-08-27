@@ -8,6 +8,7 @@ InitWindow(screenWidth, screenHeight, "3dtest");
 DisableCursor();
 SetTargetFPS(120);
 SetConfigFlags(ConfigFlags.FLAG_MSAA_4X_HINT);
+// SetTraceLogLevel(TraceLogLevel.LOG_ERROR);
 
 var textures = new Textures();
 var merger = new ThinkTexture(textures);

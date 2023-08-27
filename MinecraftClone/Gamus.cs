@@ -7,6 +7,7 @@ public class Gamus
     private readonly CameraManager _manager;
     private Debuggerus _debuggerus;
     private readonly IControlable _player;
+    private Skybox _skybox = new();
 
 
     public Gamus(CameraManager cameraManager, Chunker chunker, CameraManager manager, Debuggerus debuggerus, IControlable player)
@@ -52,6 +53,7 @@ public class Gamus
 
     private void Draw3d()
     {
-        _chunker.Draw3d();   
+        _skybox.Draw3d();
+        _chunker.Draw3d();
     }
 }

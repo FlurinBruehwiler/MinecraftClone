@@ -43,6 +43,11 @@ public record struct IntVector3(int X, int Y, int Z)
             left.Z * factor
         );
     }
+
+    public override int GetHashCode()
+    {
+        return X + Y * 1000 + Z * 1000000;
+    }
 }
 
 public record struct IntVector2(int X, int Y)

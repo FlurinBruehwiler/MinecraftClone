@@ -52,14 +52,10 @@ public class Chunker : I3DDrawable
                         && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X + 1 })
                         && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X - 1 }))
                     {
-                        var startTime = Stopwatch.GetTimestamp();
-                        
+
                         chunk.GenMesh();
 
-                        var res = Stopwatch.GetElapsedTime(startTime).Microseconds;
-                        _debuggerus.Plot(res, new Plotable(nameof(chunk.GenMesh), 0, 1200));
-                        _debuggerus.Print(res, nameof(chunk.GenMesh));
-                        
+
                         chunk.HasMesh = true;
                         return;
                     }
@@ -71,7 +67,7 @@ public class Chunker : I3DDrawable
 
     private Chunk GenChunk(IntVector3 pos)
     {
-        var chunk = new Chunk(_globalBoy, _textures)
+        var chunk = new Chunk(_globalBoy, _textures, _debuggerus)
         {
             Pos = pos
         };
@@ -91,7 +87,7 @@ public class Chunker : I3DDrawable
                     (globalZ + 100_000) * scale, 1, 2);
                 
                 var height = (int)(res * 16);
-                
+
                 for (var y = 0; y < 16; y++)
                 {
                     if (y > height)

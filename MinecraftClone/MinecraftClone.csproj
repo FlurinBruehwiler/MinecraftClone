@@ -16,8 +16,15 @@
   
   <ItemGroup>
     <None Update="Resources\*.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Shaders\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="Resources\Shaders\skybox.fs" />
   </ItemGroup>
   
 </Project>
