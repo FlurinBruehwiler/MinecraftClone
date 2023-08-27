@@ -5,26 +5,31 @@ public class Player : IControlable
     private readonly SirPhysics _sirPhysics;
     private readonly Colcol _colcol;
     private readonly GlobalBoy _globalBoy;
+    private readonly Debuggerus _debuggerus;
     public Vector3 Position { get; set; }
-    public Vector3 Direction { get; set; }
+
+    public Vector3 Direction { get; set; } = new(0, 0, 1);
     // public Camera3D Camera { get; }
 
-    public Player(SirPhysics sirPhysics, Colcol colcol, GlobalBoy globalBoy)
+    public Player(SirPhysics sirPhysics, Colcol colcol, GlobalBoy globalBoy, Debuggerus debuggerus)
     {
         _sirPhysics = sirPhysics;
         _colcol = colcol;
         _globalBoy = globalBoy;
+        _debuggerus = debuggerus;
     }
 
     public void Move(Vector3 posChangeInWorldSpace)
     {
+        _debuggerus.Print(posChangeInWorldSpace, "GlobalMoveDelta");
+        //
         // _sirPhysics.VerticalCollisions(ref posChangeInWorldSpace, Position);
         // _sirPhysics.ForwardCollisions(ref posChangeInWorldSpace, Position);
         // _sirPhysics.SidewardCollisions(ref posChangeInWorldSpace, Position);
 
         Position += posChangeInWorldSpace;
     }
-    
+
     public Vector3 Forward => Direction;
 
     public Vector3 Right => new(-Direction.Z, 0, Direction.X);

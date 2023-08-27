@@ -1,16 +1,20 @@
-﻿namespace RayLib3dTest;
+﻿using System.Diagnostics;
+
+namespace RayLib3dTest;
 
 public class Chunker : I3DDrawable
 {
     private readonly GlobalBoy _globalBoy;
     private readonly Textures _textures;
     private readonly MrPerlin _mrPerlin;
+    private readonly Debuggerus _debuggerus;
 
-    public Chunker(GlobalBoy globalBoy, Textures textures, MrPerlin mrPerlin)
+    public Chunker(GlobalBoy globalBoy, Textures textures, MrPerlin mrPerlin, Debuggerus debuggerus)
     {
         _globalBoy = globalBoy;
         _textures = textures;
         _mrPerlin = mrPerlin;
+        _debuggerus = debuggerus;
     }
     
     public void Draw3d()
@@ -35,7 +39,11 @@ public class Chunker : I3DDrawable
                 {
                     if (chunk is null)
                     {
+                        var startTime = Stopwatch.GetTimestamp();
+
                         chunk = GenChunk(neededChunk);
+                        
+                        _debuggerus.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable(nameof(GenChunk), 100, 220));
                         _globalBoy.Chunks.Add(neededChunk, chunk);
                     }
                     
@@ -44,7 +52,14 @@ public class Chunker : I3DDrawable
                         && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X + 1 })
                         && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X - 1 }))
                     {
+                        var startTime = Stopwatch.GetTimestamp();
+                        
                         chunk.GenMesh();
+
+                        var res = Stopwatch.GetElapsedTime(startTime).Microseconds;
+                        _debuggerus.Plot(res, new Plotable(nameof(chunk.GenMesh), 0, 1200));
+                        _debuggerus.Print(res, nameof(chunk.GenMesh));
+                        
                         chunk.HasMesh = true;
                         return;
                     }

@@ -1,75 +1,40 @@
 ﻿global using static Raylib_cs.Raylib;
-global using static Raylib_cs.Rlgl;
-using Raylib_cs;
-using RayLib3dTest;
+global using System.Numerics;
+global using Raylib_cs;
 
+InitWindow(1000, 1000, "");
 
-const int screenWidth = 800;
-const int screenHeight = 480;
+var camera = new Camera3D(new Vector3(0, 10, -10), new Vector3(0, 0, 0), new Vector3(0, 1, 0), 60,
+    CameraProjection.CAMERA_PERSPECTIVE);
 
-var mrPerlin = new MrPerlin();
-
-InitWindow(screenWidth, screenHeight, "Hello World");
+DisableCursor(); 
 SetTargetFPS(60);
-
-var scale = .1f;
-
-var chunkSize = 16;
-
-HashSet<IntVector2> activatedChunks = new()
-{
-    new IntVector2(0, 0)
-};
 
 while (!WindowShouldClose())
 {
-    if (IsMouseButtonDown(MouseButton.MOUSE_BUTTON_LEFT))
-    {
-        var pos = GetMousePosition();
-        var chunk = new IntVector2((int)pos.X / chunkSize, (int)pos.Y / chunkSize);
-        activatedChunks.Add(chunk);
-    }
-
-    if (GetMouseWheelMoveV().Y > 0)
-    {
-        scale += 0.01f;
-    }
-    if (GetMouseWheelMoveV().Y < 0)
-    {
-        scale -= 0.01f;
-    }
+    UpdateCamera(ref camera, CameraMode.CAMERA_CUSTOM);
     
     BeginDrawing();
-
-    ClearBackground(Color.WHITE);
-
-    foreach (var chunk in activatedChunks)
-    {
-        for (var x = 0; x < chunkSize; x++)
-        {
-            for (var y = 0; y < chunkSize; y++)
-            {
-                var globalX = x + chunk.X * chunkSize;
-                var globalZ = y + chunk.Y * chunkSize;
-                
-                var res = mrPerlin.OctavePerlin(
-                    globalX * scale, 
-                    0, 
-                    globalZ * scale, 1, 2);
-                
-                var dat = (int)(res * 255);
-                
-                DrawPixel(x + chunk.X * chunkSize, y + chunk.Y * chunkSize, new Color(dat, dat, dat, 255));
-            }
-        }
-    }
-
-    return;
     
-    DrawText(scale.ToString(), 100, 100, 20, Color.RED);
-    DrawText($"{0} - {screenWidth * scale}", 100, 200, 20, Color.RED);
+        ClearBackground(Color.WHITE);
+        
+        BeginMode3D(camera);
+
+        DrawCylinderEx(Vector3.Zero, Vector3E.Forward * 10, .1f, .1f, 10, Color.BLUE); //z
+        DrawCylinderEx(Vector3.Zero, Vector3E.Right * 10, .1f, .1f, 10, Color.RED); //x
+        DrawCylinderEx(Vector3.Zero, Vector3E.Up * 10, .1f, .1f, 10, Color.GREEN); //y
+        
+        EndMode3D();
     
     EndDrawing();
 }
 
 CloseWindow();
+
+public static class Vector3E
+{
+    public static Vector3 Right = new Vector3(1, 0, 0);
+    public static Vector3 Forward = new Vector3(0, 0, 1);
+    public static Vector3 Up = new Vector3(0, 1, 0);
+    
+}

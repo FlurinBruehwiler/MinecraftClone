@@ -21,19 +21,13 @@ var colcol = new Colcol(globalBoy);
 var sirPhysics = new SirPhysics(colcol);
 
 var mrPerlin = new MrPerlin(0);
+var debuggerus = new Debuggerus();
+var chunker = new Chunker(globalBoy, textures, mrPerlin, debuggerus);
+var player = new Player(sirPhysics, colcol, globalBoy, debuggerus);
 
-var chunker = new Chunker(globalBoy, textures, mrPerlin);
-var player = new Player(sirPhysics, colcol, globalBoy);
+var cameraManager = new CameraManager(player, chunker, debuggerus);
 
-var cameraManager = new CameraManager(player, chunker);
-
-var gamus = new Gamus(cameraManager);
-
-gamus.RegisterDraw2d(new Debuggerus());
-
-gamus.RegisterDraw3d(chunker);
-
-gamus.RegisterServus(cameraManager);
+var gamus = new Gamus(cameraManager, chunker, cameraManager, debuggerus, player);
 
 gamus.GameLoop();
 

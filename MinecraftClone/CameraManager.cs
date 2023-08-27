@@ -3,19 +3,19 @@
 public class CameraManager : IServus
 {
     public Camera3D Camera;
-    private float _sens = 60;
+    private float _sens = 1;
     private Player _player;
     private readonly Chunker _chunker;
+    private readonly Debuggerus _debuggerus;
     private float _playerSpeed = 1f;
 
-    public CameraManager(Player player, Chunker chunker)
+    public CameraManager(Player player, Chunker chunker, Debuggerus debuggerus)
     {
         _player = player;
         _chunker = chunker;
-        Camera = new Camera3D(Vector3.Zero, Vector3.One, new Vector3(0, 1, 0), 60, CameraProjection.CAMERA_PERSPECTIVE)
-        {
-            fovy = 100
-        };
+        _debuggerus = debuggerus;
+        Camera = new Camera3D(Vector3.Zero, new Vector3(0, 0, 1), new Vector3(0, 1, 0), 100,
+            CameraProjection.CAMERA_PERSPECTIVE);
     }
 
     public void Update()
@@ -25,39 +25,66 @@ public class CameraManager : IServus
         _chunker.LoadChunksIfNeccesary(_player.Position);
     }
 
-    private void UpdateCamera(IControlable controlable)
+    private unsafe void UpdateCamera(IControlable controlable)
     {
         var posChangeInWorldSpace = controlable.Position - Camera.position;
 
-        var cameraRight = Vector3.Normalize(new Vector3(Camera.GetRight().X, 0, Camera.GetRight().Z));
-        var cameraForward = Vector3.Normalize(new Vector3(-Camera.GetRight().Z, 0, Camera.GetRight().X));
+        _debuggerus.Print(Camera.GetLeft(), "camera right");
+        _debuggerus.Print(Camera.GetForward(), "camera forward");
+        _debuggerus.Print(Camera.GetUp(), "camera up");
 
-        var localX = Vector3.Dot(cameraRight, posChangeInWorldSpace);
+        var cameraLeft = Vector3.Normalize(new Vector3(Camera.GetLeft().X, 0, Camera.GetLeft().Z));
+        var cameraForward = Vector3.Normalize(new Vector3(-Camera.GetLeft().Z, 0, Camera.GetLeft().X));
+
+        var localX = Vector3.Dot(cameraLeft, posChangeInWorldSpace);
         var localZ = Vector3.Dot(cameraForward, posChangeInWorldSpace);
 
         var newlocalMoveDelta = new Vector3(localX, posChangeInWorldSpace.Y, localZ);
 
-        var camera = Camera;
-        UpdateCameraPro(ref camera,
-            new Vector3(newlocalMoveDelta.X, newlocalMoveDelta.Z, newlocalMoveDelta.Y) * _sens * GetFrameTime(),
-            new Vector3(GetMouseDelta() * 0.5f, 0), 0);
+        var finalMoveDelta = newlocalMoveDelta * _sens * GetFrameTime();
+        //
+        _debuggerus.Print(posChangeInWorldSpace, "world movements");
+        _debuggerus.Print(controlable.Position, "player pos");
+        _debuggerus.Print(Camera.position, "camera pos");
+        //
+        // _debuggerus.Print(controlable.Position, "Player Pos");
+
+        Camera.position = controlable.Position;
+        Camera.target = controlable.Position + controlable.Direction;
+
+        // fixed (Camera3D* c = &Camera)
+        // {
+        //     UpdateCameraPro(c, new Vector3(finalMoveDelta.Z, -finalMoveDelta.X, finalMoveDelta.Y),   new Vector3(GetMouseDelta() * 0.2f, 0), 0);
+        // }
     }
 
     private void HandleInput(IControlable controlable)
     {
         HandleSpeedChange();
-        
+
+        var rotationInput = GetMouseDelta() * 0.2f;
+        var rotationVector = new Vector3(-rotationInput.X * DEG2RAD, rotationInput.Y * DEG2RAD, 0);
+
+        controlable.Direction = Vector3RotateByAxisAngle(controlable.Direction, -controlable.Right, rotationVector.Y);
+        controlable.Direction = Vector3RotateByAxisAngle(controlable.Direction, new Vector3(0, 1, 0), rotationVector.X);
+
+
         var moveDelta = GetMovementDelta();
-        
+
+        _debuggerus.Print(moveDelta, "Input");
+
         var right = Vector3.Normalize(new Vector3(controlable.Right.X, 0, controlable.Right.Z));
         var forward = Vector3.Normalize(new Vector3(-controlable.Right.Z, 0, controlable.Right.X));
 
+        _debuggerus.Print(right, "right");
+        _debuggerus.Print(forward, "forward");
+
         var xComponent = right * moveDelta.X;
         var zComponent = forward * moveDelta.Z;
-    
+
         var globalMoveDelta = xComponent + zComponent;
         globalMoveDelta.Y = moveDelta.Y;
-        
+
         controlable.Move(globalMoveDelta);
     }
 
@@ -66,36 +93,37 @@ public class CameraManager : IServus
         if (GetMouseWheelMoveV().Y > 0)
         {
             _playerSpeed *= 1.1f;
-        }else if (GetMouseWheelMoveV().Y < 0)
+        }
+        else if (GetMouseWheelMoveV().Y < 0)
         {
             _playerSpeed *= 0.9f;
         }
-    
+
         _playerSpeed = Math.Max(_playerSpeed, 0);
     }
 
     private Vector3 GetMovementDelta()
     {
         var moveDelta = new Vector3();
-        
+
         if (IsKeyDown(KeyboardKey.KEY_W))
         {
-            moveDelta.X += _playerSpeed;
+            moveDelta.Z -= _playerSpeed;
         }
 
         if (IsKeyDown(KeyboardKey.KEY_S))
         {
-            moveDelta.X -= _playerSpeed;
+            moveDelta.Z += _playerSpeed;
         }
 
         if (IsKeyDown(KeyboardKey.KEY_D))
         {
-            moveDelta.Z += _playerSpeed;
+            moveDelta.X += _playerSpeed;
         }
 
         if (IsKeyDown(KeyboardKey.KEY_A))
         {
-            moveDelta.Z -= _playerSpeed;
+            moveDelta.X -= _playerSpeed;
         }
 
         if (IsKeyDown(KeyboardKey.KEY_SPACE))
@@ -107,7 +135,7 @@ public class CameraManager : IServus
         {
             moveDelta.Y -= _playerSpeed;
         }
-        
+
         return moveDelta;
     }
 }

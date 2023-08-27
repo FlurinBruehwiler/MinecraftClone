@@ -2,29 +2,20 @@
 
 public class Gamus
 {
-    private List<I2DDrawable> _2dDrawables = new();
-    private List<I3DDrawable> _3dDrawables = new();
-    private List<IServus> _services = new();
     private CameraManager _cameraManager;
+    private readonly Chunker _chunker;
+    private readonly CameraManager _manager;
+    private Debuggerus _debuggerus;
+    private readonly IControlable _player;
 
-    public Gamus(CameraManager cameraManager)
+
+    public Gamus(CameraManager cameraManager, Chunker chunker, CameraManager manager, Debuggerus debuggerus, IControlable player)
     {
         _cameraManager = cameraManager;
-    }
-
-    public void RegisterDraw2d(I2DDrawable instance)
-    {
-        _2dDrawables.Add(instance);
-    }
-    
-    public void RegisterDraw3d(I3DDrawable instance)
-    {
-        _3dDrawables.Add(instance);
-    }
-
-    public void RegisterServus(IServus instance)
-    {
-        _services.Add(instance);
+        _chunker = chunker;
+        _manager = manager;
+        _debuggerus = debuggerus;
+        _player = player;
     }
 
     public void GameLoop()
@@ -51,25 +42,16 @@ public class Gamus
 
     private void MakeTheServus()
     {
-        foreach (var service in _services)
-        {
-            service.Update();
-        }
+        _cameraManager.Update();
     }
 
     private void Draw2d()
     {
-        foreach (var drawable in _2dDrawables)
-        {
-            drawable.Draw2d();
-        }
+        _debuggerus.Draw2d();
     }
 
     private void Draw3d()
     {
-        foreach (var drawable in _3dDrawables)
-        {
-            drawable.Draw3d();
-        }
+        _chunker.Draw3d();   
     }
 }
