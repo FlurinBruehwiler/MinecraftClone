@@ -21,7 +21,7 @@ public class Chunker : I3DDrawable
     {
         foreach (var (_, chunk) in _globalBoy.Chunks)
         {
-            DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y, chunk.Pos.Z * 16), 1, Color.WHITE);
+            DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16), 1, Color.WHITE);
         }
     }
     
@@ -34,30 +34,34 @@ public class Chunker : I3DDrawable
         {
             for (var z = -renderDistance; z < renderDistance; z++)
             {
-                var neededChunk = new IntVector3(chunkPos.X + x, 0, chunkPos.Z + z);
-                if (!_globalBoy.Chunks.TryGetValue(neededChunk, out var chunk) || !chunk.HasMesh)
+                for (var y = -1; y < 5; y++)
                 {
-                    if (chunk is null)
+                    var neededChunk = new IntVector3(chunkPos.X + x, y, chunkPos.Z + z);
+                    if (!_globalBoy.Chunks.TryGetValue(neededChunk, out var chunk) || !chunk.HasMesh)
                     {
-                        var startTime = Stopwatch.GetTimestamp();
+                        if (chunk is null)
+                        {
+                            var startTime = Stopwatch.GetTimestamp();
 
-                        chunk = GenChunk(neededChunk);
-                        
-                        _debuggerus.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable(nameof(GenChunk), 100, 220));
-                        _globalBoy.Chunks.Add(neededChunk, chunk);
-                    }
-                    
-                    if (_globalBoy.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z + 1 })
-                        && _globalBoy.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z - 1 })
-                        && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X + 1 })
-                        && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X - 1 }))
-                    {
+                            chunk = GenChunk(neededChunk);
 
-                        chunk.GenMesh();
+                            _debuggerus.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable(nameof(GenChunk), 100, 220));
+                            _globalBoy.Chunks.Add(neededChunk, chunk);
+                        }
 
+                        if (_globalBoy.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z + 1 })
+                            && _globalBoy.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z - 1 })
+                            && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X + 1 })
+                            && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X - 1 })
+                             && _globalBoy.Chunks.ContainsKey(neededChunk with { Y = neededChunk.Y + 1 })
+                             && _globalBoy.Chunks.ContainsKey(neededChunk with { Y = neededChunk.Y - 1 }))
 
-                        chunk.HasMesh = true;
-                        return;
+                        {
+                            chunk.GenMesh();
+
+                            chunk.HasMesh = true;
+                            return;
+                        }
                     }
                 }
             }
@@ -72,7 +76,7 @@ public class Chunker : I3DDrawable
             Pos = pos
         };
 
-        const float scale = .05f;
+        const float scale = .025f;
         
         for (var x = 0; x < 16; x++)
         {
@@ -80,21 +84,21 @@ public class Chunker : I3DDrawable
             {
                 var globalX = x + chunk.Pos.X * 16;
                 var globalZ = z + chunk.Pos.Z * 16;
-                
+
                 var res = _mrPerlin.OctavePerlin(
                     (globalX + 100_000) * scale,
                     0,
                     (globalZ + 100_000) * scale, 1, 2);
-                
-                var height = (int)(res * 16);
+
+                var height = (int)(res * 16 * 5);
 
                 for (var y = 0; y < 16; y++)
                 {
-                    if (y > height)
+                    if (chunk.Pos.Y * 16 + y > height)
                     {
                         chunk.Blocks[x, y, z].BlockId = Blocks.Air.Id;
                     }
-                    else if (y == height)
+                    else if (chunk.Pos.Y * 16 + y == height)
                     {
                         chunk.Blocks[x, y, z].BlockId = Blocks.Gras.Id;
                     }
