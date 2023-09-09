@@ -20,19 +20,24 @@ var camera = new Camera2D
     zoom = 1
 };
 
-ConcurrentDictionary<Pos, Texture> tiles = new();
+ConcurrentDictionary<TileId, Texture> tiles = new();
 ConcurrentBag<UnUploadedTile> tilesToUpload = new();
+ConcurrentDictionary<TileId, int> loadingTiles = new();
+
+var loadedPositions = new List<Pos>();
 
 var client = new HttpClient();
 
-var startX = 520;
-var startY = 190;
+var startX = 516;
+var startY = 188;
+
+var year = 2020;
 
 for (var x = 0; x < 10; x++)
 {
     for (var y = 0; y < 10; y++)
     {
-        LoadImage(1861, x, y);
+        loadedPositions.Add(new Pos(x, y));
     }
 }
 
@@ -46,6 +51,11 @@ while (!WindowShouldClose())
 
     CalculateDrag();
 
+    if (IsKeyPressed(KeyboardKey.KEY_SPACE))
+    {
+        loadedPositions.Clear();
+    }
+
     while (!tilesToUpload.IsEmpty)
     {
         if (tilesToUpload.TryTake(out var tile))
@@ -56,34 +66,46 @@ while (!WindowShouldClose())
                 var pointer = (byte*)pinnedArray.AddrOfPinnedObject();
                 var image = LoadImageFromMemory(".png", pointer, tile.RawBytes.Length * sizeof(byte));
                 var texture = LoadTextureFromImage(image);
-                tiles.TryAdd(tile.Pos, texture);
+                tiles.TryAdd(tile.Id, texture);
             }
+
+            loadingTiles.Remove(tile.Id, out _);
         }
     }
 
     BeginDrawing();
         ClearBackground(WHITE);
 
-
         BeginMode2D(camera);
 
-            const int size = 100;
+            // const int size = 100;
             // rlPushMatrix();
             //     rlTranslatef(0, size / 4 * resolution, 0);
             //     rlRotatef(90, 1, 0, 0);
             //     DrawGrid(size, resolution);
             // rlPopMatrix();
 
-            foreach (var (pos, texture) in tiles)
+            foreach (var (x, y) in loadedPositions)
             {
-                DrawTexture(texture, pos.X * resolution, pos.Y * resolution, WHITE);
+                var tileId = new TileId(year, new Pos(x, y));
+                if (tiles.TryGetValue(tileId, out var tile))
+                {
+                    DrawTexture(tile, x * resolution, y * resolution, WHITE);
+                }
+                else
+                {
+                    LoadImage(tileId);
+                }
             }
 
             DrawDragRectangle();
 
         EndMode2D();
 
-        GuiSlider(new Rectangle(0, 0, screenWidth, 30), "1844", "2021", 1861, 1844, 2021);
+        var sliderValue = GuiSlider(new Rectangle(0, 0, screenWidth, 100), "1844", "2021", year, 1844, 2021);
+        year = (int)(Math.Round(sliderValue / 5) * 5);
+
+        DrawText(year.ToString(), 0, 100, 100, RED);
 
     EndDrawing();
 }
@@ -149,30 +171,35 @@ void CalculateDrag()
         {
             for (var tileY = minY; tileY <= maxY; tileY++)
             {
-                LoadImage(1861, tileX, tileY);
+                loadedPositions.Add(new Pos(tileX, tileY));
             }
         }
     }
 }
 
-void LoadImage(int year, int x, int y)
+void LoadImage(TileId tileId)
 {
-    if (tiles.ContainsKey(new Pos(x, y)))
+    if (tiles.ContainsKey(tileId))
         return;
 
-    var finalX = startX + x;
-    var finalY = startY + y;
+    var isAlreadyLoading = !loadingTiles.TryAdd(tileId, 0);
 
-    var directory = $"./tiles/{year}";
+    if (isAlreadyLoading)
+        return;
+
+    var finalX = startX + tileId.Pos.X;
+    var finalY = startY + tileId.Pos.Y;
+
+    var directory = $"./tiles/{tileId.Year}";
     var path = Path.Combine(directory, $"{finalX}_{finalY}.png");
 
     if (File.Exists(path))
     {
-        tiles.TryAdd(new Pos(x, y), LoadTexture(path));
+        tiles.TryAdd(tileId, LoadTexture(path));
         return;
     }
 
-    var url = $"https://wmts100.geo.admin.ch/1.0.0/ch.swisstopo.zeitreihen/default/18611231/2056/23/{finalX}/{finalY}.png";
+    var url = $"https://wmts100.geo.admin.ch/1.0.0/ch.swisstopo.zeitreihen/default/{year}1231/2056/23/{finalX}/{finalY}.png";
 
     client.GetByteArrayAsync(url)
         .ContinueWith(task =>
@@ -183,7 +210,7 @@ void LoadImage(int year, int x, int y)
 
             File.WriteAllBytes(path, res);
 
-            tilesToUpload.Add(new UnUploadedTile(new Pos(x, y), res));
+            tilesToUpload.Add(new UnUploadedTile(tileId, res));
         });
 }
 
@@ -219,7 +246,7 @@ void HandleNavigation()
     }
 }
 
-record UnUploadedTile(Pos Pos, byte[] RawBytes);
+record UnUploadedTile(TileId Id, byte[] RawBytes);
 
 record Pos(int X, int Y);
 
