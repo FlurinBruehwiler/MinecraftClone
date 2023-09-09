@@ -107,6 +107,18 @@ public class Chunker : I3DDrawable
                         chunk.Blocks[x, y, z].BlockId = Blocks.Dirt.Id;
                     }
                 }
+
+            }
+        }
+
+        var posX = Random.Shared.Next(0, 15);
+        var posZ = Random.Shared.Next(0, 15);
+
+        for (int i = 0; i < 16; i++)
+        {
+            if (chunk.Blocks[posX, i, posZ].IsAir())
+            {
+                
             }
         }
 

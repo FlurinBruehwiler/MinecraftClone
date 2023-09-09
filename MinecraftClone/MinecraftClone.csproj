@@ -10,7 +10,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Raylib-cs" Version="4.5.0.3" />
+    <PackageReference Include="Raylib-cs" Version="4.5.0.4" />
     <PackageReference Include="SkiaSharp" Version="2.88.4-preview.89" />
   </ItemGroup>
   

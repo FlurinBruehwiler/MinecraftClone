@@ -5,14 +5,18 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>Test</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Raylib-cs" Version="4.5.0.3" />
+        <PackageReference Include="Jering.Javascript.NodeJS" Version="7.0.0-beta.5" />
+        <PackageReference Include="rlImgui-cs" Version="1.0.2" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MinecraftClone\MinecraftClone.csproj" />
+      <None Update="index.js">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
     
 </Project>
