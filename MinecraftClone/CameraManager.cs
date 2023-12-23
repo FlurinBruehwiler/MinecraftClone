@@ -27,25 +27,25 @@ public class CameraManager : IServus
 
     private unsafe void UpdateCamera(IControlable controlable)
     {
-        var posChangeInWorldSpace = controlable.Position - Camera.position;
-
-        _debuggerus.Print(Camera.GetLeft(), "camera right");
-        _debuggerus.Print(Camera.GetForward(), "camera forward");
-        _debuggerus.Print(Camera.GetUp(), "camera up");
-
-        var cameraLeft = Vector3.Normalize(new Vector3(Camera.GetLeft().X, 0, Camera.GetLeft().Z));
-        var cameraForward = Vector3.Normalize(new Vector3(-Camera.GetLeft().Z, 0, Camera.GetLeft().X));
-
-        var localX = Vector3.Dot(cameraLeft, posChangeInWorldSpace);
-        var localZ = Vector3.Dot(cameraForward, posChangeInWorldSpace);
-
-        var newlocalMoveDelta = new Vector3(localX, posChangeInWorldSpace.Y, localZ);
-
-        var finalMoveDelta = newlocalMoveDelta * _sens * GetFrameTime();
+        // var posChangeInWorldSpace = controlable.Position - Camera.position;
         //
-        _debuggerus.Print(posChangeInWorldSpace, "world movements");
-        _debuggerus.Print(controlable.Position, "player pos");
-        _debuggerus.Print(Camera.position, "camera pos");
+        // _debuggerus.Print(Camera.GetLeft(), "camera right");
+        // _debuggerus.Print(Camera.GetForward(), "camera forward");
+        // _debuggerus.Print(Camera.GetUp(), "camera up");
+        //
+        // var cameraLeft = Vector3.Normalize(new Vector3(Camera.GetLeft().X, 0, Camera.GetLeft().Z));
+        // var cameraForward = Vector3.Normalize(new Vector3(-Camera.GetLeft().Z, 0, Camera.GetLeft().X));
+        //
+        // var localX = Vector3.Dot(cameraLeft, posChangeInWorldSpace);
+        // var localZ = Vector3.Dot(cameraForward, posChangeInWorldSpace);
+        //
+        // var newlocalMoveDelta = new Vector3(localX, posChangeInWorldSpace.Y, localZ);
+        //
+        // var finalMoveDelta = newlocalMoveDelta * _sens * GetFrameTime();
+        // //
+        // _debuggerus.Print(posChangeInWorldSpace, "world movements");
+        // _debuggerus.Print(controlable.Position, "player pos");
+        // _debuggerus.Print(Camera.position, "camera pos");
         //
         // _debuggerus.Print(controlable.Position, "Player Pos");
 

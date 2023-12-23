@@ -51,7 +51,7 @@ public class MrPerlin {
 	
 	public double Perlin(double x, double y, double z) {
 		if(Repeat > 0) {									// If we have any repeat on, change the coordinates to their "local" repetitions
-			x = x%Repeat;
+			x = x % Repeat;
 			y = y%Repeat;
 			z = z%Repeat;
 		}
