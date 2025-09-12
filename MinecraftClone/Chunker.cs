@@ -2,33 +2,19 @@
 
 namespace RayLib3dTest;
 
-public class Chunker : I3DDrawable
+public class Chunkloader
 {
-    private readonly GlobalBoy _globalBoy;
     private readonly Textures _textures;
-    private readonly MrPerlin _mrPerlin;
-    private readonly Debuggerus _debuggerus;
 
-    public Chunker(GlobalBoy globalBoy, Textures textures, MrPerlin mrPerlin, Debuggerus debuggerus)
+    public Chunkloader(Textures textures)
     {
-        _globalBoy = globalBoy;
         _textures = textures;
-        _mrPerlin = mrPerlin;
-        _debuggerus = debuggerus;
     }
-    
-    public void Draw3d()
-    {
-        foreach (var (_, chunk) in _globalBoy.Chunks)
-        {
-            DrawModel(chunk.Model, new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16), 1, Color.WHITE);
-        }
-    }
-    
+
     public void LoadChunksIfNeccesary(Vector3 playerPos)
     {
         const int renderDistance = 8;
-        var chunkPos = GlobalBoy.GetChunkPos(playerPos);
+        var chunkPos = World.GetChunkPos(playerPos);
 
         for (var x = -renderDistance; x < renderDistance; x++)
         {
@@ -37,7 +23,7 @@ public class Chunker : I3DDrawable
                 for (var y = -1; y < 5; y++)
                 {
                     var neededChunk = new IntVector3(chunkPos.X + x, y, chunkPos.Z + z);
-                    if (!_globalBoy.Chunks.TryGetValue(neededChunk, out var chunk) || !chunk.HasMesh)
+                    if (!CurrentWorld.Chunks.TryGetValue(neededChunk, out var chunk) || !chunk.HasMesh)
                     {
                         if (chunk is null)
                         {
@@ -45,16 +31,16 @@ public class Chunker : I3DDrawable
 
                             chunk = GenChunk(neededChunk);
 
-                            _debuggerus.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable(nameof(GenChunk), 100, 220));
-                            _globalBoy.Chunks.Add(neededChunk, chunk);
+                            DevTools.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable(nameof(GenChunk), 100, 220));
+                            CurrentWorld.Chunks.Add(neededChunk, chunk);
                         }
 
-                        if (_globalBoy.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z + 1 })
-                            && _globalBoy.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z - 1 })
-                            && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X + 1 })
-                            && _globalBoy.Chunks.ContainsKey(neededChunk with { X = neededChunk.X - 1 })
-                             && _globalBoy.Chunks.ContainsKey(neededChunk with { Y = neededChunk.Y + 1 })
-                             && _globalBoy.Chunks.ContainsKey(neededChunk with { Y = neededChunk.Y - 1 }))
+                        if (CurrentWorld.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z + 1 })
+                            && CurrentWorld.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z - 1 })
+                            && CurrentWorld.Chunks.ContainsKey(neededChunk with { X = neededChunk.X + 1 })
+                            && CurrentWorld.Chunks.ContainsKey(neededChunk with { X = neededChunk.X - 1 })
+                             && CurrentWorld.Chunks.ContainsKey(neededChunk with { Y = neededChunk.Y + 1 })
+                             && CurrentWorld.Chunks.ContainsKey(neededChunk with { Y = neededChunk.Y - 1 }))
 
                         {
                             chunk.GenMesh();
@@ -71,7 +57,7 @@ public class Chunker : I3DDrawable
 
     private Chunk GenChunk(IntVector3 pos)
     {
-        var chunk = new Chunk(_globalBoy, _textures, _debuggerus)
+        var chunk = new Chunk(CurrentWorld, _textures)
         {
             Pos = pos
         };
@@ -85,7 +71,7 @@ public class Chunker : I3DDrawable
                 var globalX = x + chunk.Pos.X * 16;
                 var globalZ = z + chunk.Pos.Z * 16;
 
-                var res = _mrPerlin.OctavePerlin(
+                var res = Perlin.OctavePerlin(
                     (globalX + 100_000) * scale,
                     0,
                     (globalZ + 100_000) * scale, 1, 2);

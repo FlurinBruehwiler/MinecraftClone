@@ -1,16 +1,16 @@
 ﻿namespace RayLib3dTest;
 
-public class Debuggerus : I2DDrawable
+public static class DevTools
 {
-    private List<PrintMessage> _printMessages = new();
-    private Dictionary<Plotable, Queue<int>> _plots = new();
+    private static List<PrintMessage> _printMessages = new();
+    private static Dictionary<Plotable, Queue<int>> _plots = new();
 
-    public void Print(object value, string name)
+    public static void Print(object value, string name)
     {
         _printMessages.Add(new PrintMessage(value.ToString(), name));
     }
 
-    public void Plot(int value, Plotable plotable)
+    public static void Plot(int value, Plotable plotable)
     {
         if (!_plots.TryGetValue(plotable, out var queue))
         {
@@ -27,7 +27,7 @@ public class Debuggerus : I2DDrawable
             queue.Dequeue();
     }
     
-    public void Draw2d()
+    public static void Draw()
     {
         DrawRectangle(0, 0, 300, 300, new Color(0, 0, 0, 50));
         for (var i = 0; i < _printMessages.Count; i++)

@@ -16,19 +16,14 @@ merger.Merge();
 
 var texture = LoadTexture("resources/textureatlas.png");
 
-var globalBoy = new GlobalBoy(texture);
+CurrentWorld = new World(texture);
 
-var colcol = new Colcol(globalBoy);
-var sirPhysics = new SirPhysics(colcol);
+var chunker = new Chunkloader(textures);
+var player = new Player();
 
-var mrPerlin = new MrPerlin(0);
-var debuggerus = new Debuggerus();
-var chunker = new Chunker(globalBoy, textures, mrPerlin, debuggerus);
-var player = new Player(sirPhysics, colcol, globalBoy, debuggerus);
+var cameraManager = new CameraManager(player, chunker);
 
-var cameraManager = new CameraManager(player, chunker, debuggerus);
-
-var gamus = new Gamus(cameraManager, chunker, cameraManager, debuggerus, player);
+var gamus = new Game(cameraManager);
 
 gamus.GameLoop();
 

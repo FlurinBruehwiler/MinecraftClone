@@ -5,9 +5,8 @@ namespace RayLib3dTest;
 
 public class Chunk : IDisposable
 {
-    private readonly GlobalBoy _globalBoy;
+    private readonly World _world;
     private readonly Textures _textures;
-    private readonly Debuggerus _debuggerus;
     public Mesh Mesh;
     public Model Model { get; set; }
     public Block[,,] Blocks { get; set; }
@@ -23,18 +22,17 @@ public class Chunk : IDisposable
     private readonly IntVector3 _topLeftBack = new(0, 1, 1);
     private readonly IntVector3 _topRightBack = new(1, 1, 1);
 
-    public Chunk(GlobalBoy globalBoy, Textures textures, Debuggerus debuggerus)
+    public Chunk(World world, Textures textures)
     {
-        _globalBoy = globalBoy;
+        _world = world;
         _textures = textures;
-        _debuggerus = debuggerus;
         Blocks = new Block[16, 16, 16];
     }
 
     private unsafe void GenModel()
     {
         Model = LoadModelFromMesh(Mesh);
-        Model.materials[0].maps->texture = _globalBoy.Texture2D;
+        Model.materials[0].maps->texture = _world.Texture2D;
         // Model.materials[0].shader = _globalBoy.Shader;
     }
 
@@ -71,7 +69,7 @@ public class Chunk : IDisposable
             }
         }
 
-        _debuggerus.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable("mesh gen", 0, 1200));
+        DevTools.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable("mesh gen", 0, 1200));
 
 
         Span<float> vertices;
@@ -258,7 +256,7 @@ public class Chunk : IDisposable
             || blockInChunk.Y is < 0 or > 15
             || blockInChunk.Z is < 0 or > 15)
         {
-            return _globalBoy.TryGetBlockAtPos(Pos * 16 + blockInChunk, out wasFound);
+            return _world.TryGetBlockAtPos(Pos * 16 + blockInChunk, out wasFound);
         }
 
         wasFound = true;

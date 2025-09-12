@@ -5,15 +5,13 @@ public class CameraManager : IServus
     public Camera3D Camera;
     private float _sens = 1;
     private Player _player;
-    private readonly Chunker _chunker;
-    private readonly Debuggerus _debuggerus;
+    private readonly Chunkloader _chunkloader;
     private float _playerSpeed = 0.1f;
 
-    public CameraManager(Player player, Chunker chunker, Debuggerus debuggerus)
+    public CameraManager(Player player, Chunkloader chunkloader)
     {
         _player = player;
-        _chunker = chunker;
-        _debuggerus = debuggerus;
+        _chunkloader = chunkloader;
         Camera = new Camera3D(Vector3.Zero, new Vector3(0, 0, 1), new Vector3(0, 1, 0), 100,
             CameraProjection.CAMERA_PERSPECTIVE);
     }
@@ -22,10 +20,10 @@ public class CameraManager : IServus
     {
         HandleInput(_player);
         UpdateCamera(_player);
-        _chunker.LoadChunksIfNeccesary(_player.Position);
+        _chunkloader.LoadChunksIfNeccesary(_player.Position);
     }
 
-    private unsafe void UpdateCamera(IControlable controlable)
+    private unsafe void UpdateCamera(Player controlable)
     {
         // var posChangeInWorldSpace = controlable.Position - Camera.position;
         //
@@ -58,7 +56,7 @@ public class CameraManager : IServus
         // }
     }
 
-    private void HandleInput(IControlable controlable)
+    private void HandleInput(Player controlable)
     {
         HandleSpeedChange();
 
@@ -71,13 +69,13 @@ public class CameraManager : IServus
 
         var moveDelta = GetMovementDelta();
 
-        _debuggerus.Print(moveDelta, "Input");
+        DevTools.Print(moveDelta, "Input");
 
         var right = Vector3.Normalize(new Vector3(controlable.Right.X, 0, controlable.Right.Z));
         var forward = Vector3.Normalize(new Vector3(-controlable.Right.Z, 0, controlable.Right.X));
 
-        _debuggerus.Print(right, "right");
-        _debuggerus.Print(forward, "forward");
+        DevTools.Print(right, "right");
+        DevTools.Print(forward, "forward");
 
         var xComponent = right * moveDelta.X;
         var zComponent = forward * moveDelta.Z;

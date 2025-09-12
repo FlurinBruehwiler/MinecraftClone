@@ -1,39 +1,27 @@
 ﻿namespace RayLib3dTest;
 
-public class Player : IControlable
+public class Player
 {
-    private readonly SirPhysics _sirPhysics;
-    private readonly Colcol _colcol;
-    private readonly GlobalBoy _globalBoy;
-    private readonly Debuggerus _debuggerus;
-    public Vector3 Position { get; set; } = new(0, 100, 0);
+    public Vector3 Position  = new(0, 100, 0);
     public Vector3 Velocity;
-    public Vector3 Direction { get; set; } = new(0, 0, 1);
+    public Vector3 Direction = new(0, 0, 1);
 
     public CollisionInfo CollisionInfo;
     // public Camera3D Camera { get; }
-
-    public Player(SirPhysics sirPhysics, Colcol colcol, GlobalBoy globalBoy, Debuggerus debuggerus)
-    {
-        _sirPhysics = sirPhysics;
-        _colcol = colcol;
-        _globalBoy = globalBoy;
-        _debuggerus = debuggerus;
-    }
 
     public void Move(Vector3 posChangeInWorldSpace)
     {
         CollisionInfo.Reset();
 
-        _debuggerus.Print(posChangeInWorldSpace, "GlobalMoveDelta");
+        DevTools.Print(posChangeInWorldSpace, "GlobalMoveDelta");
 
         Velocity.Y += -.2f * GetFrameTime();
 
         posChangeInWorldSpace += Velocity;
 
-        _sirPhysics.VerticalCollisions(ref posChangeInWorldSpace, Position, out var isHorizontalHit);
-        _sirPhysics.ForwardCollisions(ref posChangeInWorldSpace, Position);
-        _sirPhysics.SidewardCollisions(ref posChangeInWorldSpace, Position);
+        Physics.VerticalCollisions(ref posChangeInWorldSpace, Position, out var isHorizontalHit);
+        Physics.ForwardCollisions(ref posChangeInWorldSpace, Position);
+        Physics.SidewardCollisions(ref posChangeInWorldSpace, Position);
 
         if (isHorizontalHit)
             Velocity.Y = 0;
@@ -71,15 +59,15 @@ public class Player : IControlable
     {
         if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT))
         {
-            var col = _colcol.Raycast(Position, Direction, 10, out var previousBlock, out _);
+            var col = Physics.Raycast(Position, Direction, 10, out var previousBlock, out _);
             if (col is not null)
             {
-                ref var b = ref _globalBoy.TryGetBlockAtPos(previousBlock, out var wasFound);
+                ref var b = ref CurrentWorld.TryGetBlockAtPos(previousBlock, out var wasFound);
                 if (wasFound)
                 {
                     b.BlockId = _selectedBlock.Id;
 
-                    var chunk = _globalBoy.GetChunk(previousBlock);
+                    var chunk = CurrentWorld.GetChunk(previousBlock);
                     chunk.GenMesh();
                 }
             }
@@ -90,15 +78,15 @@ public class Player : IControlable
     {
         if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
         {
-            var col = _colcol.Raycast(Position, Direction, 10, out _, out _);
+            var col = Physics.Raycast(Position, Direction, 10, out _, out _);
             if (col is not null)
             {
-                ref var b = ref _globalBoy.TryGetBlockAtPos(col.Value, out var wasFound);
+                ref var b = ref CurrentWorld.TryGetBlockAtPos(col.Value, out var wasFound);
                 if (wasFound)
                 {
                     b.BlockId = Blocks.Air.Id;
 
-                    var chunk = _globalBoy.GetChunk(col.Value);
+                    var chunk = CurrentWorld.GetChunk(col.Value);
                     chunk.GenMesh();
                 }
             }
