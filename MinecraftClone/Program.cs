@@ -10,18 +10,11 @@ SetTargetFPS(120);
 SetConfigFlags(ConfigFlags.FLAG_MSAA_4X_HINT);
 // SetTraceLogLevel(TraceLogLevel.LOG_ERROR);
 
-var textures = new Textures();
-var merger = new ThinkTexture(textures);
-merger.Merge();
+CurrentWorld = new World();
 
-var texture = LoadTexture("resources/textureatlas.png");
-
-CurrentWorld = new World(texture);
-
-var chunker = new Chunkloader(textures);
 var player = new Player();
 
-var cameraManager = new CameraManager(player, chunker);
+var cameraManager = new CameraManager(player);
 
 var gamus = new Game(cameraManager);
 

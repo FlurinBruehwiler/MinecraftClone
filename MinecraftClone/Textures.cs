@@ -2,7 +2,7 @@
 
 namespace RayLib3dTest;
 
-public class Textures
+public static class Textures
 {
     public const string Dirt = "dirt";
     public const string Grass = "grass";
@@ -11,9 +11,9 @@ public class Textures
     public const string Cobblestone = "cobblestone";
     public const string DiamonBlock = "diamond_block";
 
-    public Dictionary<string, int> TextureList { get; }
+    public static Dictionary<string, int> TextureList { get; }
 
-    public Textures()
+    static Textures()
     {
         var counter = 0;
         TextureList = typeof(Textures)
@@ -23,7 +23,7 @@ public class Textures
             .ToDictionary(x => x, _ => counter++);
     }
 
-    public IntVector2 GetTexturePosForFace(ushort blockId, BlockFace blockFace)
+    public static IntVector2 GetTexturePosForFace(ushort blockId, BlockFace blockFace)
     {
         var blockDefinition = Blocks.BlockList[blockId];
         var tex = blockFace switch

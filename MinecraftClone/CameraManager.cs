@@ -3,15 +3,13 @@
 public class CameraManager : IServus
 {
     public Camera3D Camera;
-    private float _sens = 1;
+    private float _sensitivity = 1;
     private Player _player;
-    private readonly Chunkloader _chunkloader;
     private float _playerSpeed = 0.1f;
 
-    public CameraManager(Player player, Chunkloader chunkloader)
+    public CameraManager(Player player)
     {
         _player = player;
-        _chunkloader = chunkloader;
         Camera = new Camera3D(Vector3.Zero, new Vector3(0, 0, 1), new Vector3(0, 1, 0), 100,
             CameraProjection.CAMERA_PERSPECTIVE);
     }
@@ -20,7 +18,7 @@ public class CameraManager : IServus
     {
         HandleInput(_player);
         UpdateCamera(_player);
-        _chunkloader.LoadChunksIfNeccesary(_player.Position);
+        Chunkloader.LoadChunksIfNeccesary(_player.Position);
     }
 
     private unsafe void UpdateCamera(Player controlable)

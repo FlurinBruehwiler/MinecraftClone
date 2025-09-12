@@ -6,7 +6,6 @@ namespace RayLib3dTest;
 public class Chunk : IDisposable
 {
     private readonly World _world;
-    private readonly Textures _textures;
     public Mesh Mesh;
     public Model Model { get; set; }
     public Block[,,] Blocks { get; set; }
@@ -22,10 +21,9 @@ public class Chunk : IDisposable
     private readonly IntVector3 _topLeftBack = new(0, 1, 1);
     private readonly IntVector3 _topRightBack = new(1, 1, 1);
 
-    public Chunk(World world, Textures textures)
+    public Chunk(World world)
     {
         _world = world;
-        _textures = textures;
         Blocks = new Block[16, 16, 16];
     }
 
@@ -135,7 +133,7 @@ public class Chunk : IDisposable
         List<Vertex> vertices,
         ushort blockId, BlockFace blockFace)
     {
-        var texture = _textures.GetTexturePosForFace(blockId, blockFace);
+        var texture = Textures.GetTexturePosForFace(blockId, blockFace);
         var topLeft = new Vector2(0.1f * texture.X, 0.1f * texture.Y);
         var topRight = new Vector2(topLeft.X + 0.1f, topLeft.Y);
         var bottomLeft = new Vector2(topLeft.X, topLeft.Y + 0.1f);

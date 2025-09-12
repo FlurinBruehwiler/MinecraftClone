@@ -2,16 +2,9 @@
 
 namespace RayLib3dTest;
 
-public class ThinkTexture
+public static class TextureAtlas
 {
-    private readonly Textures _textures;
-
-    public ThinkTexture(Textures textures)
-    {
-        _textures = textures;
-    }
-
-    public void Merge()
+    public static void Create()
     {
         var info = new SKImageInfo(16 * 10, 16 * 10);
         using var surface = SKSurface.Create(info);
@@ -24,7 +17,7 @@ public class ThinkTexture
         data.SaveTo(stream);
     }
 
-    public void GenerateBlockPreviews(Texture2D texture2D)
+    public static void GenerateBlockPreviews(Texture2D texture2D)
     {
         var renderTarget = new RenderTexture2D
         {
@@ -52,9 +45,9 @@ public class ThinkTexture
 
     }
 
-    private void Draw(SKCanvas canvas)
+    private static void Draw(SKCanvas canvas)
     {
-        using var enumerator = _textures.TextureList.GetEnumerator();
+        using var enumerator = Textures.TextureList.GetEnumerator();
         
         for (var y = 0; y < 10; y++)
         {

@@ -6,15 +6,18 @@ public class World
 {
     public static World CurrentWorld;
 
-    public World(Texture2D texture2D)
-    {
-        Texture2D = texture2D;
-    }
-    
     public Dictionary<IntVector3, Chunk> Chunks = new();
     public Texture2D Texture2D;
 
     private Block _emptyBlock;
+
+    public World()
+    {
+        TextureAtlas.Create();
+
+        Texture2D = LoadTexture("resources/textureatlas.png");
+    }
+
 
     public ref Block TryGetBlockAtPos(Vector3 pos, out bool wasFound)
     {

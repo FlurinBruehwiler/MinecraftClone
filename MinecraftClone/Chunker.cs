@@ -2,16 +2,9 @@
 
 namespace RayLib3dTest;
 
-public class Chunkloader
+public static class Chunkloader
 {
-    private readonly Textures _textures;
-
-    public Chunkloader(Textures textures)
-    {
-        _textures = textures;
-    }
-
-    public void LoadChunksIfNeccesary(Vector3 playerPos)
+    public static void LoadChunksIfNeccesary(Vector3 playerPos)
     {
         const int renderDistance = 8;
         var chunkPos = World.GetChunkPos(playerPos);
@@ -55,9 +48,9 @@ public class Chunkloader
         
     }
 
-    private Chunk GenChunk(IntVector3 pos)
+    private static Chunk GenChunk(IntVector3 pos)
     {
-        var chunk = new Chunk(CurrentWorld, _textures)
+        var chunk = new Chunk(CurrentWorld)
         {
             Pos = pos
         };
