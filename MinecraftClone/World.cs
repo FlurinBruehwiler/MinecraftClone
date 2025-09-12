@@ -1,6 +1,4 @@
-﻿global using static RayLib3dTest.World;
-
-namespace RayLib3dTest;
+﻿namespace RayLib3dTest;
 
 public class World
 {
@@ -17,8 +15,7 @@ public class World
 
         Texture2D = LoadTexture("resources/textureatlas.png");
     }
-
-
+    
     public ref Block TryGetBlockAtPos(Vector3 pos, out bool wasFound)
     {
         return ref TryGetBlockAtPos(new IntVector3((int)pos.X, (int)pos.Y, (int)pos.Z), out wasFound);

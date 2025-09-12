@@ -2,7 +2,7 @@
 
 public class Player
 {
-    public Vector3 Position  = new(0, 100, 0);
+    public Vector3 Position = new(0, 100, 0);
     public Vector3 Velocity;
     public Vector3 Direction = new(0, 0, 1);
 
@@ -15,7 +15,7 @@ public class Player
 
         DevTools.Print(posChangeInWorldSpace, "GlobalMoveDelta");
 
-        Velocity.Y += -.2f * GetFrameTime();
+        // Velocity.Y += -.2f * GetFrameTime();
 
         posChangeInWorldSpace += Velocity;
 
@@ -23,24 +23,36 @@ public class Player
         Physics.ForwardCollisions(ref posChangeInWorldSpace, Position);
         Physics.SidewardCollisions(ref posChangeInWorldSpace, Position);
 
-        if (isHorizontalHit)
-            Velocity.Y = 0;
+        // if (isHorizontalHit)
+        // Velocity.Y = 0;
 
         Position += posChangeInWorldSpace;
 
         HandleHotBarInput();
         HandleBlockDestroy();
         HandleBlockPlacement();
+
+        var result = Physics.Raycast(Position, Direction, 100, out _, out _);
+        if (result.HasValue)
+        {
+            DevTools.Debug3dInstructions.Add(new Debug3dInstruction
+            {
+                PointA = result.Value.ToVector3() + new Vector3(0.5f),
+                Color = Color.RED,
+                Scalar = 1.01f,
+                Type = Debug3InstructionType.Cube
+            });
+        }
     }
 
     public Vector3 Forward => Direction;
 
     public Vector3 Right => new(-Direction.Z, 0, Direction.X);
 
-    public Vector3 Up => new(0, 1, 0);//ToDo
+    public Vector3 Up => new(0, 1, 0); //ToDo
 
     private BlockDefinition _selectedBlock = Blocks.Air;
-    
+
     private void HandleHotBarInput()
     {
         var x = GetKeyPressed();
@@ -59,7 +71,7 @@ public class Player
     {
         if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT))
         {
-            var col = Physics.Raycast(Position, Direction, 10, out var previousBlock, out _);
+            var col = Physics.Raycast(Position, Direction, 10, out var previousBlock, out _, true);
             if (col is not null)
             {
                 ref var b = ref CurrentWorld.TryGetBlockAtPos(previousBlock, out var wasFound);
@@ -78,7 +90,7 @@ public class Player
     {
         if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
         {
-            var col = Physics.Raycast(Position, Direction, 10, out _, out _);
+            var col = Physics.Raycast(Position, Direction, 10, out _, out _, true);
             if (col is not null)
             {
                 ref var b = ref CurrentWorld.TryGetBlockAtPos(col.Value, out var wasFound);

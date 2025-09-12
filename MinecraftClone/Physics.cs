@@ -71,17 +71,28 @@ public static class Physics
             DrawLine3D(origin, origin + dir, Color.YELLOW);
         }
     }
-    
+
+    private const bool collisionDebug = false;
+
     public static void ForwardCollisions(ref Vector3 velocity, Vector3 playerPos)
     {
         var direction = Math.Sign(velocity.X);
+
+        if (direction == 0)
+            return;
+
         float rayLength = Math.Abs(velocity.X) + SkinWidth;
 
         foreach (var verticalRayOrigin in _forwardCollisions)
         {
             var origin = new Vector3(direction == -1 ? -HalfPlayerWidth : +HalfPlayerWidth, verticalRayOrigin.Y + velocity.Y, verticalRayOrigin.X + velocity.Z);
             origin += playerPos;
-            var hit = Raycast(origin, new Vector3(direction, 0, 0), rayLength, out _, out var distance);
+            var hit = Raycast(origin, new Vector3(direction, 0, 0), rayLength, out _, out var distance, collisionDebug);
+
+            if (distance != 0 && !float.IsNormal(distance))
+            {
+                distance = 0;
+            }
 
             if (hit is not null)
             {
@@ -90,10 +101,14 @@ public static class Physics
             }
         }
     }
-    
+
     public static void SidewardCollisions(ref Vector3 velocity, Vector3 playerPos)
     {
         var direction = Math.Sign(velocity.Z);
+
+        if (direction == 0)
+            return;
+
         float rayLength = Math.Abs(velocity.Z) + SkinWidth;
 
         foreach (var verticalRayOrigin in _sidewardCollisions)
@@ -102,7 +117,12 @@ public static class Physics
 
             origin += playerPos;
             
-            var hit = Raycast(origin, new Vector3(0, 0, direction), rayLength, out _, out var distance);
+            var hit = Raycast(origin, new Vector3(0, 0, direction), rayLength, out _, out var distance, collisionDebug);
+
+            if (distance != 0 && !float.IsNormal(distance))
+            {
+                distance = 0;
+            }
 
             if (hit is not null)
             {
@@ -117,13 +137,22 @@ public static class Physics
         isHit = false;
 
         var direction = Math.Sign(velocity.Y);
+
+        if (direction == 0)
+            return;
+
         float rayLength = Math.Abs(velocity.Y) + SkinWidth;
 
         foreach (var verticalRayOrigin in _verticalRayOrigins)
         {
             var origin = new Vector3(verticalRayOrigin.X + velocity.X, direction == -1 ? -ReducedHeight : 0, verticalRayOrigin.Y + velocity.Z);
             origin += playerPos;
-            var hit = Raycast(origin, new Vector3(0, direction, 0), rayLength, out _, out var distance);
+            var hit = Raycast(origin, new Vector3(0, direction, 0), rayLength, out _, out var distance, collisionDebug);
+
+            if (distance != 0 && !float.IsNormal(distance))
+            {
+                distance = 0;
+            }
 
             if (hit is not null)
             {
@@ -134,7 +163,27 @@ public static class Physics
         }
     }
 
-    public static IntVector3? Raycast(Vector3 pos, Vector3 dir, float length, out IntVector3 previousBlock, out float distance)
+    public static void DebugRayHit(Vector3 pos, Vector3 dir, float hitDistance)
+    {
+        DevTools.Debug3dInstructions.Add(new Debug3dInstruction
+        {
+            Color = Color.RED,
+            PointA = pos,
+            PointB = pos + (Vector3.Normalize(dir) * hitDistance),
+            Type = Debug3InstructionType.Line
+        });
+
+        DevTools.Debug3dInstructions.Add(new Debug3dInstruction
+        {
+            Color = Color.ORANGE,
+            PointA = pos + (Vector3.Normalize(dir) * hitDistance),
+            Scalar = 0.05f,
+            Type = Debug3InstructionType.Sphere,
+        });
+    }
+
+
+    public static IntVector3? Raycast(Vector3 pos, Vector3 dir, float length, out IntVector3 previousBlock, out float distance, bool debug = false)
     {
         dir = Vector3.Normalize(dir);
         distance = 0f;
@@ -169,6 +218,10 @@ public static class Physics
             {
                 if (!b.IsAir())
                 {
+                    if (debug)
+                    {
+                        DebugRayHit(pos, dir, distance);
+                    }
                     return start;
                 }
             }
@@ -207,6 +260,10 @@ public static class Physics
             }
         }
 
+        if (debug)
+        {
+            DebugRayHit(pos, dir, distance);
+        }
         return null;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace RayLib3dTest;
 
-public class CameraManager : IServus
+public class CameraManager
 {
     public Camera3D Camera;
     private float _sensitivity = 1;
@@ -82,6 +82,8 @@ public class CameraManager : IServus
         globalMoveDelta.Y = moveDelta.Y;
 
         controlable.Move(globalMoveDelta);
+
+        DevTools.Print(_player.Position, "Player_Pos");
     }
 
     private void HandleSpeedChange()

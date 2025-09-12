@@ -64,7 +64,16 @@ public class Game
 
     private void Draw2d()
     {
-        DevTools.Draw();
+        DevTools.Draw2d();
+
+
+        int centerX = GetScreenWidth() / 2;
+        int centerY = GetScreenHeight() / 2;
+
+        // Crosshair lines (length = 10 px each side)
+        DrawLine(centerX - 10, centerY, centerX + 10, centerY, Color.BLACK); // Horizontal
+        DrawLine(centerX, centerY - 10, centerX, centerY + 10, Color.BLACK); // Vertical
+
     }
 
     private void Draw3d()
@@ -78,6 +87,8 @@ public class Game
             rlEnableBackfaceCulling();
             rlEnableDepthMask();
         }
+
+        DevTools.Draw3d();
 
         foreach (var (_, chunk) in CurrentWorld.Chunks)
         {

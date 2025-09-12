@@ -24,8 +24,37 @@ public enum BlockFace
     Front
 }
 
-public record struct IntVector3(int X, int Y, int Z)
+public struct IntVector3
 {
+    public int X;
+    public int Y;
+    public int Z;
+
+    public IntVector3(int x, int y, int z)
+    {
+        X = x;
+        Y = y;
+        Z = z;
+    }
+
+    public IntVector3(int x)
+    {
+        X = x;
+        Y = x;
+        Z = x;
+    }
+
+    public static bool operator ==(IntVector3 left, IntVector3 right)
+    {
+        return left.X == right.X && left.Y == right.Y && left.Z == right.Z;
+    }
+
+
+    public static bool operator !=(IntVector3 left, IntVector3 right)
+    {
+        return left.X != right.X && left.Y != right.Y && left.Z != right.Z;
+    }
+
     public static IntVector3 operator +(IntVector3 left, IntVector3 right)
     {
         return new IntVector3(
