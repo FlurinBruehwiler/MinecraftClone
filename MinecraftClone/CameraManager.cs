@@ -45,7 +45,7 @@ public class CameraManager
         //
         // _debuggerus.Print(controlable.Position, "Player Pos");
 
-        Camera.position = controlable.Position;
+        Camera.position = controlable.Position ;
         Camera.target = controlable.Position + controlable.Direction;
 
         // fixed (Camera3D* c = &Camera)

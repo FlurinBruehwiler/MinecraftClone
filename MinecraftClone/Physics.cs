@@ -2,7 +2,7 @@
 
 public static class Physics
 {
-    public const float SkinWidth = 0.1f;
+    public const float SkinWidth = 0.01f;
     public const float PlayerHeight = 1.8f;
     public const float PlayerWidth = 0.6f;
 
@@ -85,7 +85,7 @@ public static class Physics
 
         foreach (var verticalRayOrigin in _forwardCollisions)
         {
-            var origin = new Vector3(direction == -1 ? -HalfPlayerWidth : +HalfPlayerWidth, verticalRayOrigin.Y + velocity.Y, verticalRayOrigin.X + velocity.Z);
+            var origin = new Vector3(direction == -1 ? -HalfPlayerWidth : +HalfPlayerWidth, verticalRayOrigin.Y, verticalRayOrigin.X);
             origin += playerPos;
             var hit = Raycast(origin, new Vector3(direction, 0, 0), rayLength, out _, out var distance, collisionDebug);
 
@@ -113,7 +113,7 @@ public static class Physics
 
         foreach (var verticalRayOrigin in _sidewardCollisions)
         {
-            var origin = new Vector3(verticalRayOrigin.X + velocity.X, verticalRayOrigin.Y + velocity.Y, direction == -1 ? -HalfPlayerWidth : +HalfPlayerWidth);
+            var origin = new Vector3(verticalRayOrigin.X, verticalRayOrigin.Y, direction == -1 ? -HalfPlayerWidth : +HalfPlayerWidth);
 
             origin += playerPos;
             
@@ -145,7 +145,7 @@ public static class Physics
 
         foreach (var verticalRayOrigin in _verticalRayOrigins)
         {
-            var origin = new Vector3(verticalRayOrigin.X + velocity.X, direction == -1 ? -ReducedHeight : 0, verticalRayOrigin.Y + velocity.Z);
+            var origin = new Vector3(verticalRayOrigin.X, direction == -1 ? -ReducedHeight : 0, verticalRayOrigin.Y);
             origin += playerPos;
             var hit = Raycast(origin, new Vector3(0, direction, 0), rayLength, out _, out var distance, collisionDebug);
 
