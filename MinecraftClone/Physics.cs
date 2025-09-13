@@ -2,9 +2,9 @@
 
 public static class Physics
 {
-    private const float SkinWidth = 0.015f;
-    private const float PlayerHeight = 1.8f;
-    private const float PlayerWidth = 0.6f;
+    public const float SkinWidth = 0.1f;
+    public const float PlayerHeight = 1.8f;
+    public const float PlayerWidth = 0.6f;
 
     private const float ReducedHeight = PlayerHeight - SkinWidth;
     private const float ReducedWidth = PlayerWidth - SkinWidth;
@@ -55,11 +55,11 @@ public static class Physics
 
             origin += playerPos;
             var dir = new Vector3(0, 0, directionZ);
-            
+
             DrawLine3D(origin, origin + dir, Color.RED);
         }
-        
-        
+
+
         //y
         var directionY = Math.Sign(velocity.Y);
         foreach (var verticalRayOrigin in _verticalRayOrigins)
@@ -67,12 +67,12 @@ public static class Physics
             var origin = new Vector3(verticalRayOrigin.X + velocity.X, directionY == -1 ? -ReducedHeight : 0, verticalRayOrigin.Y + velocity.Z);
             origin += playerPos;
             var dir = new Vector3(0, directionY, 0);
-            
+
             DrawLine3D(origin, origin + dir, Color.YELLOW);
         }
     }
 
-    private const bool collisionDebug = false;
+    private const bool collisionDebug = true;
 
     public static void ForwardCollisions(ref Vector3 velocity, Vector3 playerPos)
     {

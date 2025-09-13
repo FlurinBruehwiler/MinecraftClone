@@ -22,6 +22,7 @@ public static class DevTools
     private static Dictionary<Plotable, Queue<int>> _plots = new();
 
     public static List<Debug3dInstruction> Debug3dInstructions = new List<Debug3dInstruction>();
+    public static List<Action> RenderActions = new List<Action>();
 
     public static void Print(object value, string name)
     {
@@ -67,6 +68,12 @@ public static class DevTools
         }
 
         Debug3dInstructions.Clear();
+
+        foreach (var renderAction in RenderActions)
+        {
+            renderAction();
+        }
+        RenderActions.Clear();
 
         // Debug3dInstructions.Clear();//this list is not actually needed right now, we would only need it if we would like to persist the instructions
     }

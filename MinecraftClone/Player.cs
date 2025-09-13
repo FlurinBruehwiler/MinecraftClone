@@ -15,18 +15,25 @@ public class Player
 
         DevTools.Print(posChangeInWorldSpace, "GlobalMoveDelta");
 
-        // Velocity.Y += -.2f * GetFrameTime();
+        Velocity.Y += -.2f * GetFrameTime();
 
         posChangeInWorldSpace += Velocity;
 
-        Physics.VerticalCollisions(ref posChangeInWorldSpace, Position, out var isHorizontalHit);
+
+        Physics.VerticalCollisions(ref posChangeInWorldSpace, Position, out var isVerticalHit);
         Physics.ForwardCollisions(ref posChangeInWorldSpace, Position);
         Physics.SidewardCollisions(ref posChangeInWorldSpace, Position);
 
-        // if (isHorizontalHit)
-        // Velocity.Y = 0;
+
+        if (isVerticalHit)
+            Velocity.Y = 0;
 
         Position += posChangeInWorldSpace;
+
+        DevTools.RenderActions.Add(() =>
+        {
+            Raylib.DrawCubeWires(Position with {Y = Position.Y - Physics.PlayerHeight / 2}, Physics.PlayerWidth, Physics.PlayerHeight, Physics.PlayerWidth, Color.BLACK);
+        });
 
         HandleHotBarInput();
         HandleBlockDestroy();
@@ -35,13 +42,13 @@ public class Player
         var result = Physics.Raycast(Position, Direction, 100, out _, out var distance);
         if (result.HasValue)
         {
-            DevTools.Debug3dInstructions.Add(new Debug3dInstruction
-            {
-                PointA = result.Value.ToVector3() + new Vector3(0.5f),
-                Color = Color.RED,
-                Scalar = 1.01f,
-                Type = Debug3InstructionType.Cube
-            });
+            // DevTools.Debug3dInstructions.Add(new Debug3dInstruction
+            // {
+            //     PointA = result.Value.ToVector3() + new Vector3(0.5f),
+            //     Color = Color.RED,
+            //     Scalar = 1.01f,
+            //     Type = Debug3InstructionType.Cube
+            // });
             DevTools.Debug3dInstructions.Add(new Debug3dInstruction
             {
                 PointA = Position + Direction * distance,
