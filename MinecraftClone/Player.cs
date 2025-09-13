@@ -32,7 +32,7 @@ public class Player
         HandleBlockDestroy();
         HandleBlockPlacement();
 
-        var result = Physics.Raycast(Position, Direction, 100, out _, out _);
+        var result = Physics.Raycast(Position, Direction, 100, out _, out var distance);
         if (result.HasValue)
         {
             DevTools.Debug3dInstructions.Add(new Debug3dInstruction
@@ -41,6 +41,13 @@ public class Player
                 Color = Color.RED,
                 Scalar = 1.01f,
                 Type = Debug3InstructionType.Cube
+            });
+            DevTools.Debug3dInstructions.Add(new Debug3dInstruction
+            {
+                PointA = Position + Direction * distance,
+                Scalar = 0.05f,
+                Color = Color.BLUE,
+                Type = Debug3InstructionType.Sphere
             });
         }
     }

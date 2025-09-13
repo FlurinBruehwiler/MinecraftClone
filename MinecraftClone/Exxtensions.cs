@@ -4,7 +4,9 @@ public static class Exxtensions
 {
     public static IntVector3 ToIntVector3(this Vector3 pos)
     {
-        return new IntVector3((int)pos.X, (int)pos.Y, (int)pos.Z);
+        return new IntVector3((int)Math.Floor(pos.X),
+            (int)Math.Floor(pos.Y),
+            (int)Math.Floor(pos.Z));
     }
     
     public static Vector3 ToVector3(this IntVector3 pos)
