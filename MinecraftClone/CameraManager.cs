@@ -5,7 +5,6 @@ public class CameraManager
     public Camera3D Camera;
     private float _sensitivity = 1;
     private Player _player;
-    private float _playerSpeed = 0.1f;
 
     public CameraManager(Player player)
     {
@@ -45,8 +44,8 @@ public class CameraManager
         //
         // _debuggerus.Print(controlable.Position, "Player Pos");
 
-        Camera.position = controlable.Position ;
-        Camera.target = controlable.Position + controlable.Direction;
+        Camera.position = controlable.Position + Player.CameraOffset;
+        Camera.target = controlable.Position + Player.CameraOffset + controlable.Direction;
 
         // fixed (Camera3D* c = &Camera)
         // {
@@ -54,26 +53,20 @@ public class CameraManager
         // }
     }
 
-    private void HandleInput(Player controlable)
+    private void HandleInput(Player player)
     {
-        HandleSpeedChange();
+        // HandleSpeedChange();
 
         var rotationInput = GetMouseDelta() * 0.2f;
         var rotationVector = new Vector3(-rotationInput.X * DEG2RAD, rotationInput.Y * DEG2RAD, 0);
 
-        controlable.Direction = Vector3RotateByAxisAngle(controlable.Direction, -controlable.Right, rotationVector.Y);
-        controlable.Direction = Vector3RotateByAxisAngle(controlable.Direction, new Vector3(0, 1, 0), rotationVector.X);
+        player.Direction = Vector3RotateByAxisAngle(player.Direction, -player.Right, rotationVector.Y);
+        player.Direction = Vector3RotateByAxisAngle(player.Direction, new Vector3(0, 1, 0), rotationVector.X);
 
+        var moveDelta = GetMovementInput();
 
-        var moveDelta = GetMovementDelta();
-
-        DevTools.Print(moveDelta, "Input");
-
-        var right = Vector3.Normalize(new Vector3(controlable.Right.X, 0, controlable.Right.Z));
-        var forward = Vector3.Normalize(new Vector3(-controlable.Right.Z, 0, controlable.Right.X));
-
-        DevTools.Print(right, "right");
-        DevTools.Print(forward, "forward");
+        var right = Vector3.Normalize(new Vector3(player.Right.X, 0, player.Right.Z));
+        var forward = Vector3.Normalize(new Vector3(-player.Right.Z, 0, player.Right.X));
 
         var xComponent = right * moveDelta.X;
         var zComponent = forward * moveDelta.Z;
@@ -81,59 +74,59 @@ public class CameraManager
         var globalMoveDelta = xComponent + zComponent;
         globalMoveDelta.Y = moveDelta.Y;
 
-        controlable.Move(globalMoveDelta);
+        player.Move(globalMoveDelta);
 
         DevTools.Print(_player.Position, "Player_Pos");
     }
 
-    private void HandleSpeedChange()
-    {
-        if (GetMouseWheelMoveV().Y > 0)
-        {
-            _playerSpeed *= 1.1f;
-        }
-        else if (GetMouseWheelMoveV().Y < 0)
-        {
-            _playerSpeed *= 0.9f;
-        }
+    // private void HandleSpeedChange()
+    // {
+    //     if (GetMouseWheelMoveV().Y > 0)
+    //     {
+    //         _playerSpeed *= 1.1f;
+    //     }
+    //     else if (GetMouseWheelMoveV().Y < 0)
+    //     {
+    //         _playerSpeed *= 0.9f;
+    //     }
+    //
+    //     _playerSpeed = Math.Max(_playerSpeed, 0);
+    // }
 
-        _playerSpeed = Math.Max(_playerSpeed, 0);
-    }
-
-    private Vector3 GetMovementDelta()
+    private Vector3 GetMovementInput()
     {
-        var moveDelta = new Vector3();
+        var inputDirection = new Vector3();
 
         if (IsKeyDown(KeyboardKey.KEY_W))
         {
-            moveDelta.Z -= _playerSpeed;
+            inputDirection.Z -= 1;
         }
 
         if (IsKeyDown(KeyboardKey.KEY_S))
         {
-            moveDelta.Z += _playerSpeed;
+            inputDirection.Z += 1;
         }
 
         if (IsKeyDown(KeyboardKey.KEY_D))
         {
-            moveDelta.X += _playerSpeed;
+            inputDirection.X += 1;
         }
 
         if (IsKeyDown(KeyboardKey.KEY_A))
         {
-            moveDelta.X -= _playerSpeed;
+            inputDirection.X -= 1;
         }
 
         if (IsKeyDown(KeyboardKey.KEY_SPACE))
         {
-            moveDelta.Y += _playerSpeed;
+            inputDirection.Y += 1;
         }
 
         if (IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL))
         {
-            moveDelta.Y -= _playerSpeed;
+            inputDirection.Y -= 1;
         }
 
-        return moveDelta;
+        return inputDirection;
     }
 }

@@ -15,7 +15,7 @@ public class World
 
         Texture2D = LoadTexture("resources/textureatlas.png");
     }
-    
+
     public ref Block TryGetBlockAtPos(Vector3 pos, out bool wasFound)
     {
         return ref TryGetBlockAtPos(new IntVector3((int)pos.X, (int)pos.Y, (int)pos.Z), out wasFound);
@@ -25,17 +25,15 @@ public class World
     {
         return new IntVector3(GetChunk(pos.X), GetChunk(pos.Y), GetChunk(pos.Z));
     }
-    
+
     public ref Block TryGetBlockAtPos(IntVector3 pos, out bool wasFound)
     {
         wasFound = true;
-        
+
         var chunkPosX = GetChunk(pos.X);
         var chunkPosY = GetChunk(pos.Y);
         var chunkPosZ = GetChunk(pos.Z);
-        var blockPosX = GetBlock(pos.X);
-        var blockPosY = GetBlock(pos.Y);
-        var blockPosZ = GetBlock(pos.Z);
+        var blockInChunk = WorldToChunkSpace(pos);
 
         if (!Chunks.ContainsKey(new IntVector3(chunkPosX, chunkPosY, chunkPosZ)))
         {
@@ -43,31 +41,117 @@ public class World
             return ref _emptyBlock;
         }
 
-        if (blockPosX is > 15 or < 0 || blockPosY is > 15 or < 0 || blockPosZ is > 15 or < 0)
+        if (blockInChunk.X is > 15 or < 0 || blockInChunk.Y is > 15 or < 0 || blockInChunk.Z is > 15 or < 0)
         {
             wasFound = false;
             return ref _emptyBlock;
         }
 
-        return ref Chunks[new IntVector3(chunkPosX, chunkPosY, chunkPosZ)].Blocks[blockPosX, blockPosY, blockPosZ];
+        return ref Chunks[new IntVector3(chunkPosX, chunkPosY, chunkPosZ)].Blocks[blockInChunk.X, blockInChunk.Y, blockInChunk.Z];
     }
 
-    public Chunk GetChunk(IntVector3 pos)
+    private Chunk? TryGetChunk(IntVector3 chunkCoordinate)
     {
-        return Chunks[new IntVector3(GetChunk(pos.X),GetChunk(pos.Y),GetChunk(pos.Z))];
+        if (Chunks.TryGetValue(chunkCoordinate, out var value))
+        {
+            return value;
+        }
+
+        return null;
     }
-    
+
+    public void InformBlockUpdate(IntVector3 blockPos)
+    {
+        var chunk = GetChunk(blockPos);
+        chunk?.GenMesh();
+
+        var chunkCoord = GetChunkCoordinate(blockPos);
+
+        var localSpace = WorldToChunkSpace(blockPos);
+
+        if (localSpace.X == 0)
+        {
+            var l = localSpace;
+            l.X--;
+            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
+            GetChunk(blockInNeighbourChunk)?.GenMesh();
+        }
+        else if (localSpace.X == 15)
+        {
+            var l = localSpace;
+            l.X++;
+            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
+            GetChunk(blockInNeighbourChunk)?.GenMesh();
+        }
+        else if (localSpace.Y == 0)
+        {
+            var l = localSpace;
+            l.Y--;
+            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
+            GetChunk(blockInNeighbourChunk)?.GenMesh();
+        }
+        else if (localSpace.Y == 15)
+        {
+            var l = localSpace;
+            l.Y++;
+            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
+            GetChunk(blockInNeighbourChunk)?.GenMesh();
+        }
+        else if (localSpace.Z == 0)
+        {
+            var l = localSpace;
+            l.Z--;
+            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
+            GetChunk(blockInNeighbourChunk)?.GenMesh();
+        }
+        else if (localSpace.Z == 15)
+        {
+            var l = localSpace;
+            l.Z++;
+            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
+            GetChunk(blockInNeighbourChunk)?.GenMesh();
+        }
+    }
+
+    public Chunk? GetChunk(IntVector3 pos)
+    {
+        var coord = GetChunkCoordinate(pos);
+        return TryGetChunk(coord);
+    }
+
+    private static IntVector3 GetChunkCoordinate(IntVector3 blockCoordinate)
+    {
+        return new IntVector3(GetChunk(blockCoordinate.X), GetChunk(blockCoordinate.Y), GetChunk(blockCoordinate.Z));
+    }
+
     private static int GetChunk(float x)
     {
-        if(x < 0)
+        if (x < 0)
             return (int)Math.Floor(-(-x / 16));
-        return (int)Math.Floor(x/16);
+        return (int)Math.Floor(x / 16);
     }
 
-    private int GetBlock(float x)
+    private IntVector3 WorldToChunkSpace(IntVector3 worldPos)
     {
-        if(x < 0)
-            return (int)(15 + (x + 1) % 16);
-        return (int)(x % 16);
+        return new IntVector3(SingleDimension(worldPos.X), SingleDimension(worldPos.Y), SingleDimension(worldPos.Z));
+
+        int SingleDimension(int x)
+        {
+            if (x < 0)
+                return (int)(15 + (x + 1) % 16);
+            return (int)(x % 16);
+        }
+    }
+
+    private IntVector3 ChunkToWorldSpace(IntVector3 blockInChunkPos, IntVector3 chunk)
+    {
+        const int chunkSize = 16;
+
+        // World coordinate = (chunk coordinate * chunk size) + block index inside chunk
+        return new IntVector3(
+            chunk.X * chunkSize + blockInChunkPos.X,
+            chunk.Y * chunkSize + blockInChunkPos.Y,
+            chunk.Z * chunkSize + blockInChunkPos.Z
+        );
     }
 }

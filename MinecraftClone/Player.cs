@@ -3,37 +3,59 @@
 public class Player
 {
     public Vector3 Position = new(0, 100, 0);
-    public Vector3 Velocity;
+    public Vector3 VelocityPerSecond;
     public Vector3 Direction = new(0, 0, 1);
 
-    public CollisionInfo CollisionInfo;
+    public static Vector3 CameraOffset = new Vector3(0, -0.18f, 0);
+
     // public Camera3D Camera { get; }
 
-    public void Move(Vector3 posChangeInWorldSpace)
+    public void Move(Vector3 direction)
     {
-        CollisionInfo.Reset();
+        var isJumping = direction.Y > 0;
+        direction.Y = 0;
 
-        DevTools.Print(posChangeInWorldSpace, "GlobalMoveDelta");
+        if (direction.Length() != 0)
+            direction = Vector3.Normalize(direction);
 
-        Velocity.Y += -.2f * GetFrameTime();
-
-        posChangeInWorldSpace += Velocity;
-
-
-        Physics.VerticalCollisions(ref posChangeInWorldSpace, Position, out var isVerticalHit);
-        Physics.ForwardCollisions(ref posChangeInWorldSpace, Position);
-        Physics.SidewardCollisions(ref posChangeInWorldSpace, Position);
+        const float acceleration = 5 * 0.098f;
+        const float frictionPerTick = 0.546f;
 
 
-        if (isVerticalHit)
-            Velocity.Y = 0;
+        // float jumpHeight = 4;
+        // float timeToJumpApex = 0.4f;
 
-        Position += posChangeInWorldSpace;
+        float gravity = -0.7f;
+        float jumpVelocity = 30;
 
-        DevTools.RenderActions.Add(() =>
+        VelocityPerSecond += acceleration * direction;// new Vector3(VelocityPerSecond.X + acceleration * direction.X, VelocityPerSecond.Y, VelocityPerSecond.Z + acceleration * direction.Z);
+
+        var posChange = VelocityPerSecond * GetFrameTime();
+
+        var frictionPerDt = MathF.Pow(frictionPerTick, 20 * GetFrameTime());
+        VelocityPerSecond *= frictionPerDt;// new Vector3(VelocityPerSecond.X * frictionPerDt, VelocityPerSecond.Y, VelocityPerSecond.Z * frictionPerDt);
+
+        var colInfo = new CollisionInfo();
+        Physics.VerticalCollisions(ref posChange, ref colInfo, Position);
+        Physics.ForwardCollisions(ref posChange, ref colInfo, Position);
+        Physics.SidewardCollisions(ref posChange, ref colInfo, Position);
+
+        if (colInfo.Up || colInfo.Down)
+            VelocityPerSecond.Y = 0;
+
+        VelocityPerSecond.Y += gravity;
+
+        if (isJumping && colInfo.Down)
         {
-            Raylib.DrawCubeWires(Position with {Y = Position.Y - Physics.PlayerHeight / 2}, Physics.PlayerWidth, Physics.PlayerHeight, Physics.PlayerWidth, Color.BLACK);
-        });
+            VelocityPerSecond.Y = jumpVelocity;
+        }
+
+        Position += posChange;
+
+        // DevTools.RenderActions.Add(() =>
+        // {
+        //     Raylib.DrawCubeWires(Position with {Y = Position.Y - Physics.PlayerHeight / 2}, Physics.PlayerWidth, Physics.PlayerHeight, Physics.PlayerWidth, Color.BLACK);
+        // });
 
         HandleHotBarInput();
         HandleBlockDestroy();
@@ -66,7 +88,7 @@ public class Player
     {
         if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT))
         {
-            var col = Physics.Raycast(Position, Direction, 10, out var previousBlock, out _, true);
+            var col = Physics.Raycast(Position + Player.CameraOffset, Direction, 10, out var previousBlock, out _, true);
             if (col is not null)
             {
                 ref var b = ref CurrentWorld.TryGetBlockAtPos(previousBlock, out var wasFound);
@@ -74,8 +96,9 @@ public class Player
                 {
                     b.BlockId = _selectedBlock.Id;
 
-                    var chunk = CurrentWorld.GetChunk(previousBlock);
-                    chunk.GenMesh();
+                    CurrentWorld.InformBlockUpdate(previousBlock);
+                    // var chunk = CurrentWorld.GetChunk(previousBlock);
+                    // chunk.GenMesh();
                 }
             }
         }
@@ -85,7 +108,7 @@ public class Player
     {
         if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
         {
-            var col = Physics.Raycast(Position, Direction, 10, out _, out _, true);
+            var col = Physics.Raycast(Position + Player.CameraOffset, Direction, 10, out _, out _, true);
             if (col is not null)
             {
                 ref var b = ref CurrentWorld.TryGetBlockAtPos(col.Value, out var wasFound);
@@ -93,8 +116,9 @@ public class Player
                 {
                     b.BlockId = Blocks.Air.Id;
 
-                    var chunk = CurrentWorld.GetChunk(col.Value);
-                    chunk.GenMesh();
+                    CurrentWorld.InformBlockUpdate(col.Value);
+                    // var chunk = CurrentWorld.GetChunk(col.Value);
+                    // chunk.GenMesh();
                 }
             }
         }

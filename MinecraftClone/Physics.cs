@@ -72,9 +72,9 @@ public static class Physics
         }
     }
 
-    private const bool collisionDebug = true;
+    private const bool collisionDebug = false;
 
-    public static void ForwardCollisions(ref Vector3 velocity, Vector3 playerPos)
+    public static void ForwardCollisions(ref Vector3 velocity, ref CollisionInfo colInfo, Vector3 playerPos)
     {
         var direction = Math.Sign(velocity.X);
 
@@ -98,11 +98,14 @@ public static class Physics
             {
                 velocity.X = (distance - SkinWidth) * direction;
                 rayLength = distance;
+
+                colInfo.Backwards = direction < 0;
+                colInfo.Forward = direction > 0;
             }
         }
     }
 
-    public static void SidewardCollisions(ref Vector3 velocity, Vector3 playerPos)
+    public static void SidewardCollisions(ref Vector3 velocity, ref CollisionInfo colInfo, Vector3 playerPos)
     {
         var direction = Math.Sign(velocity.Z);
 
@@ -128,14 +131,15 @@ public static class Physics
             {
                 velocity.Z = (distance - SkinWidth) * direction;
                 rayLength = distance;
+
+                colInfo.Left = direction < 0;
+                colInfo.Right = direction > 0;
             }
         }
     }
 
-    public static void VerticalCollisions(ref Vector3 velocity, Vector3 playerPos, out bool isHit)
+    public static void VerticalCollisions(ref Vector3 velocity, ref CollisionInfo colInfo, Vector3 playerPos)
     {
-        isHit = false;
-
         var direction = Math.Sign(velocity.Y);
 
         if (direction == 0)
@@ -158,13 +162,16 @@ public static class Physics
             {
                 velocity.Y = (distance - SkinWidth) * direction;
                 rayLength = distance;
-                isHit = true;
+
+                colInfo.Down = direction < 0;
+                colInfo.Up = direction > 0;
             }
         }
     }
 
     public static void DebugRayHit(Vector3 pos, Vector3 dir, float hitDistance)
     {
+        return;
         DevTools.Debug3dInstructions.Add(new Debug3dInstruction
         {
             Color = Color.RED,
@@ -274,6 +281,6 @@ public struct CollisionInfo
 
     public void Reset()
     {
-        Up = Down = Left = Right = Forward = Backwards = false;
+        this = default;
     }
 }
