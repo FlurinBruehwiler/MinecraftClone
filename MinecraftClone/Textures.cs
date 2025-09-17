@@ -41,4 +41,25 @@ public static class Textures
 
         return new IntVector2(idx % 10, idx / 10);
     }
+
+    public static UvCoordinates GetUvCoordinatesForFace(ushort blockId, BlockFace blockFace)
+    {
+        var texture = GetTexturePosForFace(blockId, blockFace);
+
+        UvCoordinates uvCoordinates = default;
+        uvCoordinates.topLeft = new Vector2(0.1f * texture.X, 0.1f * texture.Y);
+        uvCoordinates.topRight = new Vector2(uvCoordinates.topLeft.X + 0.1f, uvCoordinates.topLeft.Y);
+        uvCoordinates.bottomLeft = new Vector2(uvCoordinates.topLeft.X, uvCoordinates.topLeft.Y + 0.1f);
+        uvCoordinates.bottomRight = new Vector2(uvCoordinates.topRight.X, uvCoordinates.bottomLeft.Y);
+
+        return uvCoordinates;
+    }
+}
+
+public struct UvCoordinates
+{
+    public Vector2 topLeft;
+    public Vector2 topRight;
+    public Vector2 bottomLeft;
+    public Vector2 bottomRight;
 }

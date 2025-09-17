@@ -66,7 +66,6 @@ public class Game
     {
         DevTools.Draw2d();
 
-
         int centerX = GetScreenWidth() / 2;
         int centerY = GetScreenHeight() / 2;
 

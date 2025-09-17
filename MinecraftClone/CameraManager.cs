@@ -61,7 +61,14 @@ public class CameraManager
         var rotationVector = new Vector3(-rotationInput.X * DEG2RAD, rotationInput.Y * DEG2RAD, 0);
 
         player.Direction = Vector3RotateByAxisAngle(player.Direction, -player.Right, rotationVector.Y);
+        player.Direction.Y = Math.Clamp(player.Direction.Y, -90f, +90f);
         player.Direction = Vector3RotateByAxisAngle(player.Direction, new Vector3(0, 1, 0), rotationVector.X);
+
+        // var right = Vector3.Normalize(Vector3.Cross(new Vector3(0,1,0), player.Direction));
+
+
+        // player.Direction = player.Direction with { Y = Math.Clamp(player.Direction.Y, -0.99f, +0.99f) };
+
 
         var moveDelta = GetMovementInput();
 
@@ -77,6 +84,7 @@ public class CameraManager
         player.Move(globalMoveDelta);
 
         DevTools.Print(_player.Position, "Player_Pos");
+        DevTools.Print(GetFPS(), "FPS");
     }
 
     // private void HandleSpeedChange()

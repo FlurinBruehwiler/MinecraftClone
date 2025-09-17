@@ -19,21 +19,23 @@ public class Player
             direction = Vector3.Normalize(direction);
 
         const float acceleration = 5 * 0.098f;
-        const float frictionPerTick = 0.546f;
+        // const float frictionPerTick = 0.546f;
 
 
         // float jumpHeight = 4;
         // float timeToJumpApex = 0.4f;
 
-        float gravity = -0.7f;
-        float jumpVelocity = 30;
+        float gravity = -0.5f;
+        float jumpVelocity = 11.5f;
 
-        VelocityPerSecond += acceleration * direction;// new Vector3(VelocityPerSecond.X + acceleration * direction.X, VelocityPerSecond.Y, VelocityPerSecond.Z + acceleration * direction.Z);
+        // VelocityPerSecond += acceleration * direction;// new Vector3(VelocityPerSecond.X + acceleration * direction.X, VelocityPerSecond.Y, VelocityPerSecond.Z + acceleration * direction.Z);
 
-        var posChange = VelocityPerSecond * GetFrameTime();
+        const float speed = 6;
 
-        var frictionPerDt = MathF.Pow(frictionPerTick, 20 * GetFrameTime());
-        VelocityPerSecond *= frictionPerDt;// new Vector3(VelocityPerSecond.X * frictionPerDt, VelocityPerSecond.Y, VelocityPerSecond.Z * frictionPerDt);
+        var posChange = new Vector3(direction.X * speed, VelocityPerSecond.Y, direction.Z * speed) * GetFrameTime();
+
+        //var frictionPerDt = MathF.Pow(frictionPerTick, 20 * GetFrameTime());
+        // VelocityPerSecond *= frictionPerDt;// new Vector3(VelocityPerSecond.X * frictionPerDt, VelocityPerSecond.Y, VelocityPerSecond.Z * frictionPerDt);
 
         var colInfo = new CollisionInfo();
         Physics.VerticalCollisions(ref posChange, ref colInfo, Position);

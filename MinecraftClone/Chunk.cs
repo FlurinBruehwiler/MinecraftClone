@@ -12,14 +12,14 @@ public class Chunk : IDisposable
     public required IntVector3 Pos;
     public bool HasMesh;
 
-    private readonly IntVector3 _bottomLeftFront = new(0, 0, 0);
-    private readonly IntVector3 _bottomRightFront = new(1, 0, 0);
-    private readonly IntVector3 _bottomLeftBack = new(0, 0, 1);
-    private readonly IntVector3 _bottomRightBack = new(1, 0, 1);
-    private readonly IntVector3 _topLeftFront = new(0, 1, 0);
-    private readonly IntVector3 _topRightFront = new(1, 1, 0);
-    private readonly IntVector3 _topLeftBack = new(0, 1, 1);
-    private readonly IntVector3 _topRightBack = new(1, 1, 1);
+    public static readonly IntVector3 _bottomLeftFront = new(0, 0, 0);
+    public static readonly IntVector3 _bottomRightFront = new(1, 0, 0);
+    public static readonly IntVector3 _bottomLeftBack = new(0, 0, 1);
+    public static readonly IntVector3 _bottomRightBack = new(1, 0, 1);
+    public static readonly IntVector3 _topLeftFront = new(0, 1, 0);
+    public static readonly IntVector3 _topRightFront = new(1, 1, 0);
+    public static readonly IntVector3 _topLeftBack = new(0, 1, 1);
+    public static readonly IntVector3 _topRightBack = new(1, 1, 1);
 
     public Chunk(World world)
     {
@@ -34,9 +34,12 @@ public class Chunk : IDisposable
         // Model.materials[0].shader = _globalBoy.Shader;
     }
 
-    public void GenMesh()
+    public unsafe void GenMesh()
     {
-        UnloadMesh(ref Mesh);
+        if (Mesh.vertices != (void*)IntPtr.Zero)
+        {
+            UnloadMesh(ref Mesh);
+        }
 
         var mesh = new Mesh();
 
@@ -82,17 +85,14 @@ public class Chunk : IDisposable
         mesh.vertexCount = verticesList.Count;
         mesh.triangleCount = verticesList.Count / 3;
 
-        unsafe
-        {
-            mesh.vertices = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
-            vertices = new Span<float>(mesh.vertices, verticesList.Count * 3);
+        mesh.vertices = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
+        vertices = new Span<float>(mesh.vertices, verticesList.Count * 3);
 
-            mesh.texcoords = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 2, sizeof(float));
-            texcoords = new Span<float>(mesh.texcoords, verticesList.Count * 2);
+        mesh.texcoords = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 2, sizeof(float));
+        texcoords = new Span<float>(mesh.texcoords, verticesList.Count * 2);
 
-            mesh.colors = (byte*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 4, sizeof(byte));
-            colors = new Span<byte>(mesh.colors, verticesList.Count * 4);
-        }
+        mesh.colors = (byte*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 4, sizeof(byte));
+        colors = new Span<byte>(mesh.colors, verticesList.Count * 4);
 
         for (var i = 0; i < verticesList.Count; i++)
         {
@@ -133,19 +133,15 @@ public class Chunk : IDisposable
         List<Vertex> vertices,
         ushort blockId, BlockFace blockFace)
     {
-        var texture = Textures.GetTexturePosForFace(blockId, blockFace);
-        var topLeft = new Vector2(0.1f * texture.X, 0.1f * texture.Y);
-        var topRight = new Vector2(topLeft.X + 0.1f, topLeft.Y);
-        var bottomLeft = new Vector2(topLeft.X, topLeft.Y + 0.1f);
-        var bottomRight = new Vector2(topRight.X, bottomLeft.Y);
+        var uvCoordinates = Textures.GetUvCoordinatesForFace(blockId, blockFace);
 
-        AddVertices(block, p1, vertices, topLeft, blockFace, Corner2d.TopLeft);
-        AddVertices(block, p2, vertices, bottomRight, blockFace, Corner2d.BottomRight);
-        AddVertices(block, p3, vertices, topRight, blockFace, Corner2d.TopRight);
+        AddVertices(block, p1, vertices, uvCoordinates.topLeft, blockFace, Corner2d.TopLeft);
+        AddVertices(block, p2, vertices, uvCoordinates.bottomRight, blockFace, Corner2d.BottomRight);
+        AddVertices(block, p3, vertices, uvCoordinates.topRight, blockFace, Corner2d.TopRight);
 
-        AddVertices(block, p4, vertices, bottomLeft, blockFace, Corner2d.BottomLeft);
-        AddVertices(block, p2, vertices, bottomRight, blockFace, Corner2d.BottomRight);
-        AddVertices(block, p1, vertices, topLeft, blockFace, Corner2d.TopLeft);
+        AddVertices(block, p4, vertices, uvCoordinates.bottomLeft, blockFace, Corner2d.BottomLeft);
+        AddVertices(block, p2, vertices, uvCoordinates.bottomRight, blockFace, Corner2d.BottomRight);
+        AddVertices(block, p1, vertices, uvCoordinates.topLeft, blockFace, Corner2d.TopLeft);
     }
 
     enum Corner2d

@@ -171,22 +171,21 @@ public static class Physics
 
     public static void DebugRayHit(Vector3 pos, Vector3 dir, float hitDistance)
     {
-        return;
-        DevTools.Debug3dInstructions.Add(new Debug3dInstruction
-        {
-            Color = Color.RED,
-            PointA = pos,
-            PointB = pos + (Vector3.Normalize(dir) * hitDistance),
-            Type = Debug3InstructionType.Line
-        });
-
-        DevTools.Debug3dInstructions.Add(new Debug3dInstruction
-        {
-            Color = Color.ORANGE,
-            PointA = pos + (Vector3.Normalize(dir) * hitDistance),
-            Scalar = 0.05f,
-            Type = Debug3InstructionType.Sphere,
-        });
+        // DevTools.Debug3dInstructions.Add(new Debug3dInstruction
+        // {
+        //     Color = Color.RED,
+        //     PointA = pos,
+        //     PointB = pos + (Vector3.Normalize(dir) * hitDistance),
+        //     Type = Debug3InstructionType.Line
+        // });
+        //
+        // DevTools.Debug3dInstructions.Add(new Debug3dInstruction
+        // {
+        //     Color = Color.ORANGE,
+        //     PointA = pos + (Vector3.Normalize(dir) * hitDistance),
+        //     Scalar = 0.05f,
+        //     Type = Debug3InstructionType.Sphere,
+        // });
     }
 
 
