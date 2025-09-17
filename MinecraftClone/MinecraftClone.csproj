@@ -12,20 +12,21 @@
   
   <ItemGroup>
     <PackageReference Include="Raylib-cs" Version="4.5.0.4" />
-    <PackageReference Include="SkiaSharp" Version="2.88.4-preview.89" />
+    <PackageReference Include="SkiaSharp" Version="3.119.0" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.0" />
   </ItemGroup>
   
   <ItemGroup>
-    <None Update="Resources\*.png">
+    <None Update="Resources/*.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Shaders\*.*">
+    <None Update="Resources/Shaders/*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   
   <ItemGroup>
-    <None Include="Resources\Shaders\skybox.fs" />
+    <None Include="Resources/Shaders/skybox.fs" />
   </ItemGroup>
   
 </Project>

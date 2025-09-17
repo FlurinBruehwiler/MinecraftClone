@@ -13,7 +13,7 @@ public class World
     {
         TextureAtlas.Create();
 
-        Texture2D = LoadTexture("resources/textureatlas.png");
+        Texture2D = LoadTexture("Resources/textureatlas.png");
     }
 
     public ref Block TryGetBlockAtPos(Vector3 pos, out bool wasFound)

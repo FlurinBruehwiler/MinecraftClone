@@ -38,7 +38,7 @@ public class Chunk : IDisposable
     {
         if (Mesh.vertices != (void*)IntPtr.Zero)
         {
-            UnloadMesh(ref Mesh);
+            UnloadModel(Model);
         }
 
         var mesh = new Mesh();

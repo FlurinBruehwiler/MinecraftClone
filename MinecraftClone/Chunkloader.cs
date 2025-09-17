@@ -7,7 +7,7 @@ public static class Chunkloader
     public static void LoadChunksIfNeccesary(Vector3 playerPos)
     {
         const int renderDistance = 8;
-        var chunkPos = World.GetChunkPos(playerPos);
+        var chunkPos = GetChunkPos(playerPos);
 
         for (var x = -renderDistance; x < renderDistance; x++)
         {

@@ -17,7 +17,7 @@ public class Game
             var cube = GenMeshCube(1, 1, 1);
             _skyBox = LoadModelFromMesh(cube);
 
-            var shader = LoadShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
+            var shader = LoadShader("Resources/Shaders/skybox.vs", "Resources/Shaders/skybox.fs");
 
             _skyBox.materials[0].shader = shader;
 
