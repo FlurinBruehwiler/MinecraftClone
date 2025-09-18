@@ -39,7 +39,7 @@ public class Game
     {
         while (!WindowShouldClose())
         {
-            MakeTheServus();
+            Update();
 
             BeginDrawing();
 
@@ -57,9 +57,14 @@ public class Game
         }
     }
 
-    private void MakeTheServus()
+    private void Update()
     {
         _cameraManager.Update();
+
+        if (IsKeyPressed(KeyboardKey.KEY_F3))
+        {
+            DevTools.DevToolsEnabled = !DevTools.DevToolsEnabled;
+        }
     }
 
     private void Draw2d()
@@ -93,7 +98,12 @@ public class Game
         {
             var pos = new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16);
             DrawModel(chunk.Model, pos, 1, Color.WHITE);
-            DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
+
+            if(DevTools.DevToolsEnabled)
+                DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
         }
+
+        // var chunkCoord = GetChunkCoordinate(_cameraManager.Player.Position.ToIntVector3());
+        // DrawLine3D();
     }
 }

@@ -4,20 +4,20 @@ public class CameraManager
 {
     public Camera3D Camera;
     private float _sensitivity = 1;
-    private Player _player;
+    public Player Player;
 
     public CameraManager(Player player)
     {
-        _player = player;
+        Player = player;
         Camera = new Camera3D(Vector3.Zero, new Vector3(0, 0, 1), new Vector3(0, 1, 0), 100,
             CameraProjection.CAMERA_PERSPECTIVE);
     }
 
     public void Update()
     {
-        HandleInput(_player);
-        UpdateCamera(_player);
-        Chunkloader.LoadChunksIfNeccesary(_player.Position);
+        HandleInput(Player);
+        UpdateCamera(Player);
+        Chunkloader.LoadChunksIfNeccesary(Player.Position);
     }
 
     private unsafe void UpdateCamera(Player controlable)
@@ -60,9 +60,19 @@ public class CameraManager
         var rotationInput = GetMouseDelta() * 0.2f;
         var rotationVector = new Vector3(-rotationInput.X * DEG2RAD, rotationInput.Y * DEG2RAD, 0);
 
-        player.Direction = Vector3RotateByAxisAngle(player.Direction, -player.Right, rotationVector.Y);
-        player.Direction.Y = Math.Clamp(player.Direction.Y, -90f, +90f);
-        player.Direction = Vector3RotateByAxisAngle(player.Direction, new Vector3(0, 1, 0), rotationVector.X);
+        player.yaw   += rotationInput.X * DEG2RAD;
+        player.pitch += -rotationInput.Y * DEG2RAD;
+        player.pitch = Math.Clamp(player.pitch, -MathF.PI/2 + 0.001f, MathF.PI/2 - 0.001f);
+
+        var cosPitch = MathF.Cos(player.pitch);
+        player.Direction = new Vector3(
+            MathF.Cos(player.yaw) * cosPitch,
+            MathF.Sin(player.pitch),
+            MathF.Sin(player.yaw) * cosPitch
+        );
+
+        // player.Direction = Vector3RotateByAxisAngle(player.Direction, -player.Right, rotationVector.Y);
+        // player.Direction = Vector3RotateByAxisAngle(player.Direction, new Vector3(0, 1, 0), rotationVector.X);
 
         // var right = Vector3.Normalize(Vector3.Cross(new Vector3(0,1,0), player.Direction));
 
@@ -83,10 +93,11 @@ public class CameraManager
 
         player.Move(globalMoveDelta);
 
-        DevTools.Print(_player.Position, "Player_Pos");
-        DevTools.Print(GetChunkCoordinate(_player.Position.ToIntVector3()), "Chunk");
+        DevTools.Print(Player.Position, "Player_Pos");
+        DevTools.Print(Player.Direction, "Player_Direction");
+        DevTools.Print(GetChunkCoordinate(Player.Position.ToIntVector3()), "Chunk");
 
-        var col = Physics.Raycast(_player.Position + Player.CameraOffset, _player.Direction, 10, out _, out _, true);
+        var col = Physics.Raycast(Player.Position + Player.CameraOffset, Player.Direction, 10, out _, out _, true);
         DevTools.Print(col, "Looking at Block");
 
         DevTools.Print(GetFPS(), "FPS");

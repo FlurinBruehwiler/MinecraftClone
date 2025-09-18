@@ -81,8 +81,7 @@ public class World
             l.X++;
             TryGetChunk(l)?.GenMesh();
         }
-
-
+        
         if (localSpace.Y == 0)
         {
             var l = chunkCoord;
@@ -95,7 +94,7 @@ public class World
             l.Y++;
             TryGetChunk(l)?.GenMesh();
         }
-        
+
         if (localSpace.Z == 0)
         {
             var l = chunkCoord;

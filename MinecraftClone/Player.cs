@@ -64,6 +64,9 @@ public class Player
         HandleBlockPlacement();
     }
 
+    public float yaw;   // around world Y
+    public float pitch; // around camera local X
+
     public Vector3 Forward => Direction;
 
     public Vector3 Right => new(-Direction.Z, 0, Direction.X);

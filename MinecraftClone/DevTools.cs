@@ -20,6 +20,7 @@ public static class DevTools
 {
     private static List<PrintMessage> _printMessages = new();
     private static Dictionary<Plotable, Queue<int>> _plots = new();
+    public static bool DevToolsEnabled = false;
 
     public static List<Debug3dInstruction> Debug3dInstructions = new List<Debug3dInstruction>();
     public static List<Action> RenderActions = new List<Action>();
@@ -49,6 +50,9 @@ public static class DevTools
 
     public static void Draw3d()
     {
+        if (!DevToolsEnabled)
+            return;
+
         foreach (var ins in Debug3dInstructions)
         {
             switch (ins.Type)
@@ -80,7 +84,10 @@ public static class DevTools
 
     public static void Draw2d()
     {
-        DrawRectangle(0, 0, 300, 300, new Color(0, 0, 0, 50));
+        if (!DevToolsEnabled)
+            return;
+
+        DrawRectangle(0, 0, 500, 200, new Color(0, 0, 0, 50));
         for (var i = 0; i < _printMessages.Count; i++)
         {
             var printMessage = _printMessages[i];
