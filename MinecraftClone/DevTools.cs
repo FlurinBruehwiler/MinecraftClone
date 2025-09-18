@@ -24,9 +24,9 @@ public static class DevTools
     public static List<Debug3dInstruction> Debug3dInstructions = new List<Debug3dInstruction>();
     public static List<Action> RenderActions = new List<Action>();
 
-    public static void Print(object value, string name)
+    public static void Print(object? value, string name)
     {
-        _printMessages.Add(new PrintMessage(value.ToString(), name));
+        _printMessages.Add(new PrintMessage(value?.ToString() ?? "", name));
     }
 
     public static void Plot(int value, Plotable plotable)

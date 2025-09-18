@@ -84,6 +84,11 @@ public class CameraManager
         player.Move(globalMoveDelta);
 
         DevTools.Print(_player.Position, "Player_Pos");
+        DevTools.Print(GetChunkCoordinate(_player.Position.ToIntVector3()), "Chunk");
+
+        var col = Physics.Raycast(_player.Position + Player.CameraOffset, _player.Direction, 10, out _, out _, true);
+        DevTools.Print(col, "Looking at Block");
+
         DevTools.Print(GetFPS(), "FPS");
     }
 

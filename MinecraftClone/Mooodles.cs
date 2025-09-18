@@ -44,6 +44,11 @@ public struct IntVector3
         Z = x;
     }
 
+    public override string ToString()
+    {
+        return $"{X}, {Y}, {Z}";
+    }
+
     public static bool operator ==(IntVector3 left, IntVector3 right)
     {
         return left.X == right.X && left.Y == right.Y && left.Z == right.Z;

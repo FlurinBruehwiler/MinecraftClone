@@ -71,45 +71,42 @@ public class World
 
         if (localSpace.X == 0)
         {
-            var l = localSpace;
+            var l = chunkCoord;
             l.X--;
-            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
-            GetChunk(blockInNeighbourChunk)?.GenMesh();
+            TryGetChunk(l)?.GenMesh();
         }
         else if (localSpace.X == 15)
         {
-            var l = localSpace;
+            var l = chunkCoord;
             l.X++;
-            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
-            GetChunk(blockInNeighbourChunk)?.GenMesh();
+            TryGetChunk(l)?.GenMesh();
         }
-        else if (localSpace.Y == 0)
+
+
+        if (localSpace.Y == 0)
         {
-            var l = localSpace;
+            var l = chunkCoord;
             l.Y--;
-            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
-            GetChunk(blockInNeighbourChunk)?.GenMesh();
+            TryGetChunk(l)?.GenMesh();
         }
         else if (localSpace.Y == 15)
         {
-            var l = localSpace;
+            var l = chunkCoord;
             l.Y++;
-            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
-            GetChunk(blockInNeighbourChunk)?.GenMesh();
+            TryGetChunk(l)?.GenMesh();
         }
-        else if (localSpace.Z == 0)
+        
+        if (localSpace.Z == 0)
         {
-            var l = localSpace;
+            var l = chunkCoord;
             l.Z--;
-            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
-            GetChunk(blockInNeighbourChunk)?.GenMesh();
+            TryGetChunk(l)?.GenMesh();
         }
         else if (localSpace.Z == 15)
         {
-            var l = localSpace;
+            var l = chunkCoord;
             l.Z++;
-            var blockInNeighbourChunk = ChunkToWorldSpace(l, chunkCoord);
-            GetChunk(blockInNeighbourChunk)?.GenMesh();
+            TryGetChunk(l)?.GenMesh();
         }
     }
 
@@ -119,7 +116,7 @@ public class World
         return TryGetChunk(coord);
     }
 
-    private static IntVector3 GetChunkCoordinate(IntVector3 blockCoordinate)
+    public static IntVector3 GetChunkCoordinate(IntVector3 blockCoordinate)
     {
         return new IntVector3(GetChunk(blockCoordinate.X), GetChunk(blockCoordinate.Y), GetChunk(blockCoordinate.Z));
     }
