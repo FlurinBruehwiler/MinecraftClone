@@ -21,7 +21,7 @@ public class Player
         var minVector = new Vector3();
         
         minVector.X = Position.X - Physics.PlayerWidth / 2;
-        minVector.Y = Position.Y - Physics.PlayerHeight;
+        minVector.Y = Position.Y - Physics.PlayerHeight + Physics.SkinWidth;
         minVector.Z = Position.Z - Physics.PlayerWidth / 2;
        
         var maxVector = new Vector3();

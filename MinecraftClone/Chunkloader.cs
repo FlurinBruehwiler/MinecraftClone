@@ -41,7 +41,7 @@ public static class Chunkloader
 
                             chunk.HasMesh = true;
 
-                            if (Stopwatch.GetElapsedTime(chunkGenTimer).TotalMilliseconds > 0.8f)
+                            if (Stopwatch.GetElapsedTime(chunkGenTimer).TotalMilliseconds > 0.8f )
                                 return;
                         }
                     }
