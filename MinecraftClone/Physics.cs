@@ -272,6 +272,13 @@ public static class Physics
         }
         return null;
     }
+
+    public static bool AreOverlapping(Hitbox h1, Hitbox h2)
+    {
+        return (h1.MinVector.X <= h2.MaxVector.X && h1.MaxVector.X >= h2.MinVector.X) &&
+               (h1.MinVector.Y <= h2.MaxVector.Y && h1.MaxVector.Y >= h2.MinVector.Y) &&
+               (h1.MinVector.Z <= h2.MaxVector.Z && h1.MaxVector.Z >= h2.MinVector.Z);
+    }
 }
 
 public struct CollisionInfo
@@ -283,3 +290,16 @@ public struct CollisionInfo
         this = default;
     }
 }
+
+public struct Hitbox
+{
+    public readonly Vector3 MinVector;
+    public readonly Vector3 MaxVector;
+
+    public Hitbox(Vector3 min, Vector3 max)
+    {
+        MinVector = min;
+        MaxVector = max;
+    }
+}
+

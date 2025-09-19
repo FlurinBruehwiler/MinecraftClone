@@ -16,6 +16,24 @@ public class Player
 
     private BlockDefinition _selectedBlock = Blocks.Air;
 
+    public Hitbox GetHitBox()
+    {
+        var minVector = new Vector3();
+        
+        minVector.X = Position.X - Physics.PlayerWidth / 2;
+        minVector.Y = Position.Y - Physics.PlayerHeight;
+        minVector.Z = Position.Z - Physics.PlayerWidth / 2;
+       
+        var maxVector = new Vector3();
+        
+        maxVector.X = Position.X + Physics.PlayerWidth / 2;
+        maxVector.Y = Position.Y;
+        maxVector.Z = Position.Z + Physics.PlayerWidth / 2;
+        
+        
+        return new Hitbox(minVector, maxVector);
+    }
+
     public void Move(Vector3 direction)
     {
         var isJumping = direction.Y > 0;
@@ -191,14 +209,17 @@ public class Player
             var col = Physics.Raycast(Position + CameraOffset, Direction, 10, out var previousBlock, out _, true);
             if (col is not null)
             {
-                ref var b = ref CurrentWorld.TryGetBlockAtPos(previousBlock, out var wasFound);
-                if (wasFound)
+                var blockHitbox = new Hitbox(previousBlock.ToVector3(), previousBlock.ToVector3() + Vector3.One);
+                
+                if (!Physics.AreOverlapping(GetHitBox(), blockHitbox))
                 {
-                    b.BlockId = _selectedBlock.Id;
+                    ref var b = ref CurrentWorld.TryGetBlockAtPos(previousBlock, out var wasFound);
+                    if (wasFound)
+                    {
+                        b.BlockId = _selectedBlock.Id;
 
-                    CurrentWorld.InformBlockUpdate(previousBlock);
-                    // var chunk = CurrentWorld.GetChunk(previousBlock);
-                    // chunk.GenMesh();
+                        CurrentWorld.InformBlockUpdate(previousBlock);
+                    }
                 }
             }
         }
