@@ -6,6 +6,7 @@ public static class Chunkloader
 {
     public static void LoadChunksIfNeccesary(Vector3 playerPos)
     {
+        var chunkGenTimer = Stopwatch.GetTimestamp();
         const int renderDistance = 8;
         var chunkPos = GetChunkPos(playerPos);
 
@@ -39,7 +40,9 @@ public static class Chunkloader
                             chunk.GenMesh();
 
                             chunk.HasMesh = true;
-                            return;
+
+                            if (Stopwatch.GetElapsedTime(chunkGenTimer).TotalSeconds > Math.Max(GetFrameTime(), 1f / 120))
+                                return;
                         }
                     }
                 }
