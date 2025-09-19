@@ -2,12 +2,12 @@
 
 public class Game
 {
-    private CameraManager _cameraManager;
+    private Player _player;
     private Model _skyBox;
 
-    public Game(CameraManager cameraManager)
+    public Game(Player player)
     {
-        _cameraManager = cameraManager;
+        _player = player;
         Initialize();
     }
 
@@ -45,7 +45,7 @@ public class Game
 
                 ClearBackground(Color.RAYWHITE);
 
-                BeginMode3D(_cameraManager.Camera);
+                BeginMode3D(_player.Camera);
 
                     Draw3d();
     
@@ -59,7 +59,7 @@ public class Game
 
     private void Update()
     {
-        _cameraManager.Update();
+        _player.Update();
 
         if (IsKeyPressed(KeyboardKey.KEY_F3))
         {
@@ -102,8 +102,5 @@ public class Game
             if(DevTools.DevToolsEnabled)
                 DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
         }
-
-        // var chunkCoord = GetChunkCoordinate(_cameraManager.Player.Position.ToIntVector3());
-        // DrawLine3D();
     }
 }

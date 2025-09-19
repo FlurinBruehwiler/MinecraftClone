@@ -18,7 +18,7 @@ public enum Debug3InstructionType
 
 public static class DevTools
 {
-    private static List<PrintMessage> _printMessages = new();
+    private static List<Models> _printMessages = new();
     private static Dictionary<Plotable, Queue<int>> _plots = new();
     public static bool DevToolsEnabled = false;
 
@@ -27,7 +27,7 @@ public static class DevTools
 
     public static void Print(object? value, string name)
     {
-        _printMessages.Add(new PrintMessage(value?.ToString() ?? "", name));
+        _printMessages.Add(new Models(value?.ToString() ?? "", name));
     }
 
     public static void Plot(int value, Plotable plotable)

@@ -90,16 +90,16 @@ public static class Chunkloader
             }
         }
 
-        var posX = Random.Shared.Next(0, 15);
-        var posZ = Random.Shared.Next(0, 15);
-
-        for (int i = 0; i < 16; i++)
-        {
-            if (chunk.Blocks[posX, i, posZ].IsAir())
-            {
-                
-            }
-        }
+        // var posX = Random.Shared.Next(0, 15);
+        // var posZ = Random.Shared.Next(0, 15);
+        //
+        // for (int i = 0; i < 16; i++)
+        // {
+        //     if (chunk.Blocks[posX, i, posZ].IsAir())
+        //     {
+        //
+        //     }
+        // }
 
         return chunk;
     }

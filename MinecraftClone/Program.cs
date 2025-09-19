@@ -14,9 +14,7 @@ CurrentWorld = new World();
 
 var player = new Player();
 
-var cameraManager = new CameraManager(player);
-
-var gamus = new Game(cameraManager);
+var gamus = new Game(player);
 
 gamus.GameLoop();
 
