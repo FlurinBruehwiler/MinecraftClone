@@ -1,6 +1,5 @@
 ﻿namespace RayLib3dTest;
 
-record struct Models(string Value, string Name);
 record struct DebugLine(Vector3 Start, Vector3 Direction, Color Color);
 record struct DebugLine2d(Vector2 Direction, Color Color);
 

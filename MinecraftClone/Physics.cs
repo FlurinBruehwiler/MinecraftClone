@@ -143,7 +143,7 @@ public static class Physics
         var direction = Math.Sign(velocity.Y);
 
         if (direction == 0)
-            return;
+            direction = -1;
 
         float rayLength = Math.Abs(velocity.Y) + SkinWidth;
 

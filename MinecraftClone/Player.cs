@@ -4,7 +4,7 @@ public class Player
 {
     public Vector3 Position = new(0, 100, 0);
     public Vector3 LastPosition = new(0, 100, 0);
-    public Vector3 VelocityPerSecond;
+    public Vector3 Velocity;
     public Vector3 Direction = new(0, 0, 1);
     public Camera3D Camera;
     private float _sensitivity = 1;
@@ -58,7 +58,7 @@ public class Player
 
         //player movement is done in tick
 
-        var direction = GetMovementInput();
+        var direction = GetHorizontal();
 
         var right = Vector3.Normalize(new Vector3(Right.X, 0, Right.Z));
         var forward = Vector3.Normalize(new Vector3(-Right.Z, 0, Right.X));
@@ -66,39 +66,62 @@ public class Player
         var xComponent = right * direction.X;
         var zComponent = forward * direction.Z;
 
-        var globalMoveDelta = xComponent + zComponent;
-        globalMoveDelta.Y = direction.Y;
+        var globalMoveDirection = xComponent + zComponent;
+        globalMoveDirection.Y = direction.Y;
 
-        var isJumping = globalMoveDelta.Y > 0;
-        globalMoveDelta.Y = 0;
+        if (globalMoveDirection.Length() != 0)
+            globalMoveDirection = Vector3.Normalize(globalMoveDirection);
 
-        if (globalMoveDelta.Length() != 0)
-            globalMoveDelta = Vector3.Normalize(globalMoveDelta);
+        const float walkingAcceleration = 0.098f;
+        const float speedMultiplier = 1.3f;
 
-        float gravity = -5f;
-        float jumpVelocity = 35f;
+        var horizontalAcceleration = walkingAcceleration;
 
-        const float speed = 40;
+        if (IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL) || IsKeyDown(KeyboardKey.KEY_Q))
+            horizontalAcceleration *= speedMultiplier;
 
-        var posChange = new Vector3(globalMoveDelta.X * speed, VelocityPerSecond.Y, globalMoveDelta.Z * speed) * GetFrameTime();
+        Velocity.X += globalMoveDirection.X * horizontalAcceleration;
+        Velocity.Z += globalMoveDirection.Z * horizontalAcceleration;
 
-        var colInfo = MoveWithCollision(ref posChange);
+        var posChange = Velocity;
+            var colInfo = MoveWithCollision(ref posChange);
+        Position += posChange;
 
-        if (colInfo.Up || colInfo.Down)
-            VelocityPerSecond.Y = 0;
-
-        VelocityPerSecond.Y += gravity;
-
-        if (isJumping && colInfo.Down)
+        const float verticalAcceleration = 0.08f;
+        if (!colInfo.Down)
+            Velocity.Y -= verticalAcceleration;
+        else
         {
-            VelocityPerSecond.Y = jumpVelocity;
+            if (isJumpPressed) //cannot check IsKeyPressed because tick doesn't run every frame
+            {
+                const float jumpVelocity = 0.42f;
+                Velocity.Y = jumpVelocity;
+            }
+            else
+            {
+                Velocity.Y = 0;
+            }
         }
 
-        Position += posChange;
+        DevTools.Print(colInfo.Down, "OnGround");
+        DevTools.Print(Velocity, "velocity");
+
+        const float defaultBlockFriction = 0.546f;
+        const float verticalDrag = 0.98f;
+        Velocity.X *= defaultBlockFriction;
+        Velocity.Y *= verticalDrag;
+        Velocity.Z *= defaultBlockFriction;
+
+        isJumpPressed = false;
     }
+
+    private bool isJumpPressed;
 
     public void Update()
     {
+        if (IsKeyDown(KeyboardKey.KEY_SPACE))
+            isJumpPressed = true;
+
         HandleDirectionChange();
         UpdateCamera();
         Chunkloader.LoadChunksIfNeccesary(Position);
@@ -171,7 +194,7 @@ public class Player
     //     _playerSpeed = Math.Max(_playerSpeed, 0);
     // }
 
-    private Vector3 GetMovementInput()
+    private Vector3 GetHorizontal()
     {
         var inputDirection = new Vector3();
 
@@ -193,16 +216,6 @@ public class Player
         if (IsKeyDown(KeyboardKey.KEY_A))
         {
             inputDirection.X -= 1;
-        }
-
-        if (IsKeyDown(KeyboardKey.KEY_SPACE))
-        {
-            inputDirection.Y += 1;
-        }
-
-        if (IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL))
-        {
-            inputDirection.Y -= 1;
         }
 
         return inputDirection;

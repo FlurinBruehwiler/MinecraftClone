@@ -62,11 +62,13 @@ public class Game
     private void RunTickStep()
     {
         _player.Tick();
+
     }
 
     private static long _lastTickTimestamp;
     public const float TickRateMs = 1000f / 20; //50ms, 20tps
     public static float MsSinceLastTick() => (float)Stopwatch.GetElapsedTime(_lastTickTimestamp).TotalMilliseconds;
+
 
     private void Update()
     {
