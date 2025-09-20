@@ -70,12 +70,11 @@ public class Game
 
     private void Update()
     {
-        while (true)
-        {
-            var timeSinceLastTick = Stopwatch.GetElapsedTime(_lastTickTimestamp);
-            if (timeSinceLastTick.TotalMilliseconds < TickRateMs)
-                break;
+        var timeSinceLastTick = Stopwatch.GetElapsedTime(_lastTickTimestamp);
 
+        //if the framerate drops below the tick rate, we do not run multiple ticks per frame. This is done on purpose.
+        //The simulation rate of the game will just slow down.
+        if(timeSinceLastTick.TotalMilliseconds > TickRateMs){
             _lastTickTimestamp = Stopwatch.GetTimestamp();
             RunTickStep();
         }
@@ -85,6 +84,11 @@ public class Game
         if (IsKeyPressed(KeyboardKey.KEY_F3))
         {
             DevTools.DevToolsEnabled = !DevTools.DevToolsEnabled;
+        }
+
+        if (IsKeyReleased(KeyboardKey.KEY_M))
+        {
+            Thread.Sleep(1000);
         }
     }
 
