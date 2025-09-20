@@ -1,4 +1,6 @@
-﻿namespace RayLib3dTest;
+﻿using System.Diagnostics;
+
+namespace RayLib3dTest;
 
 public class Game
 {
@@ -57,8 +59,27 @@ public class Game
         }
     }
 
+    private void RunTickStep()
+    {
+        _player.Tick();
+    }
+
+    private static long _lastTickTimestamp;
+    public const float TickRateMs = 1000f / 20; //50ms, 20tps
+    public static float MsSinceLastTick() => (float)Stopwatch.GetElapsedTime(_lastTickTimestamp).TotalMilliseconds;
+
     private void Update()
     {
+        while (true)
+        {
+            var timeSinceLastTick = Stopwatch.GetElapsedTime(_lastTickTimestamp);
+            if (timeSinceLastTick.TotalMilliseconds < TickRateMs)
+                break;
+
+            _lastTickTimestamp = Stopwatch.GetTimestamp();
+            RunTickStep();
+        }
+
         _player.Update();
 
         if (IsKeyPressed(KeyboardKey.KEY_F3))
@@ -102,5 +123,7 @@ public class Game
             if(DevTools.DevToolsEnabled)
                 DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
         }
+
+        _player.Render();
     }
 }

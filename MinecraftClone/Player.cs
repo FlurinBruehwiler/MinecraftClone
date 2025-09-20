@@ -3,6 +3,7 @@
 public class Player
 {
     public Vector3 Position = new(0, 100, 0);
+    public Vector3 LastPosition = new(0, 100, 0);
     public Vector3 VelocityPerSecond;
     public Vector3 Direction = new(0, 0, 1);
     public Camera3D Camera;
@@ -34,25 +35,54 @@ public class Player
         return new Hitbox(minVector, maxVector);
     }
 
-    public void Move(Vector3 direction)
+    //once we add more entities, this needs to be able to operate on general entities, not just the player...
+    public CollisionInfo MoveWithCollision(ref Vector3 velocity)
     {
-        var isJumping = direction.Y > 0;
-        direction.Y = 0;
-
-        if (direction.Length() != 0)
-            direction = Vector3.Normalize(direction);
-
-        float gravity = -0.5f;
-        float jumpVelocity = 11.5f;
-
-        const float speed = 6;
-
-        var posChange = new Vector3(direction.X * speed, VelocityPerSecond.Y, direction.Z * speed) * GetFrameTime();
-
         var colInfo = new CollisionInfo();
-        Physics.VerticalCollisions(ref posChange, ref colInfo, Position);
-        Physics.ForwardCollisions(ref posChange, ref colInfo, Position);
-        Physics.SidewardCollisions(ref posChange, ref colInfo, Position);
+        Physics.VerticalCollisions(ref velocity, ref colInfo, Position);
+        Physics.ForwardCollisions(ref velocity, ref colInfo, Position);
+        Physics.SidewardCollisions(ref velocity, ref colInfo, Position);
+
+        return colInfo;
+    }
+
+    public Player()
+    {
+        Camera = new Camera3D(Vector3.Zero, new Vector3(0, 0, 1), new Vector3(0, 1, 0), 100,
+            CameraProjection.CAMERA_PERSPECTIVE);
+    }
+
+    public void Tick()
+    {
+        LastPosition = Position;
+
+        //player movement is done in tick
+
+        var direction = GetMovementInput();
+
+        var right = Vector3.Normalize(new Vector3(Right.X, 0, Right.Z));
+        var forward = Vector3.Normalize(new Vector3(-Right.Z, 0, Right.X));
+
+        var xComponent = right * direction.X;
+        var zComponent = forward * direction.Z;
+
+        var globalMoveDelta = xComponent + zComponent;
+        globalMoveDelta.Y = direction.Y;
+
+        var isJumping = globalMoveDelta.Y > 0;
+        globalMoveDelta.Y = 0;
+
+        if (globalMoveDelta.Length() != 0)
+            globalMoveDelta = Vector3.Normalize(globalMoveDelta);
+
+        float gravity = -5f;
+        float jumpVelocity = 35f;
+
+        const float speed = 40;
+
+        var posChange = new Vector3(globalMoveDelta.X * speed, VelocityPerSecond.Y, globalMoveDelta.Z * speed) * GetFrameTime();
+
+        var colInfo = MoveWithCollision(ref posChange);
 
         if (colInfo.Up || colInfo.Down)
             VelocityPerSecond.Y = 0;
@@ -65,32 +95,53 @@ public class Player
         }
 
         Position += posChange;
-
-        HandleHotBarInput();
-        HandleBlockDestroy();
-        HandleBlockPlacement();
-    }
-
-    public Player()
-    {
-        Camera = new Camera3D(Vector3.Zero, new Vector3(0, 0, 1), new Vector3(0, 1, 0), 100,
-            CameraProjection.CAMERA_PERSPECTIVE);
     }
 
     public void Update()
     {
-        HandleInput();
+        HandleDirectionChange();
         UpdateCamera();
         Chunkloader.LoadChunksIfNeccesary(Position);
+
+        HandleHotBarInput();
+        HandleBlockDestroy();
+        HandleBlockPlacement();
+
+        //Debug
+        {
+            DevTools.Print(Position, "Player_Pos");
+            DevTools.Print(Direction, "Player_Direction");
+            DevTools.Print(GetChunkCoordinate(Position.ToIntVector3()), "Chunk");
+
+            lookingAtBlock = Physics.Raycast(Position + CameraOffset, Direction, 10, out _, out _, true);
+            DevTools.Print(lookingAtBlock, "Looking at Block");
+
+            DevTools.Print(GetFPS(), "FPS");
+        }
+    }
+
+    private IntVector3? lookingAtBlock;
+
+    public void Render()
+    {
+        if (lookingAtBlock.HasValue)
+        {
+            DrawCubeWiresV(lookingAtBlock.Value.ToVector3() + Vector3.One / 2, Vector3.One * 1.001f, Color.BLACK);
+        }
     }
 
     private void UpdateCamera()
     {
-        Camera.position = Position + CameraOffset;
-        Camera.target = Position + CameraOffset + Direction;
+        var t = 1 / Game.TickRateMs * Game.MsSinceLastTick();
+
+        var cameraPos = Vector3.Lerp(LastPosition, Position, t);
+
+        //this needs to be smoothed
+        Camera.position = cameraPos + CameraOffset;
+        Camera.target = cameraPos + CameraOffset + Direction;
     }
 
-    private void HandleInput()
+    private void HandleDirectionChange()
     {
         var rotationInput = GetMouseDelta() * 0.2f;
 
@@ -104,37 +155,6 @@ public class Player
             MathF.Sin(pitch),
             MathF.Sin(yaw) * cosPitch
         );
-
-        // Direction = Vector3RotateByAxisAngle(Direction, -Right, rotationVector.Y);
-        // Direction = Vector3RotateByAxisAngle(Direction, new Vector3(0, 1, 0), rotationVector.X);
-
-        // var right = Vector3.Normalize(Vector3.Cross(new Vector3(0,1,0), Direction));
-
-
-        // Direction = Direction with { Y = Math.Clamp(Direction.Y, -0.99f, +0.99f) };
-
-
-        var moveDelta = GetMovementInput();
-
-        var right = Vector3.Normalize(new Vector3(Right.X, 0, Right.Z));
-        var forward = Vector3.Normalize(new Vector3(-Right.Z, 0, Right.X));
-
-        var xComponent = right * moveDelta.X;
-        var zComponent = forward * moveDelta.Z;
-
-        var globalMoveDelta = xComponent + zComponent;
-        globalMoveDelta.Y = moveDelta.Y;
-
-        Move(globalMoveDelta);
-
-        DevTools.Print(Position, "Player_Pos");
-        DevTools.Print(Direction, "Player_Direction");
-        DevTools.Print(GetChunkCoordinate(Position.ToIntVector3()), "Chunk");
-
-        var col = Physics.Raycast(Position + CameraOffset, Direction, 10, out _, out _, true);
-        DevTools.Print(col, "Looking at Block");
-
-        DevTools.Print(GetFPS(), "FPS");
     }
 
     // private void HandleSpeedChange()
