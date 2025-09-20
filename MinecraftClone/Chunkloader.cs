@@ -10,45 +10,47 @@ public static class Chunkloader
         const int renderDistance = 8;
         var chunkPos = GetChunkPos(playerPos);
 
-        for (var x = -renderDistance; x < renderDistance; x++)
+        for (int i = 1; i < renderDistance; i++) //we do this, so chunks load from the inside to the outside, it is a bit wastefull, but really simple
         {
-            for (var z = -renderDistance; z < renderDistance; z++)
+            for (var x = -i; x < i; x++)
             {
-                for (var y = -1; y < 5; y++)
+                for (var z = -i; z < i; z++)
                 {
-                    var neededChunk = new IntVector3(chunkPos.X + x, y, chunkPos.Z + z);
-                    if (!CurrentWorld.Chunks.TryGetValue(neededChunk, out var chunk) || !chunk.HasMesh)
+                    for (var y = -1; y < 5; y++)
                     {
-                        if (chunk is null)
+                        var neededChunk = new IntVector3(chunkPos.X + x, y, chunkPos.Z + z);
+                        if (!CurrentWorld.Chunks.TryGetValue(neededChunk, out var chunk) || !chunk.HasMesh)
                         {
-                            var startTime = Stopwatch.GetTimestamp();
+                            if (chunk is null)
+                            {
+                                var startTime = Stopwatch.GetTimestamp();
 
-                            chunk = GenChunk(neededChunk);
+                                chunk = GenChunk(neededChunk);
 
-                            DevTools.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable(nameof(GenChunk), 100, 220));
-                            CurrentWorld.Chunks.Add(neededChunk, chunk);
-                        }
+                                DevTools.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable(nameof(GenChunk), 100, 220));
+                                CurrentWorld.Chunks.Add(neededChunk, chunk);
+                            }
 
-                        if (CurrentWorld.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z + 1 })
-                            && CurrentWorld.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z - 1 })
-                            && CurrentWorld.Chunks.ContainsKey(neededChunk with { X = neededChunk.X + 1 })
-                            && CurrentWorld.Chunks.ContainsKey(neededChunk with { X = neededChunk.X - 1 })
-                             && CurrentWorld.Chunks.ContainsKey(neededChunk with { Y = neededChunk.Y + 1 })
-                             && CurrentWorld.Chunks.ContainsKey(neededChunk with { Y = neededChunk.Y - 1 }))
+                            if (CurrentWorld.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z + 1 })
+                                && CurrentWorld.Chunks.ContainsKey(neededChunk with { Z = neededChunk.Z - 1 })
+                                && CurrentWorld.Chunks.ContainsKey(neededChunk with { X = neededChunk.X + 1 })
+                                && CurrentWorld.Chunks.ContainsKey(neededChunk with { X = neededChunk.X - 1 })
+                                && CurrentWorld.Chunks.ContainsKey(neededChunk with { Y = neededChunk.Y + 1 })
+                                && CurrentWorld.Chunks.ContainsKey(neededChunk with { Y = neededChunk.Y - 1 }))
 
-                        {
-                            chunk.GenMesh();
+                            {
+                                chunk.GenMesh();
 
-                            chunk.HasMesh = true;
+                                chunk.HasMesh = true;
 
-                            if (Stopwatch.GetElapsedTime(chunkGenTimer).TotalMilliseconds > 0.8f )
-                                return;
+                                if (Stopwatch.GetElapsedTime(chunkGenTimer).TotalMilliseconds > 0.8f )
+                                    return;
+                            }
                         }
                     }
                 }
             }
         }
-        
     }
 
     private static Chunk GenChunk(IntVector3 pos)
