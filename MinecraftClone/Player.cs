@@ -162,6 +162,7 @@ public class Player
         //this needs to be smoothed
         Camera.position = cameraPos + CameraOffset;
         Camera.target = cameraPos + CameraOffset + Direction;
+        DevTools.Print(Camera.position, "camera_pos");
     }
 
     private void HandleDirectionChange()
