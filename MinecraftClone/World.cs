@@ -5,15 +5,13 @@ public class World
     public static World CurrentWorld;
 
     public Dictionary<IntVector3, Chunk> Chunks = new();
-    public Texture2D Texture2D;
+    public Texture2D TextureAtlas;
 
     private Block _emptyBlock;
 
     public World()
     {
-        TextureAtlas.Create();
-
-        Texture2D = LoadTexture("Resources/textureatlas.png");
+        TextureAtlas = RayLib3dTest.TextureAtlas.Create();
     }
 
     public ref Block TryGetBlockAtPos(Vector3 pos, out bool wasFound)

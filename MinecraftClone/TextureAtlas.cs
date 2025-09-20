@@ -1,21 +1,40 @@
 ﻿using System.Runtime.InteropServices;
-using SkiaSharp;
 
 namespace RayLib3dTest;
 
 public static class TextureAtlas
 {
-    public static void Create()
+    public static Texture2D Create()
     {
-        var info = new SKImageInfo(16 * 10, 16 * 10);
-        using var surface = SKSurface.Create(info);
-        var canvas = surface.Canvas;
-        canvas.Clear(SKColors.Black);
-        Draw(canvas);
-        using var img = surface.Snapshot();
-        using var data = img.Encode(SKEncodedImageFormat.Png, 80);
-        using var stream = File.OpenWrite("Resources/textureatlas.png");
-        data.SaveTo(stream);
+        RenderTexture2D renderTarget = LoadRenderTexture(160, 160);
+
+        BeginTextureMode(renderTarget);
+
+        using var enumerator = Textures.TextureList.GetEnumerator();
+
+        ClearBackground(Color.BLACK);
+
+        for (var y = 0; y < 10; y++)
+        {
+            for (var x = 0; x < 10; x++)
+            {
+                if (!enumerator.MoveNext())
+                    goto end;
+
+                var texture = enumerator.Current;
+                var blockTexture = LoadTexture($"Resources/{texture.Key}.png");
+                DrawTexturePro(blockTexture, new Rectangle(0, 0, blockTexture.width, blockTexture.height),
+                    new Rectangle((x + 1) * 16, 160 - y * 16, 16, 16), new Vector2(0, 0), 180, Color.WHITE);
+            }
+        }
+        end:
+
+        EndTextureMode();
+
+        Image textureAtlas = LoadImageFromTexture(renderTarget.texture);
+        ExportImage(textureAtlas, "Resources/textureatlas.png");
+
+        return renderTarget.texture;
     }
 
     public static unsafe void GenerateBlockPreviews(Texture2D texture2D)
@@ -84,24 +103,5 @@ public static class TextureAtlas
         EndMode3D();
 
         EndTextureMode();
-    }
-
-    private static void Draw(SKCanvas canvas)
-    {
-        using var enumerator = Textures.TextureList.GetEnumerator();
-
-        for (var y = 0; y < 10; y++)
-        {
-            for (var x = 0; x < 10; x++)
-            {
-                if (!enumerator.MoveNext())
-                    return;
-
-                var texture = enumerator.Current;
-                var img = SKImage.FromEncodedData($"Resources/{texture.Key}.png");
-                var bitmap = SKBitmap.FromImage(img);
-                canvas.DrawBitmap(bitmap, x * 16, y * 16);
-            }
-        }
     }
 }

@@ -12,8 +12,6 @@
   
   <ItemGroup>
     <PackageReference Include="Raylib-cs" Version="4.5.0.4" />
-    <PackageReference Include="SkiaSharp" Version="3.119.0" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.0" />
   </ItemGroup>
   
   <ItemGroup>

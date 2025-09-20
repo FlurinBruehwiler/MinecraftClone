@@ -30,7 +30,7 @@ public class Chunk : IDisposable
     private unsafe void GenModel()
     {
         Model = LoadModelFromMesh(Mesh);
-        Model.materials[0].maps->texture = _world.Texture2D;
+        Model.materials[0].maps->texture = _world.TextureAtlas;
         // Model.materials[0].shader = _globalBoy.Shader;
     }
 
