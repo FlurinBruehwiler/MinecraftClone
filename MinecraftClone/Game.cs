@@ -62,7 +62,6 @@ public class Game
     private void RunTickStep()
     {
         _player.Tick();
-
     }
 
     private static long _lastTickTimestamp;
@@ -77,6 +76,7 @@ public class Game
         //if the framerate drops below the tick rate, we do not run multiple ticks per frame. This is done on purpose.
         //The simulation rate of the game will just slow down.
         if(timeSinceLastTick.TotalMilliseconds > TickRateMs){
+            DevTools.Print(1000f / (float)timeSinceLastTick.TotalMilliseconds, "TPS");
             _lastTickTimestamp = Stopwatch.GetTimestamp();
             RunTickStep();
         }
