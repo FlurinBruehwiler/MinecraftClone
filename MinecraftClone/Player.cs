@@ -113,7 +113,7 @@ public class Player
             DevTools.Print(Direction, "Player_Direction");
             DevTools.Print(GetChunkCoordinate(Position.ToIntVector3()), "Chunk");
 
-            lookingAtBlock = Physics.Raycast(Position + CameraOffset, Direction, 10, out _, out _, true);
+            lookingAtBlock = Physics.Raycast(Camera.position, Direction, 10, out _, out _, true);
             DevTools.Print(lookingAtBlock, "Looking at Block");
 
             DevTools.Print(GetFPS(), "FPS");
@@ -226,7 +226,7 @@ public class Player
     {
         if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT))
         {
-            var col = Physics.Raycast(Position + CameraOffset, Direction, 10, out var previousBlock, out _, true);
+            var col = Physics.Raycast(Camera.position, Direction, 10, out var previousBlock, out _, true);
             if (col is not null)
             {
                 var blockHitbox = new Hitbox(previousBlock.ToVector3(), previousBlock.ToVector3() + Vector3.One);
@@ -249,7 +249,7 @@ public class Player
     {
         if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
         {
-            var col = Physics.Raycast(Position + CameraOffset, Direction, 10, out _, out _, true);
+            var col = Physics.Raycast(Camera.position, Direction, 10, out _, out _, true);
             if (col is not null)
             {
                 ref var b = ref CurrentWorld.TryGetBlockAtPos(col.Value, out var wasFound);
