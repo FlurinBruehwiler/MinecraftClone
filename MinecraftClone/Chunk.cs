@@ -6,11 +6,11 @@ namespace RayLib3dTest;
 public class Chunk : IDisposable
 {
     private readonly World _world;
-    public Mesh Mesh;
-    public Model Model { get; set; }
-    public Block[,,] Blocks { get; set; }
-    public required IntVector3 Pos;
     public bool HasMesh;
+    public Mesh Mesh;
+    public Model Model;
+    public Block[,,] Blocks;
+    public required IntVector3 Pos;
 
     public static readonly IntVector3 _bottomLeftFront = new(0, 0, 0);
     public static readonly IntVector3 _bottomRightFront = new(1, 0, 0);
@@ -25,13 +25,6 @@ public class Chunk : IDisposable
     {
         _world = world;
         Blocks = new Block[16, 16, 16];
-    }
-
-    private unsafe void GenModel()
-    {
-        Model = LoadModelFromMesh(Mesh);
-        Model.materials[0].maps->texture = _world.TextureAtlas;
-        // Model.materials[0].shader = _globalBoy.Shader;
     }
 
     public unsafe void GenMesh()
@@ -79,6 +72,9 @@ public class Chunk : IDisposable
 
         if (verticesList.Count == 0)
         {
+            HasMesh = false;
+            Mesh = default;
+            Model = default;
             return;
         }
 
@@ -112,7 +108,9 @@ public class Chunk : IDisposable
 
         Mesh = mesh;
         UploadMesh(ref Mesh, false);
-        GenModel();
+
+        Model = LoadModelFromMesh(Mesh);
+        Model.materials[0].maps->texture = _world.TextureAtlas;
     }
 
     private IntVector3 GetOffset(BlockFace blockFace)

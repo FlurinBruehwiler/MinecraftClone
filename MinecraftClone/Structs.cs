@@ -23,7 +23,7 @@ public enum BlockFace
     Front
 }
 
-public struct IntVector3
+public struct IntVector3 : IEquatable<IntVector3 >
 {
     public int X;
     public int Y;
@@ -43,6 +43,8 @@ public struct IntVector3
         Z = x;
     }
 
+    public static readonly IntVector3 Zero = new IntVector3(0);
+
     public override string ToString()
     {
         return $"{X}, {Y}, {Z}";
@@ -56,7 +58,7 @@ public struct IntVector3
 
     public static bool operator !=(IntVector3 left, IntVector3 right)
     {
-        return left.X != right.X && left.Y != right.Y && left.Z != right.Z;
+        return !(left == right);
     }
 
     public static IntVector3 operator +(IntVector3 left, IntVector3 right)
@@ -80,6 +82,16 @@ public struct IntVector3
     public override int GetHashCode()
     {
         return X + Y * 1000 + Z * 1000000;
+    }
+
+    public bool Equals(IntVector3 other)
+    {
+        return X == other.X && Y == other.Y && Z == other.Z;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is IntVector3 other && Equals(other);
     }
 }
 

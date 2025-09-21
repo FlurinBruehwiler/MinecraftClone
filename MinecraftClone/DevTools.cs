@@ -77,9 +77,13 @@ public static class DevTools
         {
             renderAction();
         }
-        RenderActions.Clear();
 
         // Debug3dInstructions.Clear();//this list is not actually needed right now, we would only need it if we would like to persist the instructions
+    }
+
+    public static void Tick()
+    {
+        RenderActions.Clear();
     }
 
     public static void Draw2d()

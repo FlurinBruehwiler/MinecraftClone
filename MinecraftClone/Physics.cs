@@ -12,26 +12,34 @@ public static class Physics
     
     private static List<Vector2> _verticalRayOrigins = new()
     {
-        new Vector2(-HalfPlayerWidth, -HalfPlayerWidth),
-        new Vector2(-HalfPlayerWidth, +HalfPlayerWidth),
-        new Vector2(+HalfPlayerWidth, -HalfPlayerWidth),
-        new Vector2(+HalfPlayerWidth, +HalfPlayerWidth),
+        new Vector2(-1, -1),
+        new Vector2(-1, +1),
+        new Vector2(+1, -1),
+        new Vector2(+1, +1),
     };
 
     private static List<Vector2> _forwardCollisions = new()
     {
-        new Vector2(+HalfPlayerWidth, -ReducedHeight),
-        new Vector2(-HalfPlayerWidth, -ReducedHeight),
-        new Vector2(+HalfPlayerWidth, 0),
-        new Vector2(-HalfPlayerWidth, 0),
+        new Vector2(+1, -1),
+        new Vector2(-1, -1),
+        new Vector2(+1, +1),
+        new Vector2(-1, +1),
+
+        new Vector2(+1, 0),
+        new Vector2(-1, 0),
     };
     
     private static List<Vector2> _sidewardCollisions = new()
     {
-        new Vector2(+HalfPlayerWidth, -ReducedHeight),
-        new Vector2(-HalfPlayerWidth, -ReducedHeight),
-        new Vector2(+HalfPlayerWidth, 0),
-        new Vector2(-HalfPlayerWidth, 0),
+        new Vector2(+1, -1),
+        new Vector2(-1, -1),
+
+        new Vector2(+1, 0f),
+        new Vector2(-1, 0f),
+
+
+        new Vector2(+1, +1),
+        new Vector2(-1, +1),
     };
 
     public static void DisplayRays(Vector3 velocity, Vector3 playerPos)
@@ -72,9 +80,9 @@ public static class Physics
         }
     }
 
-    private const bool collisionDebug = false;
+    private const bool collisionDebug = true;
 
-    public static void ForwardCollisions(ref Vector3 velocity, ref CollisionInfo colInfo, Vector3 playerPos)
+    public static void ForwardCollisions(ref Vector3 velocity, ref CollisionInfo colInfo, Vector3 playerPos, Hitbox hitbox)
     {
         var direction = Math.Sign(velocity.X);
 
@@ -85,8 +93,7 @@ public static class Physics
 
         foreach (var verticalRayOrigin in _forwardCollisions)
         {
-            var origin = new Vector3(direction == -1 ? -HalfPlayerWidth : +HalfPlayerWidth, verticalRayOrigin.Y, verticalRayOrigin.X);
-            origin += playerPos;
+            var origin = playerPos + hitbox.Shrink(SkinWidth).GetCorner(new Vector3(direction, verticalRayOrigin.Y, verticalRayOrigin.X));
             var hit = Raycast(origin, new Vector3(direction, 0, 0), rayLength, out _, out var distance, collisionDebug);
 
             if (distance != 0 && !float.IsNormal(distance))
@@ -105,7 +112,7 @@ public static class Physics
         }
     }
 
-    public static void SidewardCollisions(ref Vector3 velocity, ref CollisionInfo colInfo, Vector3 playerPos)
+    public static void SidewardCollisions(ref Vector3 velocity, ref CollisionInfo colInfo, Vector3 playerPos, Hitbox hitbox)
     {
         var direction = Math.Sign(velocity.Z);
 
@@ -116,10 +123,7 @@ public static class Physics
 
         foreach (var verticalRayOrigin in _sidewardCollisions)
         {
-            var origin = new Vector3(verticalRayOrigin.X, verticalRayOrigin.Y, direction == -1 ? -HalfPlayerWidth : +HalfPlayerWidth);
-
-            origin += playerPos;
-            
+            var origin = playerPos + hitbox.Shrink(SkinWidth).GetCorner(new Vector3(verticalRayOrigin.X, verticalRayOrigin.Y, direction));
             var hit = Raycast(origin, new Vector3(0, 0, direction), rayLength, out _, out var distance, collisionDebug);
 
             if (distance != 0 && !float.IsNormal(distance))
@@ -138,7 +142,7 @@ public static class Physics
         }
     }
 
-    public static void VerticalCollisions(ref Vector3 velocity, ref CollisionInfo colInfo, Vector3 playerPos)
+    public static void VerticalCollisions(ref Vector3 velocity, ref CollisionInfo colInfo, Vector3 playerPos, Hitbox hitbox)
     {
         var direction = Math.Sign(velocity.Y);
 
@@ -149,8 +153,7 @@ public static class Physics
 
         foreach (var verticalRayOrigin in _verticalRayOrigins)
         {
-            var origin = new Vector3(verticalRayOrigin.X, direction == -1 ? -ReducedHeight : 0, verticalRayOrigin.Y);
-            origin += playerPos;
+            var origin = playerPos + hitbox.Shrink(SkinWidth).GetCorner(new Vector3(verticalRayOrigin.X, direction, verticalRayOrigin.Y));
             var hit = Raycast(origin, new Vector3(0, direction, 0), rayLength, out _, out var distance, collisionDebug);
 
             if (distance != 0 && !float.IsNormal(distance))
@@ -171,23 +174,12 @@ public static class Physics
 
     public static void DebugRayHit(Vector3 pos, Vector3 dir, float hitDistance)
     {
-        // DevTools.Debug3dInstructions.Add(new Debug3dInstruction
-        // {
-        //     Color = Color.RED,
-        //     PointA = pos,
-        //     PointB = pos + (Vector3.Normalize(dir) * hitDistance),
-        //     Type = Debug3InstructionType.Line
-        // });
-        //
-        // DevTools.Debug3dInstructions.Add(new Debug3dInstruction
-        // {
-        //     Color = Color.ORANGE,
-        //     PointA = pos + (Vector3.Normalize(dir) * hitDistance),
-        //     Scalar = 0.05f,
-        //     Type = Debug3InstructionType.Sphere,
-        // });
+        DevTools.RenderActions.Add(() =>
+            {
+                DrawLine3D(pos, pos + (Vector3.Normalize(dir) * hitDistance), Color.RED);
+                DrawSphere(pos + (Vector3.Normalize(dir) * hitDistance), 0.05f, Color.ORANGE);
+            });
     }
-
 
     public static IntVector3? Raycast(Vector3 pos, Vector3 dir, float length, out IntVector3 previousBlock, out float distance, bool debug = false)
     {
@@ -293,13 +285,45 @@ public struct CollisionInfo
 
 public struct Hitbox
 {
-    public readonly Vector3 MinVector;
-    public readonly Vector3 MaxVector;
+    public readonly Vector3 MinVector; //should have negative xyz
+    public readonly Vector3 MaxVector; //should have positive xyz
 
     public Hitbox(Vector3 min, Vector3 max)
     {
         MinVector = min;
         MaxVector = max;
+    }
+
+    public Vector3 GetCorner(Vector3 corner)
+    {
+        Vector3 res = default;
+        if (corner.X > 0)
+            res.X = MaxVector.X;
+        else if (corner.X == 0)
+            res.X = MinVector.X + (MaxVector.X - MinVector.X) / 2;
+        else
+            res.X = MinVector.X;
+
+        if (corner.Y > 0)
+            res.Y = MaxVector.Y;
+        else if(corner.Y == 0)
+            res.Y = MinVector.Y + (MaxVector.Y - MinVector.Y) / 2;
+        else
+            res.Y = MinVector.Y;
+
+        if (corner.Z > 0)
+            res.Z = MaxVector.Z;
+        else if(corner.Z == 0)
+            res.Z = MinVector.Z + (MaxVector.Z - MinVector.Z) / 2;
+        else
+            res.Z = MinVector.Z;
+        return res;
+    }
+
+    public Hitbox Shrink(float amount)
+    {
+        return new Hitbox(new Vector3(MinVector.X + amount, MinVector.Y + amount, MinVector.Z + amount),
+            new Vector3(MaxVector.X - amount, MaxVector.Y - amount, MaxVector.Z - amount));
     }
 }
 

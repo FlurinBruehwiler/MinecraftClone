@@ -11,7 +11,6 @@ public class Player
     public static Vector3 CameraOffset = new(0, -0.18f, 0);
     public float yaw; // around world Y
     public float pitch; // around camera local X
-    public Vector3 Forward => Direction;
     public Vector3 Right => new(-Direction.Z, 0, Direction.X);
     public Vector3 Up => new(0, 1, 0); //ToDo
 
@@ -35,16 +34,7 @@ public class Player
         return new Hitbox(minVector, maxVector);
     }
 
-    //once we add more entities, this needs to be able to operate on general entities, not just the player...
-    public CollisionInfo MoveWithCollision(ref Vector3 velocity)
-    {
-        var colInfo = new CollisionInfo();
-        Physics.VerticalCollisions(ref velocity, ref colInfo, Position);
-        Physics.ForwardCollisions(ref velocity, ref colInfo, Position);
-        Physics.SidewardCollisions(ref velocity, ref colInfo, Position);
 
-        return colInfo;
-    }
 
     public Player()
     {
@@ -60,17 +50,11 @@ public class Player
 
         var direction = GetHorizontal();
 
-        var right = Vector3.Normalize(new Vector3(Right.X, 0, Right.Z));
-        var forward = Vector3.Normalize(new Vector3(-Right.Z, 0, Right.X));
+        const float verticalAcceleration = 0.08f;
+        const float defaultBlockFriction = 0.546f;
+        const float verticalDrag = 0.98f;
+        const float jumpVelocity = 0.42f;
 
-        var xComponent = right * direction.X;
-        var zComponent = forward * direction.Z;
-
-        var globalMoveDirection = xComponent + zComponent;
-        globalMoveDirection.Y = direction.Y;
-
-        if (globalMoveDirection.Length() != 0)
-            globalMoveDirection = Vector3.Normalize(globalMoveDirection);
 
         const float walkingAcceleration = 0.098f;
         const float speedMultiplier = 1.3f;
@@ -80,39 +64,26 @@ public class Player
         if (IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL) || IsKeyDown(KeyboardKey.KEY_Q))
             horizontalAcceleration *= speedMultiplier;
 
-        Velocity.X += globalMoveDirection.X * horizontalAcceleration;
-        Velocity.Z += globalMoveDirection.Z * horizontalAcceleration;
-
-        var posChange = Velocity;
-            var colInfo = MoveWithCollision(ref posChange);
-        Position += posChange;
-
-        const float verticalAcceleration = 0.08f;
-        if (!colInfo.Down)
-            Velocity.Y -= verticalAcceleration;
-        else
+        var config = new MovementConfig
         {
-            if (isJumpPressed) //cannot check IsKeyPressed because tick doesn't run every frame
-            {
-                const float jumpVelocity = 0.42f;
-                Velocity.Y = jumpVelocity;
-            }
-            else
-            {
-                Velocity.Y = 0;
-            }
-        }
+            HorizontalFriction = defaultBlockFriction,
+            JumpVelocity = jumpVelocity,
+            HorizontalAcceleration = horizontalAcceleration,
+            VerticalAcceleration = verticalAcceleration,
+            VerticalFriction = verticalDrag
+        };
 
-        DevTools.Print(colInfo.Down, "OnGround");
-        DevTools.Print(Velocity, "velocity");
+        var halfWidth = Physics.PlayerWidth / 2f;
+        var hitbox = new Hitbox(new Vector3(-halfWidth, -Physics.PlayerHeight, -halfWidth),
+            new Vector3(halfWidth, 0, halfWidth));
 
-        const float defaultBlockFriction = 0.546f;
-        const float verticalDrag = 0.98f;
-        Velocity.X *= defaultBlockFriction;
-        Velocity.Y *= verticalDrag;
-        Velocity.Z *= defaultBlockFriction;
+        Movement.Move(ref Velocity, ref Position,
+            Direction, direction, hitbox, isJumpPressed, config);
 
         isJumpPressed = false;
+
+        // DevTools.Print(colInfo.Down, "OnGround");
+        DevTools.Print(Velocity, "velocity");
     }
 
     private bool isJumpPressed;
@@ -140,6 +111,30 @@ public class Player
             DevTools.Print(lookingAtBlock, "Looking at Block");
 
             DevTools.Print(GetFPS(), "FPS");
+
+            HandlePathfindDebug();
+        }
+    }
+
+    private IntVector3 startPathFind;
+    private IntVector3 endPathFind;
+    private void HandlePathfindDebug()
+    {
+        var hit = Physics.Raycast(Camera.position, Direction, 100, out var block, out _, true);
+
+        if (!hit.HasValue)
+            return;
+
+        if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_MIDDLE))
+        {
+            if (IsKeyDown(KeyboardKey.KEY_LEFT_SHIFT))
+            {
+                endPathFind = block;
+            }
+            else
+            {
+                startPathFind = block;
+            }
         }
     }
 
@@ -147,9 +142,22 @@ public class Player
 
     public void Render()
     {
+        // DrawCubeWiresV(Position with {Y= Position.Y - Physics.PlayerHeight / 2 }, new Vector3(Physics.PlayerWidth, Physics.PlayerHeight, Physics.PlayerWidth), Color.BLUE);
+
         if (lookingAtBlock.HasValue)
         {
             DrawCubeWiresV(lookingAtBlock.Value.ToVector3() + Vector3.One / 2, Vector3.One * 1.001f, Color.BLACK);
+        }
+
+        DrawCubeWiresV(startPathFind.ToVector3() + Vector3.One / 2, Vector3.One * 1.001f, Color.RED);
+        DrawCubeWiresV(endPathFind.ToVector3() + Vector3.One / 2, Vector3.One * 1.001f, Color.BLUE);
+        if (startPathFind != IntVector3.Zero && endPathFind != IntVector3.Zero)
+        {
+            var path = Pathfinding.PathFind(startPathFind, endPathFind);
+            foreach (var intVector3 in path)
+            {
+                DrawCubeWiresV(intVector3.ToVector3() + Vector3.One / 2, Vector3.One * 1.001f, Color.YELLOW);
+            }
         }
     }
 

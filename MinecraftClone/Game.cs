@@ -6,6 +6,7 @@ public class Game
 {
     private Player _player;
     private Model _skyBox;
+    private List<Bot> bots = [ new Bot() ];
 
     public Game(Player player)
     {
@@ -61,6 +62,8 @@ public class Game
 
     private void RunTickStep()
     {
+        DevTools.Tick();
+
         _player.Tick();
     }
 
@@ -124,10 +127,11 @@ public class Game
         foreach (var (_, chunk) in CurrentWorld.Chunks)
         {
             var pos = new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16);
-            DrawModel(chunk.Model, pos, 1, Color.WHITE);
+            if(chunk.HasMesh)
+                DrawModel(chunk.Model, pos, 1, Color.WHITE);
 
-            if(DevTools.DevToolsEnabled)
-                DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
+            // if(DevTools.DevToolsEnabled)
+                // DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
         }
 
         _player.Render();
