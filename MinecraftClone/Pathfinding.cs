@@ -27,6 +27,9 @@ public class Pathfinding
 
     public static IntVector3[] PathFind(IntVector3 start, IntVector3 end)
     {
+        if (start == end)
+            return [];
+
         const int maxFCost = 50;
 
         World world = CurrentWorld;
@@ -47,19 +50,13 @@ public class Pathfinding
 
             if (current.Position == end)
             {
-                List<IntVector3> pathElements = [];
-                while (current.Parent != null)
-                {
-                    pathElements.Add(current.Position);
-                    current = current.Parent;
-                }
-
-                pathElements.Reverse();
-                return pathElements.ToArray();
+                return GetFinalPath(current);
             }
 
             if (current.FCost() > 500)
-                return [];
+            {
+                return GetFinalPath(closedNodes.Where(x => x.Value.HCost != 0).MinBy(x => x.Value.HCost).Value);
+            }
 
             foreach (var offset in PathFindingNeighbours)
             {
@@ -81,6 +78,19 @@ public class Pathfinding
                 }
             }
         }
+    }
+
+    private static IntVector3[] GetFinalPath(Node current)
+    {
+        List<IntVector3> pathElements = [];
+        while (current.Parent != null)
+        {
+            pathElements.Add(current.Position);
+            current = current.Parent;
+        }
+
+        pathElements.Reverse();
+        return pathElements.ToArray();
     }
 
     private static bool IsWalkable(IntVector3 origin, Neighbour neighbour, World world)
@@ -145,6 +155,17 @@ public class Pathfinding
         new Neighbour(new(0, 1, 1)), new (new(0, 1, -1)), new(new(1, 1, 0)), new(new(-1, 1, 0)),
         new Neighbour(new(0, -1, 1)), new (new(0, -1, -1)), new(new(1, -1, 0)), new(new(-1, -1, 0)),
     ];
+
+    public static void Visualize(IntVector3[] path)
+    {
+        DevTools.RenderActions.Add(() =>
+        {
+            foreach (var intVector3 in path)
+            {
+                DrawCubeWiresV(intVector3.ToVector3(), Vector3.One * 1.001f, Color.YELLOW);
+            }
+        });
+    }
 }
 
 public record struct Neighbour(IntVector3 Offset, bool IsDiagonalHorizontal = false);

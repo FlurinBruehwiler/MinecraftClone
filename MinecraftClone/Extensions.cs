@@ -9,8 +9,13 @@ public static class Extensions
             (int)Math.Floor(pos.Z));
     }
     
-    public static Vector3 ToVector3(this IntVector3 pos)
+    public static Vector3 ToVector3NonCenter(this IntVector3 pos)
     {
         return new Vector3(pos.X, pos.Y, pos.Z);
+    }
+
+    public static Vector3 ToVector3(this IntVector3 pos)
+    {
+        return new Vector3(pos.X + 0.5f, pos.Y + 0.5f, pos.Z + 0.5f);
     }
 }

@@ -50,28 +50,11 @@ public class Player
 
         var direction = GetHorizontal();
 
-        const float verticalAcceleration = 0.08f;
-        const float defaultBlockFriction = 0.546f;
-        const float verticalDrag = 0.98f;
-        const float jumpVelocity = 0.42f;
-
-
-        const float walkingAcceleration = 0.098f;
         const float speedMultiplier = 1.3f;
-
-        var horizontalAcceleration = walkingAcceleration;
+        var config = MovementConfig.Default;
 
         if (IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL) || IsKeyDown(KeyboardKey.KEY_Q))
-            horizontalAcceleration *= speedMultiplier;
-
-        var config = new MovementConfig
-        {
-            HorizontalFriction = defaultBlockFriction,
-            JumpVelocity = jumpVelocity,
-            HorizontalAcceleration = horizontalAcceleration,
-            VerticalAcceleration = verticalAcceleration,
-            VerticalFriction = verticalDrag
-        };
+            config.HorizontalAcceleration *= speedMultiplier;
 
         var halfWidth = Physics.PlayerWidth / 2f;
         var hitbox = new Hitbox(new Vector3(-halfWidth, -Physics.PlayerHeight, -halfWidth),
@@ -107,38 +90,33 @@ public class Player
             DevTools.Print(Direction, "Player_Direction");
             DevTools.Print(GetChunkCoordinate(Position.ToIntVector3()), "Chunk");
 
-            lookingAtBlock = Physics.Raycast(Camera.position, Direction, 10, out _, out _, true);
+            lookingAtBlock = Physics.Raycast(Camera.position, Direction, 10, out var before, out _, false);
+            if (lookingAtBlock != null)
+            {
+                lookingAtBlockBefore = before;
+            }
+            else
+            {
+                lookingAtBlockBefore = null;
+            }
+
             DevTools.Print(lookingAtBlock, "Looking at Block");
 
             DevTools.Print(GetFPS(), "FPS");
 
-            HandlePathfindDebug();
-        }
-    }
-
-    private IntVector3 startPathFind;
-    private IntVector3 endPathFind;
-    private void HandlePathfindDebug()
-    {
-        var hit = Physics.Raycast(Camera.position, Direction, 100, out var block, out _, true);
-
-        if (!hit.HasValue)
-            return;
-
-        if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_MIDDLE))
-        {
-            if (IsKeyDown(KeyboardKey.KEY_LEFT_SHIFT))
+            //handle bot target
+            if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_MIDDLE) && lookingAtBlockBefore != null)
             {
-                endPathFind = block;
-            }
-            else
-            {
-                startPathFind = block;
+                foreach (var bot in CurrentWorld.bots)
+                {
+                    bot.Target = lookingAtBlockBefore.Value;
+                }
             }
         }
     }
 
     private IntVector3? lookingAtBlock;
+    private IntVector3? lookingAtBlockBefore;
 
     public void Render()
     {
@@ -146,18 +124,7 @@ public class Player
 
         if (lookingAtBlock.HasValue)
         {
-            DrawCubeWiresV(lookingAtBlock.Value.ToVector3() + Vector3.One / 2, Vector3.One * 1.001f, Color.BLACK);
-        }
-
-        DrawCubeWiresV(startPathFind.ToVector3() + Vector3.One / 2, Vector3.One * 1.001f, Color.RED);
-        DrawCubeWiresV(endPathFind.ToVector3() + Vector3.One / 2, Vector3.One * 1.001f, Color.BLUE);
-        if (startPathFind != IntVector3.Zero && endPathFind != IntVector3.Zero)
-        {
-            var path = Pathfinding.PathFind(startPathFind, endPathFind);
-            foreach (var intVector3 in path)
-            {
-                DrawCubeWiresV(intVector3.ToVector3() + Vector3.One / 2, Vector3.One * 1.001f, Color.YELLOW);
-            }
+            DrawCubeWiresV(lookingAtBlock.Value.ToVector3(), Vector3.One * 1.001f, Color.BLACK);
         }
     }
 

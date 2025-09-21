@@ -239,7 +239,7 @@ public class Chunk : IDisposable
             color = new Color(150, 150, 150, 255);
         }
 
-        vertices.Add(new Vertex((blockPos + corner).ToVector3(), texCoord, color));
+        vertices.Add(new Vertex((blockPos + corner).ToVector3NonCenter(), texCoord, color));
     }
 
     private Block TryGetBlockAtPos(IntVector3 blockInChunk, out bool wasFound)

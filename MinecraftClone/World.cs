@@ -8,6 +8,7 @@ public class World
     public Texture2D TextureAtlas;
 
     private Block _emptyBlock;
+    public List<Bot> bots = [ new Bot() ];
 
     public World()
     {
@@ -147,5 +148,13 @@ public class World
             chunk.Y * chunkSize + blockInChunkPos.Y,
             chunk.Z * chunkSize + blockInChunkPos.Z
         );
+    }
+
+    public bool IsSolid(IntVector3 pos)
+    {
+        var b = TryGetBlockAtPos(pos, out var found);
+        if (found && !b.IsAir())
+            return true;
+        return false;
     }
 }

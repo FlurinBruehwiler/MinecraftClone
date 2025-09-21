@@ -80,7 +80,7 @@ public static class Physics
         }
     }
 
-    private const bool collisionDebug = true;
+    private const bool collisionDebug = false;
 
     public static void ForwardCollisions(ref Vector3 velocity, ref CollisionInfo colInfo, Vector3 playerPos, Hitbox hitbox)
     {
@@ -292,6 +292,16 @@ public struct Hitbox
     {
         MinVector = min;
         MaxVector = max;
+    }
+
+    public Vector3 GetCenter()
+    {
+        return GetCorner(new Vector3(0, 0, 0));
+    }
+
+    public Vector3 GetSize()
+    {
+        return MaxVector - MinVector;
     }
 
     public Vector3 GetCorner(Vector3 corner)

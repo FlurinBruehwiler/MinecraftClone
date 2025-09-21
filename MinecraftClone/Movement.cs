@@ -2,16 +2,43 @@
 
 public struct MovementConfig
 {
+    const float verticalAcceleration = 0.08f;
+    const float defaultBlockFriction = 0.546f;
+    const float verticalDrag = 0.98f;
+    const float jumpVelocity = 0.42f;
+    const float horizontalAcceleration = 0.098f;
+
     public float HorizontalAcceleration;
     public float VerticalAcceleration;
     public float HorizontalFriction;
     public float VerticalFriction;
     public float JumpVelocity;
+
+    public static MovementConfig Default = new()
+    {
+        HorizontalFriction = defaultBlockFriction,
+        JumpVelocity = jumpVelocity,
+        HorizontalAcceleration = horizontalAcceleration,
+        VerticalAcceleration = verticalAcceleration,
+        VerticalFriction = verticalDrag
+    };
 }
 
 public static class Movement
 {
-    public static void Move(ref Vector3 velocity, ref Vector3 entityPosition, Vector3 entityDirection,
+    public static Vector3 Forward(this Vector3 vec)
+    {
+        Vector3 right = new(-vec.Z, 0, vec.X);
+
+        return Vector3.Normalize(new Vector3(-right.Z, 0, right.X));
+    }
+
+    public static Vector3 Right(this Vector3 vec)
+    {
+        return new(-vec.Z, 0, vec.X);
+    }
+
+    public static CollisionInfo Move(ref Vector3 velocity, ref Vector3 entityPosition, Vector3 entityDirection,
         Vector3 movementDir, Hitbox hitbox, bool shouldJump, MovementConfig movementConfig)
     {
         Vector3 Right = new(-entityDirection.Z, 0, entityDirection.X);
@@ -30,8 +57,6 @@ public static class Movement
 
         velocity.X += globalMoveDirection.X * movementConfig.HorizontalAcceleration;
         velocity.Z += globalMoveDirection.Z * movementConfig.HorizontalAcceleration;
-
-        var posChange = velocity;
 
         var colInfo = new CollisionInfo();
         Physics.VerticalCollisions(ref velocity, ref colInfo, entityPosition, hitbox);
@@ -57,5 +82,7 @@ public static class Movement
         velocity.X *= movementConfig.HorizontalFriction;
         velocity.Y *= movementConfig.VerticalFriction;
         velocity.Z *= movementConfig.HorizontalFriction;
+
+        return colInfo;
     }
 }

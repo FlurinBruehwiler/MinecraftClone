@@ -1,9 +1,12 @@
-﻿namespace RayLib3dTest;
+﻿using System.Text.Json;
+
+namespace RayLib3dTest;
 
 public class Bot
 {
     public Vector3 Position = new Vector3(0, 100, 0);
-    public Vector3 Direction = new(0, 0, 1);
+    public Vector3 LastPosition;
+    public Vector3 Direction = new(1, 0, 0);
     public Vector3 Velocity;
 
     public IntVector3 Target;
@@ -12,21 +15,90 @@ public class Bot
 
     public void Tick()
     {
-        // var path = Pathfinding.PathFind(Position.ToIntVector3(), Target);
-        // if (path.Length != 0)
+        LastPosition = Position;
+
+        Target = FindGround(Target);
+
+        var lowerPos = (Position + new Vector3(0, -1.5f, 0));
+
+        DevTools.Print(Vector3.Distance(lowerPos, Target.ToVector3()), "Distance");
+
+        var movement = new Vector3(0, 0, 0);
+        if (Vector3.Distance(lowerPos, Target.ToVector3()) > 0.5f)
         {
-            // var blockTarget = path[0];
 
-            var xVector = Target.ToVector3() - Position;
-            var yVector = new Vector3(-xVector.Y, 0, xVector.X);
+            var path = Pathfinding.PathFind( lowerPos.ToIntVector3(), Target);
+            Pathfinding.Visualize(path);
+            if (path.Length > 0)
+            {
+                var targetBlock = path[0];
 
-            Direction = new Vector3(Vector3.Dot(Vector3.Normalize(xVector), new Vector3(1, 0, 0)), 0,
-                Vector3.Dot(Vector3.Normalize(yVector), new Vector3(0, 0, 1)));
+                var xVector = targetBlock.ToVector3() - Position;
+                var v = Vector2.Normalize(new Vector2(xVector.X, xVector.Z));
+                Direction = new Vector3(v.X, 0, v.Y);
+                movement = new Vector3(0, 0, -1);
+            }
         }
+
+        if (Direction.LengthSquared() == 0)
+            Direction = new Vector3(0, 0, -1);
+        var colInfo = Movement.Move(ref Velocity, ref Position, Direction, movement,
+            GetHitBox(), shouldJump, MovementConfig.Default);
+
+        DevTools.Print(JsonSerializer.Serialize(colInfo, new JsonSerializerOptions
+        {
+            IncludeFields = true
+        }) , "collision");
+        DevTools.Print(Direction, "mob_direction");
+
+        shouldJump = false;
+        if (Direction.Z > 0 && colInfo.Right)
+            shouldJump = true;
+        if (Direction.Z < 0 && colInfo.Left)
+            shouldJump = true;
+        if (Direction.X > 0 && colInfo.Forward)
+            shouldJump = true;
+        if (Direction.X < 0 && colInfo.Backwards)
+            shouldJump = true;
+    }
+
+    private IntVector3 FindGround(IntVector3 pos)
+    {
+        while (true)
+        {
+            if (CurrentWorld.IsSolid(pos))
+            {
+                return pos + new IntVector3(0, 1, 0);
+            }
+
+            pos.Y--;
+            if (pos.Y < 40) //:)
+                return pos;
+        }
+    }
+
+    private bool shouldJump;
+
+    public Hitbox GetHitBox()
+    {
+        var halfWidth = Physics.PlayerWidth / 2f;
+        return new Hitbox(new Vector3(-halfWidth, -Physics.PlayerHeight, -halfWidth),
+            new Vector3(halfWidth, 0, halfWidth));
     }
 
     public void Render()
     {
-        DrawCubeV(Position, Vector3.One, Color.BLUE);
+        var t = 1 / Game.TickRateMs * Game.MsSinceLastTick();
+
+        var cameraPos = Vector3.Lerp(LastPosition, Position, t);
+
+        DrawHitBox(cameraPos, GetHitBox());
+        DrawLine3D(cameraPos, cameraPos + -Direction.Forward() * 2, Color.RED);
+        DrawLine3D(cameraPos, Target.ToVector3(), Color.BLUE);
+    }
+
+    public void DrawHitBox(Vector3 position, Hitbox hitbox)
+    {
+        DrawCubeV(position + hitbox.GetCenter(), hitbox.GetSize(), Color.BLUE);
     }
 }

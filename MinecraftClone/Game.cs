@@ -6,7 +6,6 @@ public class Game
 {
     private Player _player;
     private Model _skyBox;
-    private List<Bot> bots = [ new Bot() ];
 
     public Game(Player player)
     {
@@ -65,6 +64,11 @@ public class Game
         DevTools.Tick();
 
         _player.Tick();
+
+        foreach (var bot in CurrentWorld.bots)
+        {
+            bot.Tick();
+        }
     }
 
     private static long _lastTickTimestamp;
@@ -135,5 +139,10 @@ public class Game
         }
 
         _player.Render();
+
+        foreach (var bot in CurrentWorld.bots)
+        {
+            bot.Render();
+        }
     }
 }
