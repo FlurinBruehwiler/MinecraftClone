@@ -90,7 +90,7 @@ public class Player
             DevTools.Print(Direction, "Player_Direction");
             DevTools.Print(GetChunkCoordinate(Position.ToIntVector3()), "Chunk");
 
-            lookingAtBlock = Physics.Raycast(Camera.position, Direction, 10, out var before, out _, false);
+            lookingAtBlock = Physics.Raycast(Camera.position, Direction, 50, out var before, out _, false);
             if (lookingAtBlock != null)
             {
                 lookingAtBlockBefore = before;
@@ -101,6 +101,7 @@ public class Player
             }
 
             DevTools.Print(lookingAtBlock, "Looking at Block");
+            DevTools.Print(lookingAtBlockBefore, "Looking at Block before");
 
             DevTools.Print(GetFPS(), "FPS");
 

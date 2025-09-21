@@ -72,7 +72,7 @@ public class Bot
             }
 
             pos.Y--;
-            if (pos.Y < 40) //:)
+            if (pos.Y < 0)
                 return pos;
         }
     }

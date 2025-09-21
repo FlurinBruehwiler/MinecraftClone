@@ -75,7 +75,6 @@ public class Game
     public const float TickRateMs = 1000f / 20; //50ms, 20tps
     public static float MsSinceLastTick() => (float)Stopwatch.GetElapsedTime(_lastTickTimestamp).TotalMilliseconds;
 
-
     private void Update()
     {
         var timeSinceLastTick = Stopwatch.GetElapsedTime(_lastTickTimestamp);
