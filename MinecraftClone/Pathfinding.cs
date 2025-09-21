@@ -119,13 +119,17 @@ public class Pathfinding
 
         if (neighbour.Offset.Y == -1)
         {
-            if(IsSolid(pos with { Y = pos.Y + 2}, world))
-                return false;
+            if(neighbour.Offset.X != 0 || neighbour.Offset.Z != 0)
+                if(IsSolid(pos with { Y = pos.Y + 2}, world))
+                    return false;
         }
 
         if (neighbour.Offset.Y == +1)
         {
             if(IsSolid(origin with { Y = origin.Y + 2}, world))
+                return false;
+
+            if(!IsSolid(origin with { Y = origin.Y - 1}, world))
                 return false;
         }
 
@@ -154,6 +158,7 @@ public class Pathfinding
         new Neighbour(new(1, 0, 1), true), new (new(1, 0, -1), true), new(new(-1, 0, 1), true), new(new(-1, 0, -1), true),
         new Neighbour(new(0, 1, 1)), new (new(0, 1, -1)), new(new(1, 1, 0)), new(new(-1, 1, 0)),
         new Neighbour(new(0, -1, 1)), new (new(0, -1, -1)), new(new(1, -1, 0)), new(new(-1, -1, 0)),
+        new Neighbour(new(0, -1, 0))
     ];
 
     public static void Visualize(IntVector3[] path)

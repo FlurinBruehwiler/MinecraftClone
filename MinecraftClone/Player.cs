@@ -219,7 +219,7 @@ public class Player
             var col = Physics.Raycast(Camera.position, Direction, 10, out var previousBlock, out _, true);
             if (col is not null)
             {
-                var blockHitbox = new Hitbox(previousBlock.ToVector3(), previousBlock.ToVector3() + Vector3.One);
+                var blockHitbox = new Hitbox(previousBlock.ToVector3NonCenter(), previousBlock.ToVector3NonCenter() + Vector3.One);
                 
                 if (!Physics.AreOverlapping(GetHitBox(), blockHitbox))
                 {
