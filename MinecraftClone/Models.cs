@@ -232,17 +232,18 @@ public static class Models
 
             rlNormal3f(-1.0f, 0.0f, 0.0f);
 
-            rlTexCoord2f(bottomRight.X, bottomRight.Y);
-            rlVertex3f(x - width / 2, y - height / 2, z - length / 2); // Bottom Right
-
-            rlTexCoord2f(bottomLeft.X, bottomLeft.Y);
-            rlVertex3f(x - width / 2, y - height / 2, z + length / 2); // Bottom Left
-
-            rlTexCoord2f(topLeft.X, topLeft.Y);
+            rlTexCoord2f(topRight.X, topRight.Y);
             rlVertex3f(x - width / 2, y + height / 2, z + length / 2); // Top Left
 
-            rlTexCoord2f(topRight.X, topRight.Y);
+            rlTexCoord2f(topLeft.X, topLeft.Y);
             rlVertex3f(x - width / 2, y + height / 2, z - length / 2); // Top Right
+
+            rlTexCoord2f(bottomLeft.X, bottomLeft.Y);
+            rlVertex3f(x - width / 2, y - height / 2, z - length / 2); // Bottom Right
+
+            rlTexCoord2f(bottomRight.X, bottomRight.Y);
+            rlVertex3f(x - width / 2, y - height / 2, z + length / 2); // Bottom Left
+
         }
 
         rlEnd();
