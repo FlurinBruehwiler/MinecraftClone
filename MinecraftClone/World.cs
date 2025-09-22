@@ -8,7 +8,7 @@ public class World
     public Texture2D TextureAtlas;
 
     private Block _emptyBlock;
-    public List<Bot> bots = [ new Bot() ];
+    public List<Bot> bots = [];
 
     public World()
     {

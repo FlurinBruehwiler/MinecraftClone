@@ -18,9 +18,9 @@ CurrentWorld = new World();
 
 var player = new Player();
 
-var gamus = new Game(player);
+var game = new Game(player);
 
-gamus.GameLoop();
+game.GameLoop();
 
 CloseWindow();
 

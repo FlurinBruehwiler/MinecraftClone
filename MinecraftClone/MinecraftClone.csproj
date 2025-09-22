@@ -18,6 +18,9 @@
     <None Update="Resources/*.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources/*.jem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources/Shaders/*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -35,10 +35,20 @@ public class Game
             _skyBox.materials[0].maps[(int)MaterialMapIndex.MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CubemapLayout.CUBEMAP_LAYOUT_AUTO_DETECT);
             UnloadImage(img);
         }
+
+        
+
+        CurrentWorld.bots.Add(new Bot
+        {
+            Model = Models.LoadModel()
+        });
+
+        
     }
 
     public void GameLoop()
     {
+        
         while (!WindowShouldClose())
         {
             Update();
@@ -115,17 +125,23 @@ public class Game
 
     private void Draw3d()
     {
+        
+
         { //Draw Skybox
             rlDisableBackfaceCulling();
+            
             rlDisableDepthMask();
+            
 
             DrawModel(_skyBox, Vector3.Zero, 1, Color.WHITE);
+            
 
             rlEnableBackfaceCulling();
             rlEnableDepthMask();
         }
 
         DevTools.Draw3d();
+        
 
         foreach (var (_, chunk) in CurrentWorld.Chunks)
         {
@@ -133,11 +149,13 @@ public class Game
             if(chunk.HasMesh)
                 DrawModel(chunk.Model, pos, 1, Color.WHITE);
 
+            
             // if(DevTools.DevToolsEnabled)
                 // DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
         }
 
         _player.Render();
+        
 
         foreach (var bot in CurrentWorld.bots)
         {

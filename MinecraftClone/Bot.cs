@@ -10,6 +10,7 @@ public class Bot
     public Vector3 Velocity;
 
     public IntVector3 Target;
+    public JemFile Model;
 
     // private const float rotationPerTick = 0;
 
@@ -92,7 +93,10 @@ public class Bot
 
         var cameraPos = Vector3.Lerp(LastPosition, Position, t);
 
-        DrawHitBox(cameraPos, GetHitBox());
+        // DrawHitBox(cameraPos, GetHitBox());
+
+        Models.RenderModel(Model, cameraPos, GetHitBox());
+
         DrawLine3D(cameraPos, cameraPos + -Direction.Forward() * 2, Color.RED);
         DrawLine3D(cameraPos, Target.ToVector3(), Color.BLUE);
     }

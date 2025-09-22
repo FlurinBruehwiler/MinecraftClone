@@ -6,7 +6,12 @@ public class Player
     public Vector3 LastPosition = new(0, 100, 0);
     public Vector3 Velocity;
     public Vector3 Direction = new(0, 0, 1);
-    public Camera3D Camera;
+    public static Camera3D C3d;
+    public Camera3D Camera
+    {
+        get => C3d;
+        set => C3d = value;
+    }
     private float _sensitivity = 1;
     public static Vector3 CameraOffset = new(0, -0.18f, 0);
     public float yaw; // around world Y
@@ -136,8 +141,8 @@ public class Player
         var cameraPos = Vector3.Lerp(LastPosition, Position, t);
 
         //this needs to be smoothed
-        Camera.position = cameraPos + CameraOffset;
-        Camera.target = cameraPos + CameraOffset + Direction;
+        C3d.position = cameraPos + CameraOffset;
+        C3d.target = cameraPos + CameraOffset + Direction;
         DevTools.Print(Camera.position, "camera_pos");
     }
 
