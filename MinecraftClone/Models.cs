@@ -36,7 +36,7 @@ public static class Models
 {
     public static JemFile LoadModel()
     {
-        var str = File.ReadAllText("Resources/creeper.jem");
+        var str = File.ReadAllText("Resources/husk.jem");
         var options = new JsonSerializerOptions();
         options.IncludeFields = true;
         options.PropertyNameCaseInsensitive = true;
@@ -47,7 +47,7 @@ public static class Models
         jemFile.TextureSizeV = new Vector2(jemFile.TextureSize[0], jemFile.TextureSize[1]);
 
         if (jemFile.Texture != "")
-            jemFile.Texture2D = LoadTexture($"Resources/{jemFile.Texture}.png");
+            jemFile.Texture2D = LoadTexture($"Resources/{jemFile.Texture}");
 
         foreach (var model in jemFile.Models)
         {
@@ -73,9 +73,15 @@ public static class Models
         return jemFile;
     }
 
-    public static void RenderModel(JemFile jemFile, Vector3 pos, Hitbox hitBox)
+    public static void RenderModel(JemFile jemFile, Vector3 pos, Vector3 direction, Hitbox hitBox)
     {
         pos.Y -= hitBox.GetSize().Y;
+
+        rlPushMatrix();
+
+        rlTranslatef(pos.X, pos.Y, pos.Z);
+        rlRotatef(MathF.Atan2(direction.X, direction.Z) * RAD2DEG , 0, 1, 0);
+
 
         foreach (var model in jemFile.Models)
         {
@@ -84,11 +90,14 @@ public static class Models
                 var posOffset = (model.TranslateV * 0) + (box.Position / 16);
                 var size = box.Size / 16;
 
-                var p = pos + posOffset + size / 2;
+                var p = posOffset + size / 2;
                 DrawTexturedCube(p, new Vector3(size.X * 16, size.Y * 16, size.Z * 16), box.TextureOffsetV, jemFile.TextureSizeV, jemFile.Texture2D);
                 // rlTexCoord2f(source.x / width, source.y / height);
             }
         }
+
+        rlPopMatrix();
+
     }
 
     private static void DrawTexturedCube(Vector3 position, Vector3 size, Vector2 textureOffset, Vector2 textureSize, Texture2D texture)
@@ -103,14 +112,10 @@ public static class Models
 
 
         rlPushMatrix();
-        // NOTE: Transformation is applied in inverse order (scale -> rotate -> translate)
+
         rlTranslatef(position.X, position.Y, position.Z);
 
-        
-        rlRotatef(0, 0, 1, 0);
-
-
-        rlScalef(1.0f / 16, 1.0f / 16, 1.0f / 16); // NOTE: Vertices are directly scaled on definition
+        rlScalef(1.0f / 16, 1.0f / 16, 1.0f / 16);
 
         rlSetTexture(texture.id);
         

@@ -1,7 +1,7 @@
 {
 	"credit": "Made with Blockbench",
 	"textureSize": [64, 32],
-	"texture": "creeper",
+	"texture": "creeper.png",
 	"models": [
 		{
 			"part": "head",
@@ -9,7 +9,7 @@
 			"invertAxis": "xy",
 			"translate": [0, -18, 0],
 			"boxes": [
-				{"coordinates": [-4, 18, -4, 8, 8, 8], "textureOffset": [0, 0]}
+				{"coordinates": [-4, 10, -4, 8, 8, 8], "textureOffset": [0, 0]}
 			]
 		},
 		{
@@ -18,7 +18,7 @@
 			"invertAxis": "xy",
 			"translate": [0, -18, 0],
 			"boxes": [
-				{"coordinates": [-4, 6, -2, 8, 12, 4], "textureOffset": [16, 16]}
+				{"coordinates": [-4, 6, -2, 8, 4, 4], "textureOffset": [16, 16]}
 			]
 		},
 		{

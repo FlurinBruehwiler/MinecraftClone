@@ -95,7 +95,7 @@ public class Bot
 
         // DrawHitBox(cameraPos, GetHitBox());
 
-        Models.RenderModel(Model, cameraPos, GetHitBox());
+        Models.RenderModel(Model, cameraPos, Direction, GetHitBox());
 
         DrawLine3D(cameraPos, cameraPos + -Direction.Forward() * 2, Color.RED);
         DrawLine3D(cameraPos, Target.ToVector3(), Color.BLUE);
