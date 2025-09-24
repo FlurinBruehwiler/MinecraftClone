@@ -167,7 +167,7 @@ public class Pathfinding
         {
             foreach (var intVector3 in path)
             {
-                DrawCubeWiresV(intVector3.ToVector3(), Vector3.One * 1.001f, Color.YELLOW);
+                DrawCubeWiresV(intVector3.ToVector3(), Vector3.One * 1.001f, Color.Yellow);
             }
         });
     }

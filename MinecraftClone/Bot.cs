@@ -9,7 +9,7 @@ public class Bot
     public Vector3 Direction = new(1, 0, 0);
     public Vector3 Velocity;
 
-    public IntVector3 Target;
+    public IntVector3? Target;
     public JemFile Model;
 
     // private const float rotationPerTick = 0;
@@ -18,17 +18,19 @@ public class Bot
     {
         LastPosition = Position;
 
-        Target = FindGround(Target);
+        if (Target.HasValue)
+        {
+            Target = FindGround(Target.Value);
+        }
 
         var lowerPos = (Position + new Vector3(0, -1.5f, 0));
 
-        DevTools.Print(Vector3.Distance(lowerPos, Target.ToVector3()), "Distance");
+        // DevTools.Print(Vector3.Distance(lowerPos, Target.ToVector3()), "Distance");
 
         var movement = new Vector3(0, 0, 0);
-        if (Vector3.Distance(lowerPos, Target.ToVector3()) > 0.5f)
+        if (Target.HasValue && Vector3.Distance(lowerPos, Target.Value.ToVector3()) > 0.5f)
         {
-
-            var path = Pathfinding.PathFind( lowerPos.ToIntVector3(), Target);
+            var path = Pathfinding.PathFind( lowerPos.ToIntVector3(), Target.Value);
             Pathfinding.Visualize(path);
             if (path.Length > 0)
             {
@@ -97,12 +99,18 @@ public class Bot
 
         Models.RenderModel(Model, cameraPos, Direction, GetHitBox());
 
-        DrawLine3D(cameraPos, cameraPos + -Direction.Forward() * 2, Color.RED);
-        DrawLine3D(cameraPos, Target.ToVector3(), Color.BLUE);
+        if (DevTools.DevToolsEnabled)
+        {
+            DrawLine3D(cameraPos, cameraPos + -Direction.Forward() * 2, Color.Red);
+            if (Target.HasValue)
+            {
+                DrawLine3D(cameraPos, Target.Value.ToVector3(), Color.Blue);
+            }
+        }
     }
 
     public void DrawHitBox(Vector3 position, Hitbox hitbox)
     {
-        DrawCubeV(position + hitbox.GetCenter(), hitbox.GetSize(), Color.BLUE);
+        DrawCubeV(position + hitbox.GetCenter(), hitbox.GetSize(), Color.Blue);
     }
 }

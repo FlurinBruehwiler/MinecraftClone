@@ -95,7 +95,7 @@ public static class DevTools
         int i = 0;
         foreach (var (name, value) in _printMessages)
         {
-            DrawText($"{name}: {value}", 0, 30 * (i + 1), 20, Color.BLACK);
+            DrawText($"{name}: {value}", 0, 30 * (i + 1), 20, Color.Black);
             i++;
         }
 
@@ -128,15 +128,15 @@ public static class DevTools
                 var finalValue = normalized / normalizedMax;
 
                 DrawLine(500 + 4 * index, plotIndex * 200 + (int)(200 - previousValue * 200), 500 + 4 * (index + 1),
-                    plotIndex * 200 + (int)(200 - finalValue * 200), Color.RED);
+                    plotIndex * 200 + (int)(200 - finalValue * 200), Color.Red);
 
                 previousValue = finalValue;
             }
 
             var average = sum / queue.Count;
 
-            DrawText(plotable.Name, 500, plotIndex * 200, 20, Color.RED);
-            DrawText($"Average: {average.ToString()}", 500, plotIndex * 200 + 30, 20, Color.RED);
+            DrawText(plotable.Name, 500, plotIndex * 200, 20, Color.Red);
+            DrawText($"Average: {average.ToString()}", 500, plotIndex * 200 + 30, 20, Color.Red);
 
             plotIndex++;
         }

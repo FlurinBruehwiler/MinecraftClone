@@ -29,7 +29,7 @@ public class Chunk : IDisposable
 
     public unsafe void GenMesh()
     {
-        if (Mesh.vertices != (void*)IntPtr.Zero)
+        if (Mesh.Vertices != (void*)IntPtr.Zero)
         {
             UnloadModel(Model);
         }
@@ -78,17 +78,17 @@ public class Chunk : IDisposable
             return;
         }
 
-        mesh.vertexCount = verticesList.Count;
-        mesh.triangleCount = verticesList.Count / 3;
+        mesh.VertexCount = verticesList.Count;
+        mesh.TriangleCount = verticesList.Count / 3;
 
-        mesh.vertices = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
-        vertices = new Span<float>(mesh.vertices, verticesList.Count * 3);
+        mesh.Vertices = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
+        vertices = new Span<float>(mesh.Vertices, verticesList.Count * 3);
 
-        mesh.texcoords = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 2, sizeof(float));
-        texcoords = new Span<float>(mesh.texcoords, verticesList.Count * 2);
+        mesh.TexCoords = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 2, sizeof(float));
+        texcoords = new Span<float>(mesh.TexCoords, verticesList.Count * 2);
 
-        mesh.colors = (byte*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 4, sizeof(byte));
-        colors = new Span<byte>(mesh.colors, verticesList.Count * 4);
+        mesh.Colors = (byte*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 4, sizeof(byte));
+        colors = new Span<byte>(mesh.Colors, verticesList.Count * 4);
 
         for (var i = 0; i < verticesList.Count; i++)
         {
@@ -100,17 +100,17 @@ public class Chunk : IDisposable
             texcoords[i * 2] = vertex.TextCoord.X;
             texcoords[i * 2 + 1] = vertex.TextCoord.Y;
 
-            colors[i * 4] = vertex.Color.r;
-            colors[i * 4 + 1] = vertex.Color.g;
-            colors[i * 4 + 2] = vertex.Color.b;
-            colors[i * 4 + 3] = vertex.Color.a;
+            colors[i * 4] = vertex.Color.R;
+            colors[i * 4 + 1] = vertex.Color.G;
+            colors[i * 4 + 2] = vertex.Color.B;
+            colors[i * 4 + 3] = vertex.Color.A;
         }
 
         Mesh = mesh;
         UploadMesh(ref Mesh, false);
 
         Model = LoadModelFromMesh(Mesh);
-        Model.materials[0].maps->texture = _world.TextureAtlas;
+        Model.Materials[0].Maps->Texture = _world.TextureAtlas;
     }
 
     private IntVector3 GetOffset(BlockFace blockFace)

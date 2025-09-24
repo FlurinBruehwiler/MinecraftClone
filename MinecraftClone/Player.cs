@@ -44,7 +44,7 @@ public class Player
     public Player()
     {
         Camera = new Camera3D(Vector3.Zero, new Vector3(0, 0, 1), new Vector3(0, 1, 0), 100,
-            CameraProjection.CAMERA_PERSPECTIVE);
+            CameraProjection.Perspective);
     }
 
     public void Tick()
@@ -58,7 +58,7 @@ public class Player
         const float speedMultiplier = 1.3f;
         var config = MovementConfig.Default;
 
-        if (IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL) || IsKeyDown(KeyboardKey.KEY_Q))
+        if (IsKeyDown(KeyboardKey.LeftControl) || IsKeyDown(KeyboardKey.Q))
             config.HorizontalAcceleration *= speedMultiplier;
 
         var halfWidth = Physics.PlayerWidth / 2f;
@@ -78,7 +78,7 @@ public class Player
 
     public void Update()
     {
-        if (IsKeyDown(KeyboardKey.KEY_SPACE))
+        if (IsKeyDown(KeyboardKey.Space))
             isJumpPressed = true;
 
         HandleDirectionChange();
@@ -95,7 +95,7 @@ public class Player
             DevTools.Print(Direction, "Player_Direction");
             DevTools.Print(GetChunkCoordinate(Position.ToIntVector3()), "Chunk");
 
-            lookingAtBlock = Physics.Raycast(Camera.position, Direction, 50, out var before, out _, false);
+            lookingAtBlock = Physics.Raycast(Camera.Position, Direction, 50, out var before, out _, false);
             if (lookingAtBlock != null)
             {
                 lookingAtBlockBefore = before;
@@ -111,12 +111,21 @@ public class Player
             DevTools.Print(GetFPS(), "FPS");
 
             //handle bot target
-            if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_MIDDLE) && lookingAtBlockBefore != null)
+            if (IsMouseButtonPressed(MouseButton.Middle) && lookingAtBlockBefore != null)
             {
                 foreach (var bot in CurrentWorld.bots)
                 {
                     bot.Target = lookingAtBlockBefore.Value;
                 }
+            }
+
+            if (IsKeyPressed(KeyboardKey.E) && lookingAtBlockBefore != null)
+            {
+                CurrentWorld.bots.Add(new Bot
+                {
+                    Model = CurrentWorld.Game.HuskModel,
+                    Position = (lookingAtBlockBefore.Value with { Y = lookingAtBlockBefore.Value.Y + 1 }).ToVector3(),
+                });
             }
         }
     }
@@ -130,7 +139,7 @@ public class Player
 
         if (lookingAtBlock.HasValue)
         {
-            DrawCubeWiresV(lookingAtBlock.Value.ToVector3(), Vector3.One * 1.001f, Color.BLACK);
+            DrawCubeWiresV(lookingAtBlock.Value.ToVector3(), Vector3.One * 1.001f, Color.Black);
         }
     }
 
@@ -141,9 +150,9 @@ public class Player
         var cameraPos = Vector3.Lerp(LastPosition, Position, t);
 
         //this needs to be smoothed
-        C3d.position = cameraPos + CameraOffset;
-        C3d.target = cameraPos + CameraOffset + Direction;
-        DevTools.Print(Camera.position, "camera_pos");
+        C3d.Position = cameraPos + CameraOffset;
+        C3d.Target = cameraPos + CameraOffset + Direction;
+        DevTools.Print(Camera.Position, "camera_pos");
     }
 
     private void HandleDirectionChange()
@@ -180,22 +189,22 @@ public class Player
     {
         var inputDirection = new Vector3();
 
-        if (IsKeyDown(KeyboardKey.KEY_W))
+        if (IsKeyDown(KeyboardKey.W))
         {
             inputDirection.Z -= 1;
         }
 
-        if (IsKeyDown(KeyboardKey.KEY_S))
+        if (IsKeyDown(KeyboardKey.S))
         {
             inputDirection.Z += 1;
         }
 
-        if (IsKeyDown(KeyboardKey.KEY_D))
+        if (IsKeyDown(KeyboardKey.D))
         {
             inputDirection.X += 1;
         }
 
-        if (IsKeyDown(KeyboardKey.KEY_A))
+        if (IsKeyDown(KeyboardKey.A))
         {
             inputDirection.X -= 1;
         }
@@ -219,9 +228,9 @@ public class Player
 
     private void HandleBlockPlacement()
     {
-        if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT))
+        if (IsMouseButtonPressed(MouseButton.Right))
         {
-            var col = Physics.Raycast(Camera.position, Direction, 10, out var previousBlock, out _, true);
+            var col = Physics.Raycast(Camera.Position, Direction, 10, out var previousBlock, out _, true);
             if (col is not null)
             {
                 var blockHitbox = new Hitbox(previousBlock.ToVector3NonCenter(), previousBlock.ToVector3NonCenter() + Vector3.One);
@@ -242,9 +251,9 @@ public class Player
 
     private void HandleBlockDestroy()
     {
-        if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
+        if (IsMouseButtonPressed(MouseButton.Left))
         {
-            var col = Physics.Raycast(Camera.position, Direction, 10, out _, out _, true);
+            var col = Physics.Raycast(Camera.Position, Direction, 10, out _, out _, true);
             if (col is not null)
             {
                 ref var b = ref CurrentWorld.TryGetBlockAtPos(col.Value, out var wasFound);

@@ -52,7 +52,7 @@ public static class Physics
             origin += playerPos;
             var dir = new Vector3(directionX, 0, 0);
 
-            DrawLine3D(origin, origin + dir, Color.BLUE);
+            DrawLine3D(origin, origin + dir, Color.Blue);
         }
         
         //z
@@ -64,7 +64,7 @@ public static class Physics
             origin += playerPos;
             var dir = new Vector3(0, 0, directionZ);
 
-            DrawLine3D(origin, origin + dir, Color.RED);
+            DrawLine3D(origin, origin + dir, Color.Red);
         }
 
 
@@ -76,7 +76,7 @@ public static class Physics
             origin += playerPos;
             var dir = new Vector3(0, directionY, 0);
 
-            DrawLine3D(origin, origin + dir, Color.YELLOW);
+            DrawLine3D(origin, origin + dir, Color.Yellow);
         }
     }
 
@@ -176,8 +176,8 @@ public static class Physics
     {
         DevTools.RenderActions.Add(() =>
             {
-                DrawLine3D(pos, pos + (Vector3.Normalize(dir) * hitDistance), Color.RED);
-                DrawSphere(pos + (Vector3.Normalize(dir) * hitDistance), 0.05f, Color.ORANGE);
+                DrawLine3D(pos, pos + (Vector3.Normalize(dir) * hitDistance), Color.Red);
+                DrawSphere(pos + (Vector3.Normalize(dir) * hitDistance), 0.05f, Color.Orange);
             });
     }
 

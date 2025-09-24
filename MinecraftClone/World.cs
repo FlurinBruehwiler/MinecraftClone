@@ -2,6 +2,7 @@
 
 public class World
 {
+    public readonly Game Game;
     public static World CurrentWorld;
 
     public Dictionary<IntVector3, Chunk> Chunks = new();
@@ -10,8 +11,9 @@ public class World
     private Block _emptyBlock;
     public List<Bot> bots = [];
 
-    public World()
+    public World(Game game)
     {
+        Game = game;
         TextureAtlas = RayLib3dTest.TextureAtlas.Create();
     }
 

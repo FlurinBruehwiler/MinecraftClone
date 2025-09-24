@@ -1,4 +1,10 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
+using Flamui;
+using Flamui.Drawing;
+using Silk.NET.Maths;
+using Silk.NET.OpenGL;
+using Color = Raylib_cs.Color;
 
 namespace RayLib3dTest;
 
@@ -6,6 +12,8 @@ public class Game
 {
     private Player _player;
     private Model _skyBox;
+    public UiTree UiTree;
+    private Renderer _renderer;
 
     public Game(Player player)
     {
@@ -21,41 +29,54 @@ public class Game
 
             var shader = LoadShader("Resources/Shaders/skybox.vs", "Resources/Shaders/skybox.fs");
 
-            _skyBox.materials[0].shader = shader;
+            _skyBox.Materials[0].Shader = shader;
 
             int[] doGamma = { 0 };
             int[] vflipped = { 0 };
-            int[] environmentMap = { (int)MaterialMapIndex.MATERIAL_MAP_CUBEMAP };
+            int[] environmentMap = { (int)MaterialMapIndex.Cubemap };
 
-            SetShaderValue(shader, GetShaderLocation(shader, "environmentMap"),  environmentMap , ShaderUniformDataType.SHADER_UNIFORM_INT);
-            SetShaderValue(shader, GetShaderLocation(shader, "doGamma"),  doGamma, ShaderUniformDataType.SHADER_UNIFORM_INT);
-            SetShaderValue(shader, GetShaderLocation(shader, "vflipped"), vflipped, ShaderUniformDataType.SHADER_UNIFORM_INT);
+            SetShaderValue(shader, GetShaderLocation(shader, "environmentMap"),  environmentMap , ShaderUniformDataType.Int);
+            SetShaderValue(shader, GetShaderLocation(shader, "doGamma"),  doGamma, ShaderUniformDataType.Int);
+            SetShaderValue(shader, GetShaderLocation(shader, "vflipped"), vflipped, ShaderUniformDataType.Int);
 
             var img = LoadImage("Resources/skybox.png");
-            _skyBox.materials[0].maps[(int)MaterialMapIndex.MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CubemapLayout.CUBEMAP_LAYOUT_AUTO_DETECT);
+            _skyBox.Materials[0].Maps[(int)MaterialMapIndex.Cubemap].Texture = LoadTextureCubemap(img, CubemapLayout.AutoDetect);
             UnloadImage(img);
         }
 
-        
+        HuskModel = Models.LoadModel("husk");
 
-        CurrentWorld.bots.Add(new Bot
+
+        var host = new RaylibUiTreeHost();
+
+        _renderer = new Renderer();
+
+
+
+        var gl = GL.GetApi(new RaylibGlContext());
+        _renderer.Initialize(gl, host);
+
+
+        UiTree = new UiTree(host, (ui) =>
         {
-            Model = Models.LoadModel()
-        });
+            using (ui.Rect().Width(100).Height(100).Color(C.Red6))
+            {
 
-        
+            }
+        });
     }
+
+    public JemFile HuskModel; //should not be here
 
     public void GameLoop()
     {
-        
         while (!WindowShouldClose())
         {
             Update();
 
             BeginDrawing();
 
-                ClearBackground(Color.RAYWHITE);
+                ClearBackground(Color.RayWhite);
 
                 BeginMode3D(_player.Camera);
 
@@ -87,6 +108,9 @@ public class Game
 
     private void Update()
     {
+        //todo pass MousePosition
+        UiTree.Update(GetScreenWidth(), GetScreenHeight());
+
         var timeSinceLastTick = Stopwatch.GetElapsedTime(_lastTickTimestamp);
 
         //if the framerate drops below the tick rate, we do not run multiple ticks per frame. This is done on purpose.
@@ -99,12 +123,12 @@ public class Game
 
         _player.Update();
 
-        if (IsKeyPressed(KeyboardKey.KEY_F3))
+        if (IsKeyPressed(KeyboardKey.F3))
         {
             DevTools.DevToolsEnabled = !DevTools.DevToolsEnabled;
         }
 
-        if (IsKeyReleased(KeyboardKey.KEY_M))
+        if (IsKeyReleased(KeyboardKey.M))
         {
             Thread.Sleep(1000);
         }
@@ -118,9 +142,16 @@ public class Game
         int centerY = GetScreenHeight() / 2;
 
         // Crosshair lines (length = 10 px each side)
-        DrawLine(centerX - 10, centerY, centerX + 10, centerY, Color.BLACK); // Horizontal
-        DrawLine(centerX, centerY - 10, centerX, centerY + 10, Color.BLACK); // Vertical
+        DrawLine(centerX - 10, centerY, centerX + 10, centerY, Color.Black); // Horizontal
+        DrawLine(centerX, centerY - 10, centerX, centerY + 10, Color.Black); // Vertical
 
+        var commands = StaticFunctions.Render(UiTree, Matrix4X4<float>.Identity);
+        _renderer.Gl.Viewport(new Size
+        {
+            Width = GetScreenWidth(),
+            Height = GetScreenHeight()
+        });
+        StaticFunctions.ExecuteRenderInstructions(commands, _renderer, Ui.Arena);
     }
 
     private void Draw3d()
@@ -128,16 +159,17 @@ public class Game
         
 
         { //Draw Skybox
-            rlDisableBackfaceCulling();
-            
-            rlDisableDepthMask();
+
+            DisableBackfaceCulling();
+
+            DisableDepthMask();
             
 
-            DrawModel(_skyBox, Vector3.Zero, 1, Color.WHITE);
+            DrawModel(_skyBox, Vector3.Zero, 1, Color.White);
             
 
-            rlEnableBackfaceCulling();
-            rlEnableDepthMask();
+            EnableBackfaceCulling();
+            EnableDepthMask();
         }
 
         DevTools.Draw3d();
@@ -147,7 +179,7 @@ public class Game
         {
             var pos = new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16);
             if(chunk.HasMesh)
-                DrawModel(chunk.Model, pos, 1, Color.WHITE);
+                DrawModel(chunk.Model, pos, 1, Color.White);
 
             
             // if(DevTools.DevToolsEnabled)

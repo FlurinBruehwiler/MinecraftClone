@@ -12,7 +12,7 @@ public static class TextureAtlas
 
         using var enumerator = Textures.TextureList.GetEnumerator();
 
-        ClearBackground(Color.BLACK);
+        ClearBackground(Color.Black);
 
         for (var y = 0; y < 10; y++)
         {
@@ -23,36 +23,36 @@ public static class TextureAtlas
 
                 var texture = enumerator.Current;
                 var blockTexture = LoadTexture($"Resources/{texture.Key}.png");
-                DrawTexturePro(blockTexture, new Rectangle(0, 0, blockTexture.width, blockTexture.height),
-                    new Rectangle((x + 1) * 16, 160 - y * 16, 16, 16), new Vector2(0, 0), 180, Color.WHITE);
+                DrawTexturePro(blockTexture, new Rectangle(0, 0, blockTexture.Width, blockTexture.Height),
+                    new Rectangle((x + 1) * 16, 160 - y * 16, 16, 16), new Vector2(0, 0), 180, Color.White);
             }
         }
         end:
 
         EndTextureMode();
 
-        Image textureAtlas = LoadImageFromTexture(renderTarget.texture);
+        Image textureAtlas = LoadImageFromTexture(renderTarget.Texture);
         ExportImage(textureAtlas, "Resources/textureatlas.png");
 
-        return renderTarget.texture;
+        return renderTarget.Texture;
     }
 
     public static unsafe void GenerateBlockPreviews(Texture2D texture2D)
     {
         var renderTarget = new RenderTexture2D
         {
-            texture = new Texture2D
+            Texture = new Texture2D
             {
-                height = 1000,
-                width = 1000,
-                format = PixelFormat.PIXELFORMAT_COMPRESSED_DXT1_RGBA
+                Height = 1000,
+                Width = 1000,
+                Format = PixelFormat.CompressedDxt1Rgba
             }
         };
         BeginTextureMode(renderTarget);
 
         var camera = new Camera3D
         {
-            projection = CameraProjection.CAMERA_ORTHOGRAPHIC
+            Projection = CameraProjection.Orthographic
         };
 
         BeginMode3D(camera);
@@ -67,21 +67,21 @@ public static class TextureAtlas
             {
                 var uvCoordinates = Textures.GetUvCoordinatesForFace(block.Id, blockFace);
 
-                verticesList.Add(new Vertex(Pos: new Vector3(0, 1, 1), TextCoord: uvCoordinates.topLeft, Color: Color.WHITE));
-                verticesList.Add(new Vertex(Pos: new Vector3(0, 1, 0), TextCoord: uvCoordinates.topRight, Color: Color.WHITE));
-                verticesList.Add(new Vertex(Pos: new Vector3(0, 0, 1), TextCoord: uvCoordinates.bottomLeft, Color: Color.WHITE));
-                verticesList.Add(new Vertex(Pos: new Vector3(0, 0, 0), TextCoord: uvCoordinates.bottomRight, Color: Color.WHITE));
+                verticesList.Add(new Vertex(Pos: new Vector3(0, 1, 1), TextCoord: uvCoordinates.topLeft, Color: Color.White));
+                verticesList.Add(new Vertex(Pos: new Vector3(0, 1, 0), TextCoord: uvCoordinates.topRight, Color: Color.White));
+                verticesList.Add(new Vertex(Pos: new Vector3(0, 0, 1), TextCoord: uvCoordinates.bottomLeft, Color: Color.White));
+                verticesList.Add(new Vertex(Pos: new Vector3(0, 0, 0), TextCoord: uvCoordinates.bottomRight, Color: Color.White));
             }
 
             var mesh = new Mesh();
-            mesh.vertexCount = verticesList.Count;
-            mesh.triangleCount = verticesList.Count / 3;
+            mesh.VertexCount = verticesList.Count;
+            mesh.TriangleCount = verticesList.Count / 3;
 
-            mesh.vertices = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
-            Span<float> vertices = new Span<float>(mesh.vertices, verticesList.Count * 3);
+            mesh.Vertices = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
+            Span<float> vertices = new Span<float>(mesh.Vertices, verticesList.Count * 3);
 
-            mesh.texcoords = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 2, sizeof(float));
-            Span<float> texcoords = new Span<float>(mesh.texcoords, verticesList.Count * 2);
+            mesh.TexCoords = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 2, sizeof(float));
+            Span<float> texcoords = new Span<float>(mesh.TexCoords, verticesList.Count * 2);
 
             for (var i = 0; i < verticesList.Count; i++)
             {
@@ -95,9 +95,9 @@ public static class TextureAtlas
             }
 
             var model = LoadModelFromMesh(mesh);
-            model.materials[0].maps->texture = texture2D;
+            model.Materials[0].Maps->Texture = texture2D;
 
-            DrawModel(model, Vector3.Zero, 1, Color.WHITE);
+            DrawModel(model, Vector3.Zero, 1, Color.White);
         }
 
         EndMode3D();
