@@ -22,9 +22,4 @@ public class RaylibUiTreeHost : IUiTreeHost
     {
         CloseWindow();
     }
-
-    public (int width, int height) GetSize()
-    {
-        return (GetScreenWidth(), GetScreenHeight());
-    }
 }

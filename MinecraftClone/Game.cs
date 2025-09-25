@@ -52,16 +52,18 @@ public class Game
         _renderer = new Renderer();
 
 
-
         var gl = GL.GetApi(new RaylibGlContext());
         _renderer.Initialize(gl, host);
 
 
         UiTree = new UiTree(host, (ui) =>
         {
-            using (ui.Rect().Width(100).Height(100).Color(C.Red6))
+            using (ui.Rect().Width(300).Height(300).Color(C.Red6).Padding(10))
             {
+                using (ui.Rect().Color(C.Blue6))
+                {
 
+                }
             }
         });
     }
@@ -146,12 +148,8 @@ public class Game
         DrawLine(centerX, centerY - 10, centerX, centerY + 10, Color.Black); // Vertical
 
         var commands = StaticFunctions.Render(UiTree, Matrix4X4<float>.Identity);
-        _renderer.Gl.Viewport(new Size
-        {
-            Width = GetScreenWidth(),
-            Height = GetScreenHeight()
-        });
-        StaticFunctions.ExecuteRenderInstructions(commands, _renderer, Ui.Arena);
+
+        StaticFunctions.ExecuteRenderInstructions(commands, _renderer, GetScreenWidth(), GetScreenHeight());
     }
 
     private void Draw3d()
