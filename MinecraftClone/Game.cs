@@ -5,6 +5,8 @@ using Flamui.Drawing;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Color = Raylib_cs.Color;
+using PixelFormat = Raylib_cs.PixelFormat;
+using Rectangle = Raylib_cs.Rectangle;
 
 namespace RayLib3dTest;
 
@@ -62,7 +64,7 @@ public class Game
             {
                 using (ui.Rect().Color(C.Blue6))
                 {
-
+                    ui.Text("Flamui :)").Size(30);
                 }
             }
         });
@@ -149,7 +151,20 @@ public class Game
 
         var commands = StaticFunctions.Render(UiTree, Matrix4X4<float>.Identity);
 
-        StaticFunctions.ExecuteRenderInstructions(commands, _renderer, GetScreenWidth(), GetScreenHeight());
+        var texture = StaticFunctions.ExecuteRenderInstructions(commands, _renderer, GetScreenWidth(), GetScreenHeight());
+
+        var raylibTexture = new Texture2D
+        {
+            Id = texture.textureId,
+            Width = texture.width,
+            Height = texture.height,
+            Format = PixelFormat.UncompressedR8G8B8A8,
+            Mipmaps = 1
+        };
+
+        Rectangle src = new Rectangle( 0, 0, texture.width, -texture.height );
+        Rectangle dst = new Rectangle( 0, 0, texture.width, texture.height );
+        DrawTexturePro(raylibTexture, src, dst, new Vector2(0, 0), 0, Color.White);
     }
 
     private void Draw3d()
