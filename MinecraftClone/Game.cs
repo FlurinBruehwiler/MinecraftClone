@@ -151,7 +151,7 @@ public class Game
 
         var commands = StaticFunctions.Render(UiTree, Matrix4X4<float>.Identity);
 
-        var texture = StaticFunctions.ExecuteRenderInstructions(commands, _renderer, GetScreenWidth(), GetScreenHeight());
+        var texture = StaticFunctions.ExecuteRenderInstructions(commands, _renderer, GetScreenWidth(), GetScreenHeight(), isExternal: true);
 
         var raylibTexture = new Texture2D
         {
