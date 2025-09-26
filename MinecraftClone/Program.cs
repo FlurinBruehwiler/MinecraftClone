@@ -1,5 +1,4 @@
-﻿using Flamui;
-using RayLib3dTest;
+﻿using RayLib3dTest;
 
 const int screenWidth = 1800;
 const int screenHeight = 1000;
