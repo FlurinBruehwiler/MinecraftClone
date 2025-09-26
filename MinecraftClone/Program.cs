@@ -1,7 +1,7 @@
 ﻿using RayLib3dTest;
 
-const int screenWidth = 1800;
-const int screenHeight = 1000;
+const int screenWidth = 1200;
+const int screenHeight = 800;
 
 SetConfigFlags(ConfigFlags.ResizableWindow);    // Window configuration flags
 // SetConfigFlags(ConfigFlags.FLAG_MSAA_4X_HINT);
