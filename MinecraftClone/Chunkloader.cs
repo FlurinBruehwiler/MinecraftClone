@@ -78,17 +78,19 @@ public static class Chunkloader
 
                 for (var y = 0; y < 16; y++)
                 {
+                    var idx = Chunk.GetIdx(x, y, z);
+
                     if (chunk.Pos.Y * 16 + y > height)
                     {
-                        chunk.Blocks[x, y, z].BlockId = Blocks.Air.Id;
+                        chunk.Blocks[idx].BlockId = Blocks.Air.Id;
                     }
                     else if (chunk.Pos.Y * 16 + y == height)
                     {
-                        chunk.Blocks[x, y, z].BlockId = Blocks.Gras.Id;
+                        chunk.Blocks[idx].BlockId = Blocks.Gras.Id;
                     }
                     else
                     {
-                        chunk.Blocks[x, y, z].BlockId = Blocks.Dirt.Id;
+                        chunk.Blocks[idx].BlockId = Blocks.Dirt.Id;
                     }
                 }
 

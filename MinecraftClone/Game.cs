@@ -60,9 +60,9 @@ public class Game
 
         UiTree = new UiTree(host, (ui) =>
         {
-            using (ui.Rect().Width(300).Height(300).Color(C.Red6).Padding(10))
+            using (ui.Rect().Padding(10).Border(10, C.Black))
             {
-                using (ui.Rect().Color(C.Blue6))
+                // using (ui.Rect().Color(C.Blue6))
                 {
                     ui.Text("Flamui :)").Size(30);
                 }
@@ -132,11 +132,18 @@ public class Game
             DevTools.DevToolsEnabled = !DevTools.DevToolsEnabled;
         }
 
+        if (IsKeyDown(KeyboardKey.LeftControl) && IsKeyPressed(KeyboardKey.S))
+        {
+            CurrentWorld.SaveToDirectory(SaveLocation);
+        }
+
         if (IsKeyReleased(KeyboardKey.M))
         {
             Thread.Sleep(1000);
         }
     }
+
+    public static string SaveLocation = Path.GetFullPath(Path.Combine(Directory.GetParent(typeof(Game).Assembly.FullName).FullName, "../../../../World1"));
 
     private void Draw2d()
     {

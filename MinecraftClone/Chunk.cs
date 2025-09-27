@@ -9,7 +9,7 @@ public class Chunk : IDisposable
     public bool HasMesh;
     public Mesh Mesh;
     public Model Model;
-    public Block[,,] Blocks;
+    public Block[] Blocks;
     public required IntVector3 Pos;
 
     public static readonly IntVector3 _bottomLeftFront = new(0, 0, 0);
@@ -24,7 +24,18 @@ public class Chunk : IDisposable
     public Chunk(World world)
     {
         _world = world;
-        Blocks = new Block[16, 16, 16];
+        Blocks = new Block[16 * 16 * 16];
+    }
+
+    public Chunk(World world, Block[] blocks)
+    {
+        _world = world;
+        Blocks = blocks;
+    }
+
+    public static int GetIdx(int x, int y, int z)
+    {
+        return x + y * 16 + z * 16 * 16;
     }
 
     public unsafe void GenMesh()
@@ -40,13 +51,13 @@ public class Chunk : IDisposable
 
         var startTime = Stopwatch.GetTimestamp();
 
-        for (var x = 0; x < Blocks.GetLength(0); x++)
+        for (var x = 0; x < 16; x++)
         {
-            for (var y = 0; y < Blocks.GetLength(1); y++)
+            for (var y = 0; y < 16; y++)
             {
-                for (var z = 0; z < Blocks.GetLength(2); z++)
+                for (var z = 0; z < 16; z++)
                 {
-                    var block = Blocks[x, y, z];
+                    var block = Blocks[GetIdx(x, y, z)];
 
                     var pos = new IntVector3(x, y, z);
 
@@ -253,7 +264,7 @@ public class Chunk : IDisposable
 
         wasFound = true;
 
-        return Blocks[blockInChunk.X, blockInChunk.Y, blockInChunk.Z];
+        return Blocks[GetIdx(blockInChunk.X, blockInChunk.Y, blockInChunk.Z)];
     }
 
     private void AddQuadFor(IntVector3 block, ushort blockId, BlockFace blockFace, List<Vertex> vertices)

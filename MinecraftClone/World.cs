@@ -1,4 +1,6 @@
-﻿namespace RayLib3dTest;
+﻿using System.Runtime.InteropServices;
+
+namespace RayLib3dTest;
 
 public class World
 {
@@ -15,6 +17,7 @@ public class World
     {
         Game = game;
         TextureAtlas = RayLib3dTest.TextureAtlas.Create();
+        LoadFromDirectory(Game.SaveLocation);
     }
 
     public ref Block TryGetBlockAtPos(Vector3 pos, out bool wasFound)
@@ -48,7 +51,84 @@ public class World
             return ref _emptyBlock;
         }
 
-        return ref Chunks[new IntVector3(chunkPosX, chunkPosY, chunkPosZ)].Blocks[blockInChunk.X, blockInChunk.Y, blockInChunk.Z];
+        return ref Chunks[new IntVector3(chunkPosX, chunkPosY, chunkPosZ)].Blocks[Chunk.GetIdx(blockInChunk.X, blockInChunk.Y, blockInChunk.Z)];
+    }
+
+    public unsafe void SaveToDirectory(string dir)
+    {
+        if (!Directory.Exists(dir))
+        {
+            try
+            {
+                Directory.CreateDirectory(dir);
+            }
+            catch
+            {
+                Console.WriteLine("Failed do create directory");
+            }
+
+            if (!Directory.Exists(dir))
+            {
+                Console.WriteLine($"Directory {dir} does not exist");
+                return;
+            }
+        }
+
+        foreach (var (pos, chunk) in Chunks)
+        {
+            fixed (Block* blocks = chunk.Blocks)
+            {
+                var blockSpan = new ReadOnlySpan<Block>(blocks, chunk.Blocks.Length);
+                var byteSpan = MemoryMarshal.Cast<Block, byte>(blockSpan);
+                var path = Path.Combine(dir, $"{pos.X}.{pos.Y}.{pos.Z}.chunk");
+                File.WriteAllBytes(path, byteSpan);
+            }
+        }
+    }
+
+    public unsafe void LoadFromDirectory(string dir)
+    {
+        if (!Directory.Exists(dir))
+        {
+            Console.WriteLine($"Directory {dir} does not exist");
+            return;
+        }
+
+        foreach (var file in Directory.GetFiles(dir))
+        {
+            if (!file.EndsWith(".chunk"))
+                continue;
+
+            var coordsAsString = Path.GetFileNameWithoutExtension(file);
+            var parts = coordsAsString.Split(".");
+            if (parts.Length != 3)
+                continue;
+
+            bool isInvalid = false;
+            isInvalid |= !int.TryParse(parts[0], out var x);
+            isInvalid |= !int.TryParse(parts[1], out var y);
+            isInvalid |= !int.TryParse(parts[2], out var z);
+
+            if (isInvalid)
+                continue;
+
+            var content = File.ReadAllBytes(file);
+
+            fixed (byte* blocks = content)
+            {
+                var byteSpan = new ReadOnlySpan<byte>(blocks, content.Length);
+                var blockSpan = MemoryMarshal.Cast<byte, Block>(byteSpan);
+
+                if(blockSpan.Length != 16 * 16 * 16)
+                    continue;
+
+                var pos = new IntVector3(x, y, z);
+                Chunks.Add(pos, new Chunk(this, blockSpan.ToArray())
+                {
+                    Pos = pos
+                });
+            }
+        }
     }
 
     private Chunk? TryGetChunk(IntVector3 chunkCoordinate)
