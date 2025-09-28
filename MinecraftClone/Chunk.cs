@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace RayLib3dTest;
@@ -33,6 +34,7 @@ public class Chunk : IDisposable
         Blocks = blocks;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int GetIdx(int x, int y, int z)
     {
         return x + y * 16 + z * 16 * 16;
@@ -313,6 +315,15 @@ public class Chunk : IDisposable
     public void Dispose()
     {
         UnloadModel(Model);
+    }
+
+    public IntVector3 GetGlobalCoord(int x, int y, int z)
+    {
+        var globalX = x + Pos.X * 16;
+        var globalY = y + Pos.Y * 16;
+        var globalZ = z + Pos.Z * 16;
+
+        return new IntVector3(globalX, globalY, globalZ);
     }
 }
 

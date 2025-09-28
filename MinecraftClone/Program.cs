@@ -1,5 +1,23 @@
 ﻿using RayLib3dTest;
 
+
+/*
+ * Ideas (TODOs)
+ *
+ * # FBR
+ * - Improve Save/Load
+ * - Multiplayer
+ * - Improved World Gen
+ * - Entity Animations
+ *
+ *
+ * # AKA:
+ * - Hotbar
+ *  - Inventory
+ * - Command Line
+ *
+ */
+
 const int screenWidth = 1200;
 const int screenHeight = 800;
 

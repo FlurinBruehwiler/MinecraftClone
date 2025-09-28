@@ -9,7 +9,10 @@ public static class Textures
     public const string GrassTop = "grasstop";
     public const string OakPlank = "oak_planks";
     public const string Cobblestone = "cobblestone";
-    public const string DiamonBlock = "diamond_block";
+    public const string DiamondBlock = "diamond_block";
+    public const string LogOak = "log_oak";
+    public const string LogOakTop = "log_oak_top";
+    public const string Leave = "azalea_leaves";
 
     public static Dictionary<string, int> TextureList { get; }
 

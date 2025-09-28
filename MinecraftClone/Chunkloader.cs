@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace RayLib3dTest;
 
@@ -60,21 +61,13 @@ public static class Chunkloader
             Pos = pos
         };
 
-        const float scale = .025f;
-        
         for (var x = 0; x < 16; x++)
         {
             for (var z = 0; z < 16; z++)
             {
-                var globalX = x + chunk.Pos.X * 16;
-                var globalZ = z + chunk.Pos.Z * 16;
+                var g = chunk.GetGlobalCoord(x, 0, z);
 
-                var res = Perlin.OctavePerlin(
-                    (globalX + 100_000) * scale,
-                    0,
-                    (globalZ + 100_000) * scale, 1, 2);
-
-                var height = (int)(res * 16 * 5);
+                var height = GetTerrainHeightAt(g.X, g.Z);
 
                 for (var y = 0; y < 16; y++)
                 {
@@ -97,17 +90,73 @@ public static class Chunkloader
             }
         }
 
-        // var posX = Random.Shared.Next(0, 15);
-        // var posZ = Random.Shared.Next(0, 15);
-        //
-        // for (int i = 0; i < 16; i++)
-        // {
-        //     if (chunk.Blocks[posX, i, posZ].IsAir())
-        //     {
-        //
-        //     }
-        // }
+        //generate trees
+        var posX = GetRandomInt(pos, 606186665, 0, 15);
+        var posZ = GetRandomInt(pos, 1602518902, 0, 15);
+        var trunkHeight = GetRandomInt(pos, 494945145, 5, 9);
+
+        var global = chunk.GetGlobalCoord(posX, 0, posZ);
+        var terrainHeightUnderTree = GetTerrainHeightAt(global.X, global.Z);
+
+
+        bool isTrunk = false;
+        for (int i = 1; i < 16; i++)
+        {
+            var idx = Chunk.GetIdx(posX, i, posZ);
+            if (chunk.Blocks[idx].IsAir() && !chunk.Blocks[Chunk.GetIdx(posX, i - 1 , posZ)].IsAir())
+            {
+                isTrunk = true;
+            }
+
+            if (isTrunk)
+            {
+                chunk.Blocks[idx].BlockId = Blocks.OakLog.Id;
+            }
+        }
 
         return chunk;
+    }
+
+    public static int GetTerrainHeightAt(int globalX, int globalZ)
+    {
+        const float scale = .025f;
+
+        var res = Perlin.OctavePerlin(
+            (globalX + 100_000) * scale,
+            0,
+            (globalZ + 100_000) * scale, 1, 2);
+
+        var height = (int)(res * 16 * 5);
+
+        return height;
+    }
+
+    public static int GetRandomInt(IntVector3 hashPos, int seed, int min, int max)
+    {
+        if (min > max)
+            throw new Exception();
+
+        var hash = HashCode.Combine(hashPos.X, hashPos.Y, hashPos.Z, seed);
+
+        var diff = max - min;
+
+        var o = Math.Abs(NextInt(hash));
+        var res = min + (o % diff);
+
+        if (res < min || res > max)
+        {
+            throw new Exception();
+        }
+
+        return res;
+    }
+
+    public static int NextInt(int seed)
+    {
+        Span<byte> bytes = stackalloc byte[4];
+        BitConverter.TryWriteBytes(bytes, seed);
+
+        var hash = SHA256.HashData(bytes);
+        return BitConverter.ToInt32(hash, 0);
     }
 }

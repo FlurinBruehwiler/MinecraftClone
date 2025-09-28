@@ -44,7 +44,23 @@ public class Blocks
     {
         Id = 5,
         Name = "Diamon Block",
-        Texture = Textures.DiamonBlock,
+        Texture = Textures.DiamondBlock,
+    };
+
+    public static BlockDefinition OakLog = new()
+    {
+        Id = 6,
+        Name = "Trunk",
+        TopTexture = Textures.LogOakTop,
+        BottomTexture = Textures.LogOakTop,
+        SideTexture = Textures.LogOak
+    };
+
+    public static BlockDefinition LeaveBlock = new()
+    {
+        Id = 7,
+        Name = "Leave Block",
+        Texture = Textures.Leave,
     };
     
     public static Dictionary<ushort, BlockDefinition> BlockList { get; }
