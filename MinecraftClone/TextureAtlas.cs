@@ -42,13 +42,13 @@ public static class TextureAtlas
         var camera = new Camera3D
         {
             Projection = CameraProjection.Orthographic,
-            Position = new Vector3(-10, 10, -10),
+            Position = new Vector3(-20, 30, -20),
             Up = new Vector3(0, 1, 0),
-            FovY = 90,
+            FovY = 20,
         };
 
-        camera.Target = new Vector3(1, -1, 1);
-        
+        camera.Target = new Vector3(0, 10, 0);
+
         BeginMode3D(camera);
 
         Begin(DrawMode.Quads);
