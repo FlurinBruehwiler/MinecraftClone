@@ -1,7 +1,6 @@
-﻿#define WINDOWS
-
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using Microsoft.DotNet.PlatformAbstractions;
 using Silk.NET.Core.Contexts;
 
 namespace RayLib3dTest;
@@ -15,24 +14,21 @@ public class RaylibGlContext : IGLContext
 
     public unsafe IntPtr GetProcAddress(string proc, int? slot = null)
     {
-#if WINDOWS
-        // Try wglGetProcAddress first (extensions)
-        nint addr = wglGetProcAddress(proc);
-        if (addr == 0 || addr == 1 || addr == 2 || addr == 3 || addr == -1)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            // Fall back to the OpenGL32 export for core functions
-            nint module = GetModuleHandle("opengl32.dll");
-            addr = GetProcAddress(module, proc);
+            nint addr = wglGetProcAddress(proc);
+            if (addr == 0 || addr == 1 || addr == 2 || addr == 3 || addr == -1)
+            {
+                // Fall back to the OpenGL32 export for core functions
+                nint module = GetModuleHandle("opengl32.dll");
+                addr = GetProcAddress(module, proc);
+            }
+            return addr;
         }
-        return addr;
-#elif LINUX
-        return glXGetProcAddress(procName);
-#elif OSX
-        // macOS is different; you’d normally use dlsym to resolve symbols from OpenGL framework.
-        return dlsym(RTLD_DEFAULT, procName);
-#else
-        throw new PlatformNotSupportedException();
-#endif
+        else
+        {
+            return glXGetProcAddress(proc);
+        }
     }
 
     public bool TryGetProcAddress(string proc, [UnscopedRef] out IntPtr addr, int? slot = null)
@@ -64,7 +60,6 @@ public class RaylibGlContext : IGLContext
     public IGLContextSource? Source => null;
     public bool IsCurrent => true;
 
-#if WINDOWS
     [DllImport("opengl32.dll", EntryPoint = "wglGetProcAddress")]
     private static extern nint wglGetProcAddress(string name);
 
@@ -73,12 +68,7 @@ public class RaylibGlContext : IGLContext
 
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern nint GetProcAddress(nint hModule, string procName);
-#elif LINUX
+
     [DllImport("libGL.so.1")]
     private static extern nint glXGetProcAddress(string name);
-#elif OSX
-    private const int RTLD_DEFAULT = -2;
-    [DllImport("libSystem.dylib")]
-    private static extern nint dlsym(int handle, string symbol);
-#endif
 }

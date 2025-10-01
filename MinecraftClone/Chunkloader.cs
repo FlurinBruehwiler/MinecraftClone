@@ -94,9 +94,13 @@ public static class Chunkloader
         var posX = GetRandomInt(pos, 606186665, 0, 15);
         var posZ = GetRandomInt(pos, 1602518902, 0, 15);
         var trunkHeight = GetRandomInt(pos, 494945145, 5, 9);
-
         var global = chunk.GetGlobalCoord(posX, 0, posZ);
         var terrainHeightUnderTree = GetTerrainHeightAt(global.X, global.Z);
+
+        //ok, the above defines the tree trunk, now we need to actually fill in the blocks of the trunk, that belong to _this_ chunk.
+        //my idea is to have a BlockRange (Width, Length, Height) of both the trunk and the chunk,
+        //and then get the intersection of the two, then i can just fill the resulting BlockRange with one specific block.
+        //In the future,
 
 
         bool isTrunk = false;
