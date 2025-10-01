@@ -1,4 +1,5 @@
-﻿using RayLib3dTest;
+using System.Diagnostics;
+using RayLib3dTest;
 
 
 /*
@@ -13,7 +14,7 @@
  *
  * # AKA:
  * - Hotbar
- *  - Inventory
+ * - Inventory
  * - Command Line
  *
  */
@@ -26,10 +27,12 @@ SetConfigFlags(ConfigFlags.ResizableWindow);    // Window configuration flags
 
 InitWindow(screenWidth, screenHeight, "3dtest");
 
+if (!Debugger.IsAttached)
+    DisableCursor();
 
-DisableCursor();
 SetTargetFPS(120);
-
+SetConfigFlags(ConfigFlags.Msaa4xHint);
+SetExitKey(KeyboardKey.Back);
 // SetTraceLogLevel(TraceLogLevel.LOG_ERROR);
 
 

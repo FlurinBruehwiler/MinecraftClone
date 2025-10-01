@@ -139,6 +139,7 @@ public static class DevTools
             DrawText($"Average: {average.ToString()}", 500, plotIndex * 200 + 30, 20, Color.Red);
 
             plotIndex++;
+            
         }
     }
 }
