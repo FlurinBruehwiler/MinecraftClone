@@ -37,71 +37,47 @@ public static class TextureAtlas
         return renderTarget.Texture;
     }
 
-    public static unsafe void GenerateBlockPreviews(Texture2D texture2D)
+    public static unsafe void GenerateBlockPreviews()
     {
-        var renderTarget = new RenderTexture2D
-        {
-            Texture = new Texture2D
-            {
-                Height = 1000,
-                Width = 1000,
-                Format = PixelFormat.CompressedDxt1Rgba
-            }
-        };
-        BeginTextureMode(renderTarget);
-
         var camera = new Camera3D
         {
-            Projection = CameraProjection.Orthographic
+            Projection = CameraProjection.Orthographic,
+            Position = new Vector3(-10, 10, -10),
+            Up = new Vector3(0, 1, 0),
+            FovY = 90,
         };
 
+        camera.Target = new Vector3(1, -1, 1);
+        
         BeginMode3D(camera);
 
-        foreach (var (_, block) in Blocks.BlockList)
-        {
-            ReadOnlySpan<BlockFace> faces = [BlockFace.Top, BlockFace.Left, BlockFace.Front];
+        Begin(DrawMode.Quads);
 
-            var verticesList = new List<Vertex>();
+        var white = Color.White;
+        Color4ub(white.R, white.G, white.B, white.A);
 
-            foreach (var blockFace in faces)
-            {
-                var uvCoordinates = Textures.GetUvCoordinatesForFace(block.Id, blockFace);
+        Vertex3f(10, 10, 0); // Bottom Left
+        Vertex3f(10, 0, 0); // Bottom Right
+        Vertex3f(0, 0, 0); // Top Left
+        Vertex3f(0, 10, 0); // Top Right
 
-                verticesList.Add(new Vertex(Pos: new Vector3(0, 1, 1), TextCoord: uvCoordinates.topLeft, Color: Color.White));
-                verticesList.Add(new Vertex(Pos: new Vector3(0, 1, 0), TextCoord: uvCoordinates.topRight, Color: Color.White));
-                verticesList.Add(new Vertex(Pos: new Vector3(0, 0, 1), TextCoord: uvCoordinates.bottomLeft, Color: Color.White));
-                verticesList.Add(new Vertex(Pos: new Vector3(0, 0, 0), TextCoord: uvCoordinates.bottomRight, Color: Color.White));
-            }
+        var red = Color.Red;
+        Color4ub(red.R, red.G, red.B, red.A);
+        Vertex3f(0, 10, 10); // Bottom Left
+        Vertex3f(0, 10, 0); // Bottom Right
+        Vertex3f(0, 0, 0); // Top Left
+        Vertex3f(0, 0, 10); // Top Right
 
-            var mesh = new Mesh();
-            mesh.VertexCount = verticesList.Count;
-            mesh.TriangleCount = verticesList.Count / 3;
+        var blue = Color.Blue;
+        Color4ub(blue.R, blue.G, blue.B, blue.A);
+        Vertex3f(10, 10, 10); // Bottom Left
+        Vertex3f(10, 10, 0); // Bottom Right
+        Vertex3f(0, 10, 0); // Top Left
+        Vertex3f(0, 10, 10); // Top Right
 
-            mesh.Vertices = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
-            Span<float> vertices = new Span<float>(mesh.Vertices, verticesList.Count * 3);
 
-            mesh.TexCoords = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 2, sizeof(float));
-            Span<float> texcoords = new Span<float>(mesh.TexCoords, verticesList.Count * 2);
-
-            for (var i = 0; i < verticesList.Count; i++)
-            {
-                var vertex = verticesList[i];
-                vertices[i * 3] = vertex.Pos.X;
-                vertices[i * 3 + 1] = vertex.Pos.Y;
-                vertices[i * 3 + 2] = vertex.Pos.Z;
-
-                texcoords[i * 2] = vertex.TextCoord.X;
-                texcoords[i * 2 + 1] = vertex.TextCoord.Y;
-            }
-
-            var model = LoadModelFromMesh(mesh);
-            model.Materials[0].Maps->Texture = texture2D;
-
-            DrawModel(model, Vector3.Zero, 1, Color.White);
-        }
+        End();
 
         EndMode3D();
-
-        EndTextureMode();
     }
 }
