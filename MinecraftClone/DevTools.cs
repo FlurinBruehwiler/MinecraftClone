@@ -91,16 +91,16 @@ public static class DevTools
         if (!DevToolsEnabled)
             return;
 
-        DrawRectangle(0, 0, 500, 200, new Color(0, 0, 0, 50));
+        Raylib.DrawRectangle(0, 0, 500, 200, new Color(0, 0, 0, 50));
         int i = 0;
         foreach (var (name, value) in _printMessages)
         {
-            DrawText($"{name}: {value}", 0, 30 * (i + 1), 20, Color.Black);
+            Raylib.DrawText($"{name}: {value}", 0, 30 * (i + 1), 20, Color.Black);
             i++;
         }
 
 
-        DrawRectangle(500, 0, 400, _plots.Count * 200, new Color(0, 0, 0, 50));
+        Raylib.DrawRectangle(500, 0, 400, _plots.Count * 200, new Color(0, 0, 0, 50));
 
         var plotIndex = 0;
         foreach (var (plotable, queue) in _plots)
@@ -127,7 +127,7 @@ public static class DevTools
 
                 var finalValue = normalized / normalizedMax;
 
-                DrawLine(500 + 4 * index, plotIndex * 200 + (int)(200 - previousValue * 200), 500 + 4 * (index + 1),
+                Raylib.DrawLine(500 + 4 * index, plotIndex * 200 + (int)(200 - previousValue * 200), 500 + 4 * (index + 1),
                     plotIndex * 200 + (int)(200 - finalValue * 200), Color.Red);
 
                 previousValue = finalValue;
@@ -135,8 +135,8 @@ public static class DevTools
 
             var average = sum / queue.Count;
 
-            DrawText(plotable.Name, 500, plotIndex * 200, 20, Color.Red);
-            DrawText($"Average: {average.ToString()}", 500, plotIndex * 200 + 30, 20, Color.Red);
+            Raylib.DrawText(plotable.Name, 500, plotIndex * 200, 20, Color.Red);
+            Raylib.DrawText($"Average: {average.ToString()}", 500, plotIndex * 200 + 30, 20, Color.Red);
 
             plotIndex++;
             

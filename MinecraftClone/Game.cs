@@ -26,10 +26,10 @@ public class Game
     public unsafe void Initialize()
     {
         { //Initialize Skybox
-            var cube = GenMeshCube(1, 1, 1);
-            _skyBox = LoadModelFromMesh(cube);
+            var cube = Raylib.GenMeshCube(1, 1, 1);
+            _skyBox = Raylib.LoadModelFromMesh(cube);
 
-            var shader = LoadShader("Resources/Shaders/skybox.vs", "Resources/Shaders/skybox.fs");
+            var shader = Raylib.LoadShader("Resources/Shaders/skybox.vs", "Resources/Shaders/skybox.fs");
 
             _skyBox.Materials[0].Shader = shader;
 
@@ -37,13 +37,13 @@ public class Game
             int[] vflipped = { 0 };
             int[] environmentMap = { (int)MaterialMapIndex.Cubemap };
 
-            SetShaderValue(shader, GetShaderLocation(shader, "environmentMap"),  environmentMap , ShaderUniformDataType.Int);
-            SetShaderValue(shader, GetShaderLocation(shader, "doGamma"),  doGamma, ShaderUniformDataType.Int);
-            SetShaderValue(shader, GetShaderLocation(shader, "vflipped"), vflipped, ShaderUniformDataType.Int);
+            Raylib.SetShaderValue(shader, Raylib.GetShaderLocation(shader, "environmentMap"),  environmentMap , ShaderUniformDataType.Int);
+            Raylib.SetShaderValue(shader, Raylib.GetShaderLocation(shader, "doGamma"),  doGamma, ShaderUniformDataType.Int);
+            Raylib.SetShaderValue(shader, Raylib.GetShaderLocation(shader, "vflipped"), vflipped, ShaderUniformDataType.Int);
 
-            var img = LoadImage("Resources/skybox.png");
-            _skyBox.Materials[0].Maps[(int)MaterialMapIndex.Cubemap].Texture = LoadTextureCubemap(img, CubemapLayout.AutoDetect);
-            UnloadImage(img);
+            var img = Raylib.LoadImage("Resources/skybox.png");
+            _skyBox.Materials[0].Maps[(int)MaterialMapIndex.Cubemap].Texture = Raylib.LoadTextureCubemap(img, CubemapLayout.AutoDetect);
+            Raylib.UnloadImage(img);
         }
 
         HuskModel = Models.LoadModel("husk");
@@ -84,23 +84,23 @@ public class Game
 
     public void GameLoop()
     {
-        while (!WindowShouldClose())
+        while (!Raylib.WindowShouldClose())
         {
             Update();
 
-            BeginDrawing();
+            Raylib.BeginDrawing();
 
-                ClearBackground(Color.RayWhite);
+            Raylib.ClearBackground(Color.RayWhite);
 
-                BeginMode3D(_player.Camera);
+            Raylib.BeginMode3D(_player.Camera);
 
                     Draw3d();
     
-                EndMode3D();
+                    Raylib.EndMode3D();
 
                 Draw2d();
             
-            EndDrawing();
+                Raylib.EndDrawing();
         }
     }
 
@@ -123,7 +123,7 @@ public class Game
     private void Update()
     {
         //todo pass MousePosition
-        UiTree.Update(GetScreenWidth(), GetScreenHeight());
+        UiTree.Update(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
 
         var timeSinceLastTick = Stopwatch.GetElapsedTime(_lastTickTimestamp);
 
@@ -137,17 +137,17 @@ public class Game
 
         _player.Update();
 
-        if (IsKeyPressed(KeyboardKey.F3))
+        if (Raylib.IsKeyPressed(KeyboardKey.F3))
         {
             DevTools.DevToolsEnabled = !DevTools.DevToolsEnabled;
         }
 
-        if (IsKeyDown(KeyboardKey.LeftControl) && IsKeyPressed(KeyboardKey.S))
+        if (Raylib.IsKeyDown(KeyboardKey.LeftControl) && Raylib.IsKeyPressed(KeyboardKey.S))
         {
             CurrentWorld.SaveToDirectory(SaveLocation);
         }
 
-        if (IsKeyReleased(KeyboardKey.M))
+        if (Raylib.IsKeyReleased(KeyboardKey.M))
         {
             Thread.Sleep(1000);
         }
@@ -159,16 +159,16 @@ public class Game
     {
         DevTools.Draw2d();
 
-        int centerX = GetScreenWidth() / 2;
-        int centerY = GetScreenHeight() / 2;
+        int centerX = Raylib.GetScreenWidth() / 2;
+        int centerY = Raylib.GetScreenHeight() / 2;
 
         // Crosshair lines (length = 10 px each side)
-        DrawLine(centerX - 10, centerY, centerX + 10, centerY, Color.Black); // Horizontal
-        DrawLine(centerX, centerY - 10, centerX, centerY + 10, Color.Black); // Vertical
+        Raylib.DrawLine(centerX - 10, centerY, centerX + 10, centerY, Color.Black); // Horizontal
+        Raylib.DrawLine(centerX, centerY - 10, centerX, centerY + 10, Color.Black); // Vertical
 
         var commands = StaticFunctions.Render(UiTree, Matrix4X4<float>.Identity);
 
-        var texture = StaticFunctions.ExecuteRenderInstructions(commands, _renderer, GetScreenWidth(), GetScreenHeight(), isExternal: true);
+        var texture = StaticFunctions.ExecuteRenderInstructions(commands, _renderer, Raylib.GetScreenWidth(), Raylib.GetScreenHeight(), isExternal: true);
 
         var raylibTexture = new Texture2D
         {
@@ -181,7 +181,7 @@ public class Game
 
         Rectangle src = new Rectangle( 0, 0, texture.width, -texture.height );
         Rectangle dst = new Rectangle( 0, 0, texture.width, texture.height );
-        DrawTexturePro(raylibTexture, src, dst, new Vector2(0, 0), 0, Color.White);
+        Raylib.DrawTexturePro(raylibTexture, src, dst, new Vector2(0, 0), 0, Color.White);
 
         TextureAtlas.GenerateBlockPreviews();
     }
@@ -192,16 +192,16 @@ public class Game
 
         { //Draw Skybox
 
-            DisableBackfaceCulling();
+            Rlgl.DisableBackfaceCulling();
 
-            DisableDepthMask();
+            Rlgl.DisableDepthMask();
             
 
-            DrawModel(_skyBox, Vector3.Zero, 1, Color.White);
+            Raylib.DrawModel(_skyBox, Vector3.Zero, 1, Color.White);
             
 
-            EnableBackfaceCulling();
-            EnableDepthMask();
+            Rlgl.EnableBackfaceCulling();
+            Rlgl.EnableDepthMask();
         }
 
         DevTools.Draw3d();
@@ -211,7 +211,7 @@ public class Game
         {
             var pos = new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16);
             if(chunk.HasMesh)
-                DrawModel(chunk.Model, pos, 1, Color.White);
+                Raylib.DrawModel(chunk.Model, pos, 1, Color.White);
 
             
             // if(DevTools.DevToolsEnabled)

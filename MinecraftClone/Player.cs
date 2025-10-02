@@ -58,7 +58,7 @@ public class Player
         const float speedMultiplier = 1.3f;
         var config = MovementConfig.Default;
 
-        if (IsKeyDown(KeyboardKey.LeftControl) || IsKeyDown(KeyboardKey.Q))
+        if (Raylib.IsKeyDown(KeyboardKey.LeftControl) || Raylib.IsKeyDown(KeyboardKey.Q))
             config.HorizontalAcceleration *= speedMultiplier;
 
         var halfWidth = Physics.PlayerWidth / 2f;
@@ -78,7 +78,7 @@ public class Player
 
     public void Update()
     {
-        if (IsKeyDown(KeyboardKey.Space))
+        if (Raylib.IsKeyDown(KeyboardKey.Space))
             isJumpPressed = true;
 
         HandleDirectionChange();
@@ -108,10 +108,10 @@ public class Player
             DevTools.Print(lookingAtBlock, "Looking at Block");
             DevTools.Print(lookingAtBlockBefore, "Looking at Block before");
 
-            DevTools.Print(GetFPS(), "FPS");
+            DevTools.Print(Raylib.GetFPS(), "FPS");
 
             //handle bot target
-            if (IsMouseButtonPressed(MouseButton.Middle) && lookingAtBlockBefore != null)
+            if (Raylib.IsMouseButtonPressed(MouseButton.Middle) && lookingAtBlockBefore != null)
             {
                 foreach (var bot in CurrentWorld.bots)
                 {
@@ -119,7 +119,7 @@ public class Player
                 }
             }
 
-            if (IsKeyPressed(KeyboardKey.E) && lookingAtBlockBefore != null)
+            if (Raylib.IsKeyPressed(KeyboardKey.E) && lookingAtBlockBefore != null)
             {
                 CurrentWorld.bots.Add(new Bot
                 {
@@ -139,7 +139,7 @@ public class Player
 
         if (lookingAtBlock.HasValue)
         {
-            DrawCubeWiresV(lookingAtBlock.Value.ToVector3(), Vector3.One * 1.001f, Color.Black);
+            Raylib.DrawCubeWiresV(lookingAtBlock.Value.ToVector3(), Vector3.One * 1.001f, Color.Black);
         }
     }
 
@@ -157,10 +157,10 @@ public class Player
 
     private void HandleDirectionChange()
     {
-        var rotationInput = GetMouseDelta() * 0.2f;
+        var rotationInput = Raylib.GetMouseDelta() * 0.2f;
 
-        yaw += rotationInput.X * DEG2RAD;
-        pitch += -rotationInput.Y * DEG2RAD;
+        yaw += rotationInput.X * Raylib.DEG2RAD;
+        pitch += -rotationInput.Y * Raylib.DEG2RAD;
         pitch = Math.Clamp(pitch, -MathF.PI / 2 + 0.001f, MathF.PI / 2 - 0.001f);
 
         var cosPitch = MathF.Cos(pitch);
@@ -189,22 +189,22 @@ public class Player
     {
         var inputDirection = new Vector3();
 
-        if (IsKeyDown(KeyboardKey.W))
+        if (Raylib.IsKeyDown(KeyboardKey.W))
         {
             inputDirection.Z -= 1;
         }
 
-        if (IsKeyDown(KeyboardKey.S))
+        if (Raylib.IsKeyDown(KeyboardKey.S))
         {
             inputDirection.Z += 1;
         }
 
-        if (IsKeyDown(KeyboardKey.D))
+        if (Raylib.IsKeyDown(KeyboardKey.D))
         {
             inputDirection.X += 1;
         }
 
-        if (IsKeyDown(KeyboardKey.A))
+        if (Raylib.IsKeyDown(KeyboardKey.A))
         {
             inputDirection.X -= 1;
         }
@@ -214,7 +214,7 @@ public class Player
 
     private void HandleHotBarInput()
     {
-        var x = GetKeyPressed();
+        var x = Raylib.GetKeyPressed();
 
         if (x is >= 48 and <= 57)
         {
@@ -228,7 +228,7 @@ public class Player
 
     private void HandleBlockPlacement()
     {
-        if (IsMouseButtonPressed(MouseButton.Right))
+        if (Raylib.IsMouseButtonPressed(MouseButton.Right))
         {
             var col = Physics.Raycast(Camera.Position, Direction, 10, out var previousBlock, out _, true);
             if (col is not null)
@@ -251,7 +251,7 @@ public class Player
 
     private void HandleBlockDestroy()
     {
-        if (IsMouseButtonPressed(MouseButton.Left))
+        if (Raylib.IsMouseButtonPressed(MouseButton.Left))
         {
             var col = Physics.Raycast(Camera.Position, Direction, 10, out _, out _, true);
             if (col is not null)

@@ -44,7 +44,7 @@ public class Chunk : IDisposable
     {
         if (Mesh.Vertices != (void*)IntPtr.Zero)
         {
-            UnloadModel(Model);
+            Raylib.UnloadModel(Model);
         }
 
         var mesh = new Mesh();
@@ -120,9 +120,9 @@ public class Chunk : IDisposable
         }
 
         Mesh = mesh;
-        UploadMesh(ref Mesh, false);
+        Raylib.UploadMesh(ref Mesh, false);
 
-        Model = LoadModelFromMesh(Mesh);
+        Model = Raylib.LoadModelFromMesh(Mesh);
         Model.Materials[0].Maps->Texture = _world.TextureAtlas;
     }
 
@@ -314,7 +314,7 @@ public class Chunk : IDisposable
 
     public void Dispose()
     {
-        UnloadModel(Model);
+        Raylib.UnloadModel(Model);
     }
 
     public IntVector3 GetGlobalCoord(int x, int y, int z)

@@ -7,13 +7,13 @@ public static class TextureAtlas
 {
     public static Texture2D Create()
     {
-        RenderTexture2D renderTarget = LoadRenderTexture(160, 160);
+        RenderTexture2D renderTarget = Raylib.LoadRenderTexture(160, 160);
 
-        BeginTextureMode(renderTarget);
+        Raylib.BeginTextureMode(renderTarget);
 
         using var enumerator = Textures.TextureList.GetEnumerator();
 
-        ClearBackground(Color.Black);
+        Raylib.ClearBackground(Color.Black);
 
         for (var y = 0; y < 10; y++)
         {
@@ -23,17 +23,17 @@ public static class TextureAtlas
                     goto end;
 
                 var texture = enumerator.Current;
-                var blockTexture = LoadTexture($"Resources/{texture.Key}.png");
-                DrawTexturePro(blockTexture, new Rectangle(0, 0, blockTexture.Width, blockTexture.Height),
+                var blockTexture = Raylib.LoadTexture($"Resources/{texture.Key}.png");
+                Raylib.DrawTexturePro(blockTexture, new Rectangle(0, 0, blockTexture.Width, blockTexture.Height),
                     new Rectangle((x + 1) * 16, 160 - y * 16, 16, 16), new Vector2(0, 0), 180, Color.White);
             }
         }
         end:
 
-        EndTextureMode();
+        Raylib.EndTextureMode();
 
-        Image textureAtlas = LoadImageFromTexture(renderTarget.Texture);
-        ExportImage(textureAtlas, "Resources/textureatlas.png");
+        Image textureAtlas = Raylib.LoadImageFromTexture(renderTarget.Texture);
+        Raylib.ExportImage(textureAtlas, "Resources/textureatlas.png");
 
         return renderTarget.Texture;
     }
@@ -51,11 +51,11 @@ public static class TextureAtlas
 
         camera.Target = new Vector3(0, 10, 0);
 
-        SetTexture(CurrentWorld.TextureAtlas.Id);
+        Rlgl.SetTexture(CurrentWorld.TextureAtlas.Id);
         
-        BeginMode3D(camera);
+        Raylib.BeginMode3D(camera);
 
-        Begin(DrawMode.Quads);
+        Rlgl.Begin(DrawMode.Quads);
 
         UvCoordinates coords;
 
@@ -63,47 +63,47 @@ public static class TextureAtlas
         
         coords = Textures.GetUvCoordinatesForFace(Blocks.WoodenPlank.Id, BlockFace.Left);
         
-        Color4ub(white.R, white.G, white.B, white.A);
-        TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
-        Vertex3f(10, 10, 0); // Bottom Left
-        TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
-        Vertex3f(10, 0, 0); // Bottom Right
-        TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
-        Vertex3f(0, 0, 0); // Top Left
-        TexCoord2f(coords.topRight.X, coords.topRight.Y);
-        Vertex3f(0, 10, 0); // Top Right
+        Rlgl.Color4ub(white.R, white.G, white.B, white.A);
+        Rlgl.TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
+        Rlgl.Vertex3f(10, 10, 0); // Bottom Left
+        Rlgl.TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
+        Rlgl.Vertex3f(10, 0, 0); // Bottom Right
+        Rlgl.TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
+        Rlgl.Vertex3f(0, 0, 0); // Top Left
+        Rlgl.TexCoord2f(coords.topRight.X, coords.topRight.Y);
+        Rlgl.Vertex3f(0, 10, 0); // Top Right
 
         coords = Textures.GetUvCoordinatesForFace(Blocks.WoodenPlank.Id, BlockFace.Right);
 
         var red = Color.Red;
-        Color4ub(red.R, red.G, red.B, red.A);
-        TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
-        Vertex3f(0, 10, 10); // Bottom Left
-        TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
-        Vertex3f(0, 10, 0); // Bottom Right
-        TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
-        Vertex3f(0, 0, 0); // Top Left
-        TexCoord2f(coords.topRight.X, coords.topRight.Y);
-        Vertex3f(0, 0, 10); // Top Right
+        Rlgl.Color4ub(red.R, red.G, red.B, red.A);
+        Rlgl.TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
+        Rlgl.Vertex3f(0, 10, 10); // Bottom Left
+        Rlgl.TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
+        Rlgl.Vertex3f(0, 10, 0); // Bottom Right
+        Rlgl.TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
+        Rlgl.Vertex3f(0, 0, 0); // Top Left
+        Rlgl.TexCoord2f(coords.topRight.X, coords.topRight.Y);
+        Rlgl.Vertex3f(0, 0, 10); // Top Right
 
         coords = Textures.GetUvCoordinatesForFace(Blocks.WoodenPlank.Id, BlockFace.Top);
 
         var blue = Color.Blue;
-        Color4ub(blue.R, blue.G, blue.B, blue.A);
-        TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
-        Vertex3f(10, 10, 10); // Bottom Left
-        TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
-        Vertex3f(10, 10, 0); // Bottom Right
-        TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
-        Vertex3f(0, 10, 0); // Top Left
-        TexCoord2f(coords.topRight.X, coords.topRight.Y);
-        Vertex3f(0, 10, 10); // Top Right
+        Rlgl.Color4ub(blue.R, blue.G, blue.B, blue.A);
+        Rlgl.TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
+        Rlgl.Vertex3f(10, 10, 10); // Bottom Left
+        Rlgl.TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
+        Rlgl.Vertex3f(10, 10, 0); // Bottom Right
+        Rlgl.TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
+        Rlgl.Vertex3f(0, 10, 0); // Top Left
+        Rlgl.TexCoord2f(coords.topRight.X, coords.topRight.Y);
+        Rlgl.Vertex3f(0, 10, 10); // Top Right
 
 
-        End();
+        Rlgl.End();
 
-        EndMode3D();
+        Raylib.EndMode3D();
         
-        SetTexture(0);
+        Rlgl.SetTexture(0);
     }
 }
