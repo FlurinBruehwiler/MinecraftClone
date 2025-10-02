@@ -65,6 +65,16 @@ public class Game
                 // using (ui.Rect().Color(C.Blue6))
                 {
                     ui.Text("Flamui :)").Size(30);
+
+                    using (ui.Rect().Height(200).Width(200))
+                    {
+                        ui.Image(new GpuTexture
+                        {
+                            Width = HuskModel.Texture2D.Width,
+                            Height = HuskModel.Texture2D.Height,
+                            TextureId = HuskModel.Texture2D.Id
+                        });
+                    }
                 }
             }
         });
