@@ -173,7 +173,6 @@ public class Game
         Rectangle dst = new Rectangle( 0, 0, texture.width, texture.height );
         DrawTexturePro(raylibTexture, src, dst, new Vector2(0, 0), 0, Color.White);
 
-        TextureAtlas.GenerateBlockPreviews();
     }
 
     private void Draw3d()

@@ -1,6 +1,3 @@
-using System.Runtime.InteropServices;
-using Silk.NET.OpenGL;
-
 namespace RayLib3dTest;
 
 public static class TextureAtlas
@@ -38,7 +35,7 @@ public static class TextureAtlas
         return renderTarget.Texture;
     }
 
-    public static unsafe void GenerateBlockPreviews()
+    public static unsafe void GenerateBlockPreviews(Texture2D textureAtlas)
     {
 
         var camera = new Camera3D
@@ -51,10 +48,14 @@ public static class TextureAtlas
 
         camera.Target = new Vector3(0, 10, 0);
 
-        SetTexture(CurrentWorld.TextureAtlas.Id);
+        RenderTexture2D renderTarget = LoadRenderTexture(160, 160);
+
+        BeginTextureMode(renderTarget);
         
         BeginMode3D(camera);
 
+        SetTexture(textureAtlas.Id);
+        
         Begin(DrawMode.Quads);
 
         UvCoordinates coords;
@@ -64,46 +65,50 @@ public static class TextureAtlas
         coords = Textures.GetUvCoordinatesForFace(Blocks.WoodenPlank.Id, BlockFace.Left);
         
         Color4ub(white.R, white.G, white.B, white.A);
-        TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
-        Vertex3f(10, 10, 0); // Bottom Left
-        TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
-        Vertex3f(10, 0, 0); // Bottom Right
-        TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
-        Vertex3f(0, 0, 0); // Top Left
         TexCoord2f(coords.topRight.X, coords.topRight.Y);
+        Vertex3f(10, 10, 0); // Bottom Right 
+        TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
+        Vertex3f(10, 0, 0); // Bottom Left 
+        TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
+        Vertex3f(0, 0, 0); // Top Left
+        TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
         Vertex3f(0, 10, 0); // Top Right
 
         coords = Textures.GetUvCoordinatesForFace(Blocks.WoodenPlank.Id, BlockFace.Right);
 
-        var red = Color.Red;
+        var red = Color.White;
         Color4ub(red.R, red.G, red.B, red.A);
-        TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
-        Vertex3f(0, 10, 10); // Bottom Left
-        TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
-        Vertex3f(0, 10, 0); // Bottom Right
         TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
-        Vertex3f(0, 0, 0); // Top Left
+        Vertex3f(0, 10, 10); // Bottom Right 
         TexCoord2f(coords.topRight.X, coords.topRight.Y);
+        Vertex3f(0, 10, 0); // Bottom Left 
+        TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
+        Vertex3f(0, 0, 0); // Top Left
+        TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
         Vertex3f(0, 0, 10); // Top Right
 
         coords = Textures.GetUvCoordinatesForFace(Blocks.WoodenPlank.Id, BlockFace.Top);
 
-        var blue = Color.Blue;
+        var blue = Color.White;
         Color4ub(blue.R, blue.G, blue.B, blue.A);
-        TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
-        Vertex3f(10, 10, 10); // Bottom Left
-        TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
-        Vertex3f(10, 10, 0); // Bottom Right
         TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
-        Vertex3f(0, 10, 0); // Top Left
+        Vertex3f(10, 10, 10); // Bottom Right  
         TexCoord2f(coords.topRight.X, coords.topRight.Y);
+        Vertex3f(10, 10, 0); // Bottom Left 
+        TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
+        Vertex3f(0, 10, 0); // Top Left
+        TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
         Vertex3f(0, 10, 10); // Top Right
-
 
         End();
 
         EndMode3D();
         
         SetTexture(0);
+        
+        EndTextureMode();
+        
+        Image blockPreviewImage = LoadImageFromTexture(renderTarget.Texture);
+        ExportImage(blockPreviewImage , "Resources/block_previews.png");
     }
 }

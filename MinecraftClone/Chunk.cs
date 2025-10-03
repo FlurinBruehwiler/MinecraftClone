@@ -123,7 +123,7 @@ public class Chunk : IDisposable
         UploadMesh(ref Mesh, false);
 
         Model = LoadModelFromMesh(Mesh);
-        Model.Materials[0].Maps->Texture = _world.TextureAtlas;
+        Model.Materials[0].Maps->Texture = _world.textureAtlas;
     }
 
     private IntVector3 GetOffset(BlockFace blockFace)
