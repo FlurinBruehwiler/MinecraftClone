@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -123,7 +123,7 @@ public class Chunk : IDisposable
         Raylib.UploadMesh(ref Mesh, false);
 
         Model = Raylib.LoadModelFromMesh(Mesh);
-        Model.Materials[0].Maps->Texture = _world.TextureAtlas;
+        Model.Materials[0].Maps->Texture = _world.textureAtlas;
     }
 
     private IntVector3 GetOffset(BlockFace blockFace)
