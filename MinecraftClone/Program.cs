@@ -33,7 +33,7 @@ if (!Debugger.IsAttached)
 Raylib.SetTargetFPS(120);
 Raylib.SetConfigFlags(ConfigFlags.Msaa4xHint);
 // Raylib.SetExitKey(KeyboardKey.Back);
-// SetTraceLogLevel(TraceLogLevel.LOG_ERROR);
+// RaylibSetTraceLogLevel(TraceLogLevel.LOG_ERROR);
 
 
 

@@ -19,7 +19,7 @@ public class Player
     public Vector3 Right => new(-Direction.Z, 0, Direction.X);
     public Vector3 Up => new(0, 1, 0); //ToDo
 
-    private BlockDefinition _selectedBlock = Blocks.Air;
+    public BlockDefinition SelectedBlock = Blocks.Air;
 
     public Hitbox GetHitBox()
     {
@@ -219,9 +219,25 @@ public class Player
         if (x is >= 48 and <= 57)
         {
             var idx = x - 49;
-            if (Blocks.BlockList.TryGetValue((ushort)idx, out var bd))
+            if (Blocks.BlockList.TryGetValue((ushort)(idx + 1), out var bd))
             {
-                _selectedBlock = bd;
+                SelectedBlock = bd;
+            }
+        }
+
+        var input = Raylib.GetMouseWheelMove();
+        if (input < 0)
+        {
+            if (Blocks.BlockList.TryGetValue((ushort)(SelectedBlock.Id + 1), out var bd))
+            {
+                SelectedBlock = bd;
+            }
+        }
+        else if (input > 0)
+        {
+            if (Blocks.BlockList.TryGetValue((ushort)(SelectedBlock.Id - 1), out var bd))
+            {
+                SelectedBlock = bd;
             }
         }
     }
@@ -240,7 +256,7 @@ public class Player
                     ref var b = ref CurrentWorld.TryGetBlockAtPos(previousBlock, out var wasFound);
                     if (wasFound)
                     {
-                        b.BlockId = _selectedBlock.Id;
+                        b.BlockId = SelectedBlock.Id;
 
                         CurrentWorld.InformBlockUpdate(previousBlock);
                     }

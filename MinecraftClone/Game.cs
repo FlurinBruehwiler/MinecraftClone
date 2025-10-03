@@ -58,29 +58,45 @@ public class Game
         _renderer.Initialize(gl, host);
 
 
-        UiTree = new UiTree(host, (ui) =>
-        {
-            using (ui.Rect().Padding(10).Border(10, C.Black))
-            {
-                // using (ui.Rect().Color(C.Blue6))
-                {
-                    ui.Text("Flamui :)").Size(30);
-
-                    using (ui.Rect().Height(200).Width(200))
-                    {
-                        ui.Image(new GpuTexture
-                        {
-                            Width = HuskModel.Texture2D.Width,
-                            Height = HuskModel.Texture2D.Height,
-                            TextureId = HuskModel.Texture2D.Id
-                        });
-                    }
-                }
-            }
-        });
+        UiTree = new UiTree(host, RenderUI);
     }
 
     public JemFile HuskModel; //should not be here
+
+    public void RenderUI(Ui ui)
+    {
+        using (ui.Rect().MainAlign(MAlign.End).CrossAlign(XAlign.Center))
+        {
+            //Hotbar
+            using (ui.Rect().Height(80).ShrinkWidth().Color(C.Black.WithAlpha(100)).Direction(Dir.Horizontal))
+            {
+                foreach (var (_, block) in Blocks.BlockList)
+                {
+                    if (block != Blocks.Air)
+                    {
+                        using var _ = ui.CreateIdScope(block.Id);
+
+                        using (var border = ui.Rect().Width(80).Height(80).Border(5, C.Gray6))
+                        {
+                            if (block == _player.SelectedBlock)
+                            {
+                                border.Border(6, C.Black);
+                            }
+
+                            var pos = Textures.GetTexturePosForBlockPreview(block.Id);
+
+                            ui.Image(new GpuTexture
+                            {
+                                TextureId = CurrentWorld.BlockPreviewAtlas.Id,
+                                Height = CurrentWorld.BlockPreviewAtlas.Height,
+                                Width = CurrentWorld.BlockPreviewAtlas.Width
+                            }).SubImage(new Bounds(pos.X * 100, pos.Y * 100, 100, 100));
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     public void GameLoop()
     {
@@ -184,8 +200,8 @@ public class Game
         Raylib.DrawTexturePro(raylibTexture, src, dst, new Vector2(0, 0), 0, Color.White);
 
 
-        Raylib.DrawRectangle(0, 0, CurrentWorld.BlockPreviewAtlas.Width, CurrentWorld.BlockPreviewAtlas.Height, Color.Red);
-        Raylib.DrawTexture(CurrentWorld.BlockPreviewAtlas, 0, 0, Color.White);
+        // Raylib.DrawRectangle(0, 0, CurrentWorld.BlockPreviewAtlas.Width, CurrentWorld.BlockPreviewAtlas.Height, Color.Red);
+        // Raylib.DrawTexture(CurrentWorld.BlockPreviewAtlas, 0, 0, Color.White);
     }
 
     private void Draw3d()

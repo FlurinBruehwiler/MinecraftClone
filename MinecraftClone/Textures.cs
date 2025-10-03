@@ -26,6 +26,14 @@ public static class Textures
             .ToDictionary(x => x, _ => counter++);
     }
 
+    public static IntVector2 GetTexturePosForBlockPreview(ushort blockId)
+    {
+        //this code is superbad
+
+        blockId--;
+        return new IntVector2(blockId % 10, blockId / 10);
+    }
+
     public static IntVector2 GetTexturePosForFace(ushort blockId, BlockFace blockFace)
     {
         var blockDefinition = Blocks.BlockList[blockId];
