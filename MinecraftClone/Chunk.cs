@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -44,7 +44,7 @@ public class Chunk : IDisposable
     {
         if (Mesh.Vertices != (void*)IntPtr.Zero)
         {
-            UnloadModel(Model);
+            Raylib.UnloadModel(Model);
         }
 
         var mesh = new Mesh();
@@ -120,10 +120,10 @@ public class Chunk : IDisposable
         }
 
         Mesh = mesh;
-        UploadMesh(ref Mesh, false);
+        Raylib.UploadMesh(ref Mesh, false);
 
-        Model = LoadModelFromMesh(Mesh);
-        Model.Materials[0].Maps->Texture = _world.textureAtlas;
+        Model = Raylib.LoadModelFromMesh(Mesh);
+        Model.Materials[0].Maps->Texture = _world.TextureAtlas;
     }
 
     private IntVector3 GetOffset(BlockFace blockFace)
@@ -314,7 +314,7 @@ public class Chunk : IDisposable
 
     public void Dispose()
     {
-        UnloadModel(Model);
+        Raylib.UnloadModel(Model);
     }
 
     public IntVector3 GetGlobalCoord(int x, int y, int z)

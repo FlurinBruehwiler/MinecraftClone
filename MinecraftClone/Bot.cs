@@ -101,16 +101,16 @@ public class Bot
 
         if (DevTools.DevToolsEnabled)
         {
-            DrawLine3D(cameraPos, cameraPos + -Direction.Forward() * 2, Color.Red);
+            Raylib.DrawLine3D(cameraPos, cameraPos + -Direction.Forward() * 2, Color.Red);
             if (Target.HasValue)
             {
-                DrawLine3D(cameraPos, Target.Value.ToVector3(), Color.Blue);
+                Raylib.DrawLine3D(cameraPos, Target.Value.ToVector3(), Color.Blue);
             }
         }
     }
 
     public void DrawHitBox(Vector3 position, Hitbox hitbox)
     {
-        DrawCubeV(position + hitbox.GetCenter(), hitbox.GetSize(), Color.Blue);
+        Raylib.DrawCubeV(position + hitbox.GetCenter(), hitbox.GetSize(), Color.Blue);
     }
 }

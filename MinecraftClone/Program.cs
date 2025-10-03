@@ -22,17 +22,17 @@ using RayLib3dTest;
 const int screenWidth = 1200;
 const int screenHeight = 800;
 
-SetConfigFlags(ConfigFlags.ResizableWindow);    // Window configuration flags
+Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);    // Window configuration flags
 // SetConfigFlags(ConfigFlags.FLAG_MSAA_4X_HINT);
 
-InitWindow(screenWidth, screenHeight, "3dtest");
+Raylib.InitWindow(screenWidth, screenHeight, "3dtest");
 
 if (!Debugger.IsAttached)
-    DisableCursor();
+    Raylib.DisableCursor();
 
-SetTargetFPS(120);
-SetConfigFlags(ConfigFlags.Msaa4xHint);
-SetExitKey(KeyboardKey.Back);
+Raylib.SetTargetFPS(120);
+Raylib.SetConfigFlags(ConfigFlags.Msaa4xHint);
+Raylib.SetExitKey(KeyboardKey.Back);
 // SetTraceLogLevel(TraceLogLevel.LOG_ERROR);
 
 
@@ -45,5 +45,5 @@ CurrentWorld = new World(game);
 
 game.GameLoop();
 
-CloseWindow();
+Raylib.CloseWindow();
 

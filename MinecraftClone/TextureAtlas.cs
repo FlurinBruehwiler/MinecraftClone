@@ -4,13 +4,13 @@ public static class TextureAtlas
 {
     public static Texture2D Create()
     {
-        RenderTexture2D renderTarget = LoadRenderTexture(160, 160);
+        RenderTexture2D renderTarget = Raylib.LoadRenderTexture(160, 160);
 
-        BeginTextureMode(renderTarget);
+        Raylib.BeginTextureMode(renderTarget);
 
         using var enumerator = Textures.TextureList.GetEnumerator();
 
-        ClearBackground(Color.Black);
+        Raylib.ClearBackground(Color.Black);
 
         for (var y = 0; y < 10; y++)
         {
@@ -20,17 +20,17 @@ public static class TextureAtlas
                     goto end;
 
                 var texture = enumerator.Current;
-                var blockTexture = LoadTexture($"Resources/{texture.Key}.png");
-                DrawTexturePro(blockTexture, new Rectangle(0, 0, blockTexture.Width, blockTexture.Height),
+                var blockTexture = Raylib.LoadTexture($"Resources/{texture.Key}.png");
+                Raylib.DrawTexturePro(blockTexture, new Rectangle(0, 0, blockTexture.Width, blockTexture.Height),
                     new Rectangle((x + 1) * 16, 160 - y * 16, 16, 16), new Vector2(0, 0), 180, Color.White);
             }
         }
         end:
 
-        EndTextureMode();
+        Raylib.EndTextureMode();
 
-        Image textureAtlas = LoadImageFromTexture(renderTarget.Texture);
-        ExportImage(textureAtlas, "Resources/textureatlas.png");
+        Image textureAtlas = Raylib.LoadImageFromTexture(renderTarget.Texture);
+        Raylib.ExportImage(textureAtlas, "Resources/textureatlas.png");
 
         return renderTarget.Texture;
     }
@@ -52,7 +52,7 @@ public static class TextureAtlas
 
         BeginTextureMode(renderTarget);
         
-        BeginMode3D(camera);
+        Raylib.BeginMode3D(camera);
 
         SetTexture(textureAtlas.Id);
         
@@ -102,7 +102,7 @@ public static class TextureAtlas
 
         End();
 
-        EndMode3D();
+        Raylib.EndMode3D();
         
         SetTexture(0);
         

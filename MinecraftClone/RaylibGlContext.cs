@@ -39,7 +39,7 @@ public class RaylibGlContext : IGLContext
 
     public void SwapInterval(int interval)
     {
-        SetTargetFPS(interval);
+        Raylib.SetTargetFPS(interval);
     }
 
     public void SwapBuffers()

@@ -47,7 +47,7 @@ public static class Models
         jemFile.TextureSizeV = new Vector2(jemFile.TextureSize[0], jemFile.TextureSize[1]);
 
         if (jemFile.Texture != "")
-            jemFile.Texture2D = LoadTexture($"Resources/{jemFile.Texture}");
+            jemFile.Texture2D = Raylib.LoadTexture($"Resources/{jemFile.Texture}");
 
         foreach (var model in jemFile.Models)
         {
@@ -77,10 +77,10 @@ public static class Models
     {
         pos.Y -= hitBox.GetSize().Y;
 
-        PushMatrix();
+        Rlgl.PushMatrix();
 
-        Translatef(pos.X, pos.Y, pos.Z);
-        Rotatef(MathF.Atan2(direction.X, direction.Z) * RAD2DEG , 0, 1, 0);
+        Rlgl.Translatef(pos.X, pos.Y, pos.Z);
+        Rlgl.Rotatef(MathF.Atan2(direction.X, direction.Z) * Raylib.RAD2DEG , 0, 1, 0);
 
 
         foreach (var model in jemFile.Models)
@@ -96,7 +96,7 @@ public static class Models
             }
         }
 
-        PopMatrix();
+        Rlgl.PopMatrix();
 
     }
 
@@ -111,37 +111,37 @@ public static class Models
         float z = 0.0f;
 
 
-        PushMatrix();
+        Rlgl.PushMatrix();
 
-        Translatef(position.X, position.Y, position.Z);
+        Rlgl.Translatef(position.X, position.Y, position.Z);
 
-        Scalef(1.0f / 16, 1.0f / 16, 1.0f / 16);
+        Rlgl.Scalef(1.0f / 16, 1.0f / 16, 1.0f / 16);
 
-        SetTexture(texture.Id);
+        Rlgl.SetTexture(texture.Id);
         
-        Begin(DrawMode.Quads);
+        Rlgl.Begin(DrawMode.Quads);
 
         var white = Color.White;
-        Color4ub(white.R, white.G, white.B, white.A);
+        Rlgl.Color4ub(white.R, white.G, white.B, white.A);
 
         // Front face
         {
             var origin = new Vector2(textureOffset.X + length, textureOffset.Y + length);
             var (bottomLeft, topLeft, topRight, bottomRight) = GetTextureCoordinates(origin, textureSize, width, height);
 
-            Normal3f(0.0f, 0.0f, 1.0f);
+            Rlgl.Normal3f(0.0f, 0.0f, 1.0f);
 
-            TexCoord2f(bottomLeft.X, bottomLeft.Y);
-            Vertex3f(x - width / 2, y - height / 2, z + length / 2); // Bottom Left
+            Rlgl.TexCoord2f(bottomLeft.X, bottomLeft.Y);
+            Rlgl.Vertex3f(x - width / 2, y - height / 2, z + length / 2); // Bottom Left
 
-            TexCoord2f(bottomRight.X, bottomRight.Y);
-            Vertex3f(x + width / 2, y - height / 2, z + length / 2); // Bottom Right
+            Rlgl.TexCoord2f(bottomRight.X, bottomRight.Y);
+            Rlgl.Vertex3f(x + width / 2, y - height / 2, z + length / 2); // Bottom Right
 
-            TexCoord2f(topRight.X, topRight.Y);
-            Vertex3f(x + width / 2, y + height / 2, z + length / 2); // Top Right
+            Rlgl.TexCoord2f(topRight.X, topRight.Y);
+            Rlgl.Vertex3f(x + width / 2, y + height / 2, z + length / 2); // Top Right
 
-            TexCoord2f(topLeft.X, topLeft.Y);
-            Vertex3f(x - width / 2, y + height / 2, z + length / 2); // Top Left
+            Rlgl.TexCoord2f(topLeft.X, topLeft.Y);
+            Rlgl.Vertex3f(x - width / 2, y + height / 2, z + length / 2); // Top Left
         }
 
         // Back face
@@ -149,19 +149,19 @@ public static class Models
             var origin = new Vector2(textureOffset.X + 2 * length + width, textureOffset.Y + length);
             var (bottomLeft, topLeft, topRight, bottomRight) = GetTextureCoordinates(origin, textureSize, width, height);
 
-            Normal3f(0.0f, 0.0f, -1.0f);
+            Rlgl.Normal3f(0.0f, 0.0f, -1.0f);
 
-            TexCoord2f(bottomLeft.X, bottomLeft.Y);
-            Vertex3f(x - width / 2, y - height / 2, z - length / 2); // Bottom Left
+            Rlgl.TexCoord2f(bottomLeft.X, bottomLeft.Y);
+            Rlgl.Vertex3f(x - width / 2, y - height / 2, z - length / 2); // Bottom Left
 
-            TexCoord2f(topLeft.X, topLeft.Y);
-            Vertex3f(x - width / 2, y + height / 2, z - length / 2); // Top Left
+            Rlgl.TexCoord2f(topLeft.X, topLeft.Y);
+            Rlgl.Vertex3f(x - width / 2, y + height / 2, z - length / 2); // Top Left
 
-            TexCoord2f(topRight.X, topRight.Y);
-            Vertex3f(x + width / 2, y + height / 2, z - length / 2); // Top Right
+            Rlgl.TexCoord2f(topRight.X, topRight.Y);
+            Rlgl.Vertex3f(x + width / 2, y + height / 2, z - length / 2); // Top Right
 
-            TexCoord2f(bottomRight.X, bottomRight.Y);
-            Vertex3f(x + width / 2, y - height / 2, z - length / 2); // Bottom Right
+            Rlgl.TexCoord2f(bottomRight.X, bottomRight.Y);
+            Rlgl.Vertex3f(x + width / 2, y - height / 2, z - length / 2); // Bottom Right
 
         }
 
@@ -170,19 +170,19 @@ public static class Models
             var origin = new Vector2(textureOffset.X + length, textureOffset.Y);
             var (bottomLeft, topLeft, topRight, bottomRight) = GetTextureCoordinates(origin, textureSize, width, length);
 
-            Normal3f(0.0f, 1.0f, 0.0f);
+            Rlgl.Normal3f(0.0f, 1.0f, 0.0f);
 
-            TexCoord2f(topLeft.X, topLeft.Y);
-            Vertex3f(x - width / 2, y + height / 2, z - length / 2); // Top Left
+            Rlgl.TexCoord2f(topLeft.X, topLeft.Y);
+            Rlgl.Vertex3f(x - width / 2, y + height / 2, z - length / 2); // Top Left
 
-            TexCoord2f(bottomLeft.X, bottomLeft.Y);
-            Vertex3f(x - width / 2, y + height / 2, z + length / 2); // Bottom Left
+            Rlgl.TexCoord2f(bottomLeft.X, bottomLeft.Y);
+            Rlgl.Vertex3f(x - width / 2, y + height / 2, z + length / 2); // Bottom Left
 
-            TexCoord2f(bottomRight.X, bottomRight.Y);
-            Vertex3f(x + width / 2, y + height / 2, z + length / 2); // Bottom Right
+            Rlgl.TexCoord2f(bottomRight.X, bottomRight.Y);
+            Rlgl.Vertex3f(x + width / 2, y + height / 2, z + length / 2); // Bottom Right
 
-            TexCoord2f(topRight.X, topRight.Y);
-            Vertex3f(x + width / 2, y + height / 2, z - length / 2); // Top Right
+            Rlgl.TexCoord2f(topRight.X, topRight.Y);
+            Rlgl.Vertex3f(x + width / 2, y + height / 2, z - length / 2); // Top Right
         }
 
         // Bottom face
@@ -190,19 +190,19 @@ public static class Models
             var origin = new Vector2(textureOffset.X + 2 * length, textureOffset.Y);
             var (bottomLeft, topLeft, topRight, bottomRight) = GetTextureCoordinates(origin, textureSize, width, length);
 
-            Normal3f(0.0f, -1.0f, 0.0f);
+            Rlgl.Normal3f(0.0f, -1.0f, 0.0f);
 
-            TexCoord2f(topLeft.X, topLeft.Y);
-            Vertex3f(x - width / 2, y - height / 2, z - length / 2); // Top Left
+            Rlgl.TexCoord2f(topLeft.X, topLeft.Y);
+            Rlgl.Vertex3f(x - width / 2, y - height / 2, z - length / 2); // Top Left
 
-            TexCoord2f(topRight.X, topRight.Y);
-            Vertex3f(x + width / 2, y - height / 2, z - length / 2); // Top Right
+            Rlgl.TexCoord2f(topRight.X, topRight.Y);
+            Rlgl.Vertex3f(x + width / 2, y - height / 2, z - length / 2); // Top Right
 
-            TexCoord2f(bottomRight.X, bottomRight.Y);
-            Vertex3f(x + width / 2, y - height / 2, z + length / 2); // Bottom Right
+            Rlgl.TexCoord2f(bottomRight.X, bottomRight.Y);
+            Rlgl.Vertex3f(x + width / 2, y - height / 2, z + length / 2); // Bottom Right
 
-            TexCoord2f(bottomLeft.X, bottomLeft.Y);
-            Vertex3f(x - width / 2, y - height / 2, z + length / 2); // Bottom Left
+            Rlgl.TexCoord2f(bottomLeft.X, bottomLeft.Y);
+            Rlgl.Vertex3f(x - width / 2, y - height / 2, z + length / 2); // Bottom Left
         }
 
         // Right face
@@ -210,19 +210,19 @@ public static class Models
             var origin = new Vector2(textureOffset.X + length + width , textureOffset.Y + length);
             var (bottomLeft, topLeft, topRight, bottomRight) = GetTextureCoordinates(origin, textureSize, length, height);
 
-            Normal3f(1.0f, 0.0f, 0.0f);
+            Rlgl.Normal3f(1.0f, 0.0f, 0.0f);
 
-            TexCoord2f(bottomRight.X, bottomRight.Y);
-            Vertex3f(x + width / 2, y - height / 2, z - length / 2); // Bottom Right
+            Rlgl.TexCoord2f(bottomRight.X, bottomRight.Y);
+            Rlgl.Vertex3f(x + width / 2, y - height / 2, z - length / 2); // Bottom Right
 
-            TexCoord2f(topRight.X, topRight.Y);
-            Vertex3f(x + width / 2, y + height / 2, z - length / 2); // Top Right
+            Rlgl.TexCoord2f(topRight.X, topRight.Y);
+            Rlgl.Vertex3f(x + width / 2, y + height / 2, z - length / 2); // Top Right
 
-            TexCoord2f(topLeft.X, topLeft.Y);
-            Vertex3f(x + width / 2, y + height / 2, z + length / 2); // Top Left
+            Rlgl.TexCoord2f(topLeft.X, topLeft.Y);
+            Rlgl.Vertex3f(x + width / 2, y + height / 2, z + length / 2); // Top Left
 
-            TexCoord2f(bottomLeft.X, bottomRight.Y);
-            Vertex3f(x + width / 2, y - height / 2, z + length / 2); // Bottom Left
+            Rlgl.TexCoord2f(bottomLeft.X, bottomRight.Y);
+            Rlgl.Vertex3f(x + width / 2, y - height / 2, z + length / 2); // Bottom Left
         }
 
         // Left face
@@ -230,25 +230,25 @@ public static class Models
             var origin = new Vector2(textureOffset.X, textureOffset.Y + length);
             var (bottomLeft, topLeft, topRight, bottomRight) = GetTextureCoordinates(origin, textureSize, length, height);
 
-            Normal3f(-1.0f, 0.0f, 0.0f);
+            Rlgl.Normal3f(-1.0f, 0.0f, 0.0f);
 
-            TexCoord2f(topRight.X, topRight.Y);
-            Vertex3f(x - width / 2, y + height / 2, z + length / 2); // Top Left
+            Rlgl.TexCoord2f(topRight.X, topRight.Y);
+            Rlgl.Vertex3f(x - width / 2, y + height / 2, z + length / 2); // Top Left
 
-            TexCoord2f(topLeft.X, topLeft.Y);
-            Vertex3f(x - width / 2, y + height / 2, z - length / 2); // Top Right
+            Rlgl.TexCoord2f(topLeft.X, topLeft.Y);
+            Rlgl.Vertex3f(x - width / 2, y + height / 2, z - length / 2); // Top Right
 
-            TexCoord2f(bottomLeft.X, bottomLeft.Y);
-            Vertex3f(x - width / 2, y - height / 2, z - length / 2); // Bottom Right
+            Rlgl.TexCoord2f(bottomLeft.X, bottomLeft.Y);
+            Rlgl.Vertex3f(x - width / 2, y - height / 2, z - length / 2); // Bottom Right
 
-            TexCoord2f(bottomRight.X, bottomRight.Y);
-            Vertex3f(x - width / 2, y - height / 2, z + length / 2); // Bottom Left
+            Rlgl.TexCoord2f(bottomRight.X, bottomRight.Y);
+            Rlgl.Vertex3f(x - width / 2, y - height / 2, z + length / 2); // Bottom Left
 
         }
 
-        End();
-        SetTexture(0);
-        PopMatrix();
+        Rlgl.End();
+        Rlgl.SetTexture(0);
+        Rlgl.PopMatrix();
     }
 
     public static (Vector2 bottomLeft, Vector2 topLeft, Vector2 topRight, Vector2 bottomRight) GetTextureCoordinates(Vector2 topLeft, Vector2 textureSize, float width, float height)
