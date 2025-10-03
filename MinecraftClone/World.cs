@@ -8,7 +8,8 @@ public class World
     public static World CurrentWorld;
 
     public Dictionary<IntVector3, Chunk> Chunks = new();
-    public Texture2D textureAtlas;
+    public Texture2D TextureAtlas;
+    public Texture2D BlockPreviewAtlas;
 
     private Block _emptyBlock;
     public List<Bot> bots = [];
@@ -16,10 +17,9 @@ public class World
     public World(Game game)
     {
         Game = game;
-        textureAtlas = RayLib3dTest.TextureAtlas.Create();
-        
-        TextureAtlas.GenerateBlockPreviews(textureAtlas);
-        
+        TextureAtlas = RayLib3dTest.TextureAtlas.Create();
+        BlockPreviewAtlas = RayLib3dTest.TextureAtlas.GenerateBlockPreviews(TextureAtlas);
+
         LoadFromDirectory(Game.SaveLocation);
     }
 

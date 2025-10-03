@@ -40,9 +40,12 @@ public static class Textures
             _ => throw new ArgumentOutOfRangeException(nameof(blockFace), blockFace, null)
         };
 
-        var idx = TextureList[tex];
+        if (TextureList.TryGetValue(tex, out var idx))
+        {
+            return new IntVector2(idx % 10, idx / 10);
+        }
 
-        return new IntVector2(idx % 10, idx / 10);
+        return new IntVector2(0, 0);
     }
 
     public static UvCoordinates GetUvCoordinatesForFace(ushort blockId, BlockFace blockFace)

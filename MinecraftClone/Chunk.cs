@@ -123,7 +123,7 @@ public class Chunk : IDisposable
         Raylib.UploadMesh(ref Mesh, false);
 
         Model = Raylib.LoadModelFromMesh(Mesh);
-        Model.Materials[0].Maps->Texture = _world.textureAtlas;
+        Model.Materials[0].Maps->Texture = _world.TextureAtlas;
     }
 
     private IntVector3 GetOffset(BlockFace blockFace)
