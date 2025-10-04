@@ -1,5 +1,11 @@
 ﻿namespace RayLib3dTest;
 
+public struct InventorySlot
+{
+    public BlockDefinition BlockDefinition;
+    public int Count;
+}
+
 public class Player
 {
     public Vector3 Position = new(0, 100, 0);
@@ -18,8 +24,10 @@ public class Player
     public float pitch; // around camera local X
     public Vector3 Right => new(-Direction.Z, 0, Direction.X);
     public Vector3 Up => new(0, 1, 0); //ToDo
+    public InventorySlot[] Inventory = new InventorySlot[9];
+    public int SelectedHotbarSlot;
 
-    public BlockDefinition SelectedBlock = Blocks.Air;
+    // public BlockDefinition SelectedBlock = Blocks.Air;
 
     public Hitbox GetHitBox()
     {
@@ -45,6 +53,20 @@ public class Player
     {
         Camera = new Camera3D(Vector3.Zero, new Vector3(0, 0, 1), new Vector3(0, 1, 0), 100,
             CameraProjection.Perspective);
+
+        int i = 0;
+        foreach (var (_, block) in Blocks.BlockList)
+        {
+            if (block != Blocks.Air)
+            {
+                Inventory[i] = new InventorySlot
+                {
+                    BlockDefinition = block,
+                    Count = 64
+                };
+                i++;
+            }
+        }
     }
 
     public void Tick()
@@ -216,30 +238,23 @@ public class Player
     {
         var x = Raylib.GetKeyPressed();
 
-        if (x is >= 48 and <= 57)
+        if (x is >= 49 and <= 57)
         {
-            var idx = x - 49;
-            if (Blocks.BlockList.TryGetValue((ushort)(idx + 1), out var bd))
-            {
-                SelectedBlock = bd;
-            }
+            SelectedHotbarSlot = x - 49;
         }
 
         var input = Raylib.GetMouseWheelMove();
         if (input < 0)
         {
-            if (Blocks.BlockList.TryGetValue((ushort)(SelectedBlock.Id + 1), out var bd))
-            {
-                SelectedBlock = bd;
-            }
+            SelectedHotbarSlot++;
         }
         else if (input > 0)
         {
-            if (Blocks.BlockList.TryGetValue((ushort)(SelectedBlock.Id - 1), out var bd))
-            {
-                SelectedBlock = bd;
-            }
+            SelectedHotbarSlot--;
         }
+
+        SelectedHotbarSlot = Math.Min(SelectedHotbarSlot, 8);
+        SelectedHotbarSlot = Math.Max(SelectedHotbarSlot, 0);
     }
 
     private void HandleBlockPlacement()
@@ -256,7 +271,12 @@ public class Player
                     ref var b = ref CurrentWorld.TryGetBlockAtPos(previousBlock, out var wasFound);
                     if (wasFound)
                     {
-                        b.BlockId = SelectedBlock.Id;
+                        ref var res = ref Inventory[SelectedHotbarSlot];
+                        if (res.Count > 0)
+                        {
+                            b.BlockId = res.BlockDefinition.Id;
+                            res.Count--;
+                        }
 
                         CurrentWorld.InformBlockUpdate(previousBlock);
                     }
@@ -275,6 +295,17 @@ public class Player
                 ref var b = ref CurrentWorld.TryGetBlockAtPos(col.Value, out var wasFound);
                 if (wasFound)
                 {
+                    for (var i = 0; i < Inventory.Length; i++)
+                    {
+                        ref var inventorySlot = ref Inventory[i];
+                        if (inventorySlot.BlockDefinition?.Id == b.BlockId)
+                        {
+                            inventorySlot.Count++;
+                            inventorySlot.Count = Math.Min(inventorySlot.Count, 64);
+                            break;
+                        }
+                    }
+
                     b.BlockId = Blocks.Air.Id;
 
                     CurrentWorld.InformBlockUpdate(col.Value);

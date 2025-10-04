@@ -70,20 +70,23 @@ public class Game
             //Hotbar
             using (ui.Rect().Height(80).ShrinkWidth().Color(C.Black.WithAlpha(100)).Direction(Dir.Horizontal))
             {
-                foreach (var (_, block) in Blocks.BlockList)
+                for (int i = 0; i < 9; i++)
                 {
-                    if (block != Blocks.Air)
+                    using var _ = ui.CreateIdScope(i);
+
+                    using (var border = ui.Rect().Width(80).Height(80).Border(5, C.Gray6))
                     {
-                        using var _ = ui.CreateIdScope(block.Id);
-
-                        using (var border = ui.Rect().Width(80).Height(80).Border(5, C.Gray6))
+                        if (i == _player.SelectedHotbarSlot)
                         {
-                            if (block == _player.SelectedBlock)
-                            {
-                                border.Border(6, C.Black);
-                            }
+                            border.Border(6, C.Black);
+                        }
 
-                            var pos = Textures.GetTexturePosForBlockPreview(block.Id);
+                        var slot = _player.Inventory[i];
+
+                        if (slot.Count != 0)
+                        {
+                            var pos = Textures.GetTexturePosForBlockPreview(slot.BlockDefinition.Id);
+
 
                             ui.Image(new GpuTexture
                             {
@@ -91,6 +94,13 @@ public class Game
                                 Height = CurrentWorld.BlockPreviewAtlas.Height,
                                 Width = CurrentWorld.BlockPreviewAtlas.Width
                             }).SubImage(new Bounds(pos.X * 100, pos.Y * 100, 100, 100));
+
+
+                            using (ui.Rect().AbsolutePosition().AbsoluteSize(widthOffsetParent: 0, heightOffsetParent:0)
+                                       .CrossAlign(XAlign.End).MainAlign(MAlign.End).Padding(5))
+                            {
+                                ui.Text(slot.Count.ToArenaString()).Size(30).Color(C.White);
+                            }
                         }
                     }
                 }
@@ -110,13 +120,13 @@ public class Game
 
             Raylib.BeginMode3D(_player.Camera);
 
-                    Draw3d();
-    
-                    Raylib.EndMode3D();
+                Draw3d();
 
-                Draw2d();
-            
-                Raylib.EndDrawing();
+                Raylib.EndMode3D();
+
+            Draw2d();
+
+            Raylib.EndDrawing();
         }
     }
 
