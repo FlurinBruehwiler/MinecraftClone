@@ -24,11 +24,17 @@ public static class Chunkloader
                         {
                             if (chunk is null)
                             {
-                                var startTime = Stopwatch.GetTimestamp();
+                                chunk = World.LoadFromDirectory(neededChunk);
 
-                                chunk = GenChunk(neededChunk);
+                                if (chunk == null) //generate if not already generated
+                                {
+                                    var startTime = Stopwatch.GetTimestamp();
 
-                                DevTools.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable(nameof(GenChunk), 100, 220));
+                                    chunk = GenChunk(neededChunk);
+
+                                    DevTools.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable(nameof(GenChunk), 100, 220));
+                                }
+
                                 CurrentWorld.Chunks.Add(neededChunk, chunk);
                             }
 

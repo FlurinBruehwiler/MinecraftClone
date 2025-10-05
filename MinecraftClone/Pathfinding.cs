@@ -16,6 +16,7 @@ public unsafe class Node
     public Node? Parent;
 }
 
+//todo the performance of this is very bad, pls fix
 public class Pathfinding
 {
 

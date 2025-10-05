@@ -7,6 +7,7 @@ using Silk.NET.OpenGL;
 using Color = Raylib_cs.Color;
 using PixelFormat = Raylib_cs.PixelFormat;
 using Rectangle = Raylib_cs.Rectangle;
+using Shader = Raylib_cs.Shader;
 
 namespace RayLib3dTest;
 
@@ -22,6 +23,8 @@ public class Game
         _player = player;
         Initialize();
     }
+
+    public Shader CustomFragmentShader;
 
     public unsafe void Initialize()
     {
@@ -45,6 +48,8 @@ public class Game
             _skyBox.Materials[0].Maps[(int)MaterialMapIndex.Cubemap].Texture = Raylib.LoadTextureCubemap(img, CubemapLayout.AutoDetect);
             Raylib.UnloadImage(img);
         }
+
+        CustomFragmentShader = Raylib.LoadShader(null, "Resources/Shaders/customFragment.fs");
 
         HuskModel = Models.LoadModel("husk");
 
@@ -234,7 +239,7 @@ public class Game
 
         DevTools.Draw3d();
         
-
+        Raylib.BeginBlendMode(BlendMode.Alpha);
         foreach (var (_, chunk) in CurrentWorld.Chunks)
         {
             var pos = new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16);
@@ -245,6 +250,7 @@ public class Game
             // if(DevTools.DevToolsEnabled)
                 // DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
         }
+        Raylib.EndBlendMode();
 
         _player.Render();
         

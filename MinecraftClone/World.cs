@@ -20,7 +20,7 @@ public class World
         TextureAtlas = RayLib3dTest.TextureAtlas.Create();
         BlockPreviewAtlas = RayLib3dTest.TextureAtlas.GenerateBlockPreviews(TextureAtlas);
 
-        LoadFromDirectory(Game.SaveLocation);
+        // LoadFromDirectory(Game.SaveLocation);
     }
 
     public ref Block TryGetBlockAtPos(Vector3 pos, out bool wasFound)
@@ -89,48 +89,34 @@ public class World
         }
     }
 
-    public unsafe void LoadFromDirectory(string dir)
+    public static unsafe Chunk? LoadFromDirectory(IntVector3 chunkPos)
     {
-        if (!Directory.Exists(dir))
+        if (!Directory.Exists(RayLib3dTest.Game.SaveLocation))
         {
-            Console.WriteLine($"Directory {dir} does not exist");
-            return;
+            Console.WriteLine($"Directory {RayLib3dTest.Game.SaveLocation} does not exist");
+            return null;
         }
 
-        foreach (var file in Directory.GetFiles(dir))
+        var chunkFilePath = Path.Combine(RayLib3dTest.Game.SaveLocation, $"{chunkPos.X}.{chunkPos.Y}.{chunkPos.Z}.chunk");
+
+        if (!File.Exists(chunkFilePath))
         {
-            if (!file.EndsWith(".chunk"))
-                continue;
+            return null;
+        }
+        var content = File.ReadAllBytes(chunkFilePath);
 
-            var coordsAsString = Path.GetFileNameWithoutExtension(file);
-            var parts = coordsAsString.Split(".");
-            if (parts.Length != 3)
-                continue;
+        fixed (byte* blocks = content)
+        {
+            var byteSpan = new ReadOnlySpan<byte>(blocks, content.Length);
+            var blockSpan = MemoryMarshal.Cast<byte, Block>(byteSpan);
 
-            bool isInvalid = false;
-            isInvalid |= !int.TryParse(parts[0], out var x);
-            isInvalid |= !int.TryParse(parts[1], out var y);
-            isInvalid |= !int.TryParse(parts[2], out var z);
+            if (blockSpan.Length != 16 * 16 * 16)
+                return null;
 
-            if (isInvalid)
-                continue;
-
-            var content = File.ReadAllBytes(file);
-
-            fixed (byte* blocks = content)
+            return new Chunk(CurrentWorld, blockSpan.ToArray())
             {
-                var byteSpan = new ReadOnlySpan<byte>(blocks, content.Length);
-                var blockSpan = MemoryMarshal.Cast<byte, Block>(byteSpan);
-
-                if(blockSpan.Length != 16 * 16 * 16)
-                    continue;
-
-                var pos = new IntVector3(x, y, z);
-                Chunks.Add(pos, new Chunk(this, blockSpan.ToArray())
-                {
-                    Pos = pos
-                });
-            }
+                Pos = chunkPos
+            };
         }
     }
 

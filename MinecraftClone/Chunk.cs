@@ -40,6 +40,21 @@ public class Chunk : IDisposable
         return x + y * 16 + z * 16 * 16;
     }
 
+    private static IntVector3 GetOffset(JsonBlockFaceDirection blockFace)
+    {
+        return blockFace switch
+        {
+            JsonBlockFaceDirection.West => new IntVector3(-1, 0, 0),
+            JsonBlockFaceDirection.East => new IntVector3(1, 0, 0),
+            JsonBlockFaceDirection.Down => new IntVector3(0, -1, 0),
+            JsonBlockFaceDirection.Up => new IntVector3(0, 1, 0),
+            JsonBlockFaceDirection.South => new IntVector3(0, 0, 1),
+            JsonBlockFaceDirection.North => new IntVector3(0, 0, -1),
+            _ => throw new ArgumentOutOfRangeException(nameof(blockFace), blockFace, null)
+        };
+    }
+
+
     public unsafe void GenMesh()
     {
         if (Mesh.Vertices != (void*)IntPtr.Zero)
@@ -53,6 +68,7 @@ public class Chunk : IDisposable
 
         var startTime = Stopwatch.GetTimestamp();
 
+        //todo wow, ok this has very bad performance, can be sped up at lest 10x
         for (var x = 0; x < 16; x++)
         {
             for (var y = 0; y < 16; y++)
@@ -65,17 +81,15 @@ public class Chunk : IDisposable
 
                     if (!block.IsAir())
                     {
-                        var blockDefinition = RayLib3dTest.Blocks.BlockList[block.BlockId];
-                        foreach (var element in blockDefinition.ParsedModel.Elements)
-                        {
-                            foreach (var (direction, face) in element.Faces)
-                            {
-                                var t = blockDefinition.Textures[face.Texture];
-                                var uvs = Textures.GetUvCoordinatesForTexture(t, face.UvVector);
+                        JsonBlockFaceDirection surroundingBlocks = 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.North)) ? JsonBlockFaceDirection.North : 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.East)) ? JsonBlockFaceDirection.East : 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.South)) ? JsonBlockFaceDirection.South : 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.West)) ? JsonBlockFaceDirection.West : 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Up)) ? JsonBlockFaceDirection.Up : 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Down)) ? JsonBlockFaceDirection.Down : 0;
 
-                                AddQuadFor(pos, uvs, direction, element.BlockDev, verticesList, face.CullfaceDirection != JsonBlockFaceDirection.None);
-                            }
-                        }
+                        MeshGen.GenMeshForBlock(block, pos, surroundingBlocks, verticesList);
                     }
                 }
             }
@@ -129,95 +143,30 @@ public class Chunk : IDisposable
 
         Model = Raylib.LoadModelFromMesh(Mesh);
         Model.Materials[0].Maps->Texture = _world.TextureAtlas;
+        Model.Materials[0].Shader = CurrentWorld.Game.CustomFragmentShader;
     }
 
-    private IntVector3 GetOffset(JsonBlockFaceDirection blockFace)
-    {
-        return blockFace switch
-        {
-            JsonBlockFaceDirection.West => new IntVector3(-1, 0, 0),
-            JsonBlockFaceDirection.East => new IntVector3(1, 0, 0),
-            JsonBlockFaceDirection.Down => new IntVector3(0, -1, 0),
-            JsonBlockFaceDirection.Up => new IntVector3(0, 1, 0),
-            JsonBlockFaceDirection.South => new IntVector3(0, 0, 1),
-            JsonBlockFaceDirection.North => new IntVector3(0, 0, -1),
-            _ => throw new ArgumentOutOfRangeException(nameof(blockFace), blockFace, null)
-        };
-    }
-
-    private void AddBetterVertices(IntVector3 block, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4,
-        List<Vertex> vertices,
-        UvCoordinates uvCoordinates)
-    {
-        AddVertices(block, p1, vertices, uvCoordinates.topLeft);
-        AddVertices(block, p2, vertices, uvCoordinates.bottomRight);
-        AddVertices(block, p3, vertices, uvCoordinates.topRight);
-
-        AddVertices(block, p4, vertices, uvCoordinates.bottomLeft);
-        AddVertices(block, p2, vertices, uvCoordinates.bottomRight);
-        AddVertices(block, p1, vertices, uvCoordinates.topLeft);
-    }
-
-    private void AddVertices(IntVector3 blockPos, Vector3 corner, List<Vertex> vertices, Vector2 texCoord)
-    {
-        vertices.Add(new Vertex(blockPos.ToVector3NonCenter() + corner, texCoord, new Color(255, 255, 255, 255)));
-    }
-
-    private Block TryGetBlockAtPos(IntVector3 blockInChunk, out bool wasFound)
+    private bool IsSolidBlock(IntVector3 blockInChunk)
     {
         if (blockInChunk.X is < 0 or > 15
             || blockInChunk.Y is < 0 or > 15
             || blockInChunk.Z is < 0 or > 15)
         {
-            return _world.TryGetBlockAtPos(Pos * 16 + blockInChunk, out wasFound);
+            var block = _world.TryGetBlockAtPos(Pos * 16 + blockInChunk, out var wasFound);
+
+            if (wasFound)
+            {
+                return RayLib3dTest.Blocks.BlockList[block.BlockId].ParsedModel.IsFullBlock;
+            }
+
+            return false;
         }
 
-        wasFound = true;
-
-        return Blocks[GetIdx(blockInChunk.X, blockInChunk.Y, blockInChunk.Z)];
+        var b = Blocks[GetIdx(blockInChunk.X, blockInChunk.Y, blockInChunk.Z)];
+        return RayLib3dTest.Blocks.BlockList[b.BlockId].ParsedModel.IsFullBlock;
     }
 
-    private void AddQuadFor(IntVector3 block, UvCoordinates uvCoordinates, JsonBlockFaceDirection blockFace, BlockDev blockDev, List<Vertex> vertices, bool cullFace)
-    {
-        var neighbourBlock = TryGetBlockAtPos(block + GetOffset(blockFace), out var wasFound);
 
-        //is unloaded chunk
-        if (!wasFound)
-            return;
-
-        //is solid block
-        if (cullFace && RayLib3dTest.Blocks.BlockList[neighbourBlock.BlockId].ParsedModel.IsFullBlock)
-            return;
-
-        switch (blockFace)
-        {
-            case JsonBlockFaceDirection.West:
-                AddBetterVertices(block, blockDev.TopLeftFront(), blockDev.BottomLeftBack(), blockDev.TopLeftBack(), blockDev.BottomLeftFront(), vertices,
-                    uvCoordinates);
-                break;
-            case JsonBlockFaceDirection.East:
-                AddBetterVertices(block, blockDev.TopRightBack(), blockDev.BottomRightFront(), blockDev.TopRightFront(), blockDev.BottomRightBack(), vertices,
-                    uvCoordinates);
-                break;
-            case JsonBlockFaceDirection.Down:
-                AddBetterVertices(block, blockDev.BottomRightFront(), blockDev.BottomLeftBack(), blockDev.BottomLeftFront(), blockDev.BottomRightBack(),
-                    vertices, uvCoordinates);
-                break;
-            case JsonBlockFaceDirection.Up:
-                AddBetterVertices(block, blockDev.TopRightBack(), blockDev.TopLeftFront(), blockDev.TopLeftBack(), blockDev.TopRightFront(), vertices, uvCoordinates);
-                break;
-            case JsonBlockFaceDirection.South:
-                AddBetterVertices(block, blockDev.TopLeftBack(), blockDev.BottomRightBack(), blockDev.TopRightBack(), blockDev.BottomLeftBack(), vertices,
-                    uvCoordinates);
-                break;
-            case JsonBlockFaceDirection.North:
-                AddBetterVertices(block, blockDev.TopRightFront(), blockDev.BottomLeftFront(), blockDev.TopLeftFront(), blockDev.BottomRightFront(), vertices,
-                    uvCoordinates);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-    }
 
     public void Dispose()
     {

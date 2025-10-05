@@ -52,6 +52,9 @@ public static class Textures
     public const string LogOak = "log_oak";
     public const string LogOakTop = "log_oak_top";
     public const string Leave = "azalea_leaves";
+    public const string Glass = "glass";
+    public const string Obsidian = "obsidian";
+    public const string Beacon = "beacon";
 
     public static Dictionary<string, int> TextureList { get; }
 
@@ -118,10 +121,10 @@ public static class Textures
             baseCoords = new Vector2(0.1f * slot.X, 0.1f * slot.Y);
         }
 
-        var topLeftOffset = new Vector2(subUvCoordinates.X, subUvCoordinates.W) / 16 / 10;
-        var topRightOffset = new Vector2(subUvCoordinates.Z, subUvCoordinates.W) / 16 / 10;
-        var bottomLeftOffset = new Vector2(subUvCoordinates.X, subUvCoordinates.Y) / 16 / 10;
-        var bottomRightOffset = new Vector2(subUvCoordinates.Z, subUvCoordinates.Y) / 16 / 10;
+        var bottomLeftOffset = new Vector2(subUvCoordinates.X, subUvCoordinates.W) / 16 / 10;
+        var bottomRightOffset = new Vector2(subUvCoordinates.Z, subUvCoordinates.W) / 16 / 10;
+        var topLeftOffset = new Vector2(subUvCoordinates.X, subUvCoordinates.Y) / 16 / 10;
+        var topRightOffset = new Vector2(subUvCoordinates.Z, subUvCoordinates.Y) / 16 / 10;
 
         UvCoordinates uvCoordinates = default;
         uvCoordinates.topLeft = baseCoords + topLeftOffset;

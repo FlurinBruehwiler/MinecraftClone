@@ -9,7 +9,7 @@ public class Blocks
         Id = 0,
         Name = "Air"
     };
-    
+
     public static BlockDefinition Gras = new()
     {
         Id = 1,
@@ -17,7 +17,7 @@ public class Blocks
         Textures = BlockDefinition.ConstructBlockTextures(bottom: Textures.Dirt, sides: Textures.Grass, top: Textures.GrassTop),
         Model = "blocks.json"
     };
-    
+
     public static BlockDefinition Dirt = new()
     {
         Id = 2,
@@ -33,7 +33,7 @@ public class Blocks
         Textures = BlockDefinition.ConstructBlockTextures(all: Textures.OakPlank),
         Model = "blocks.json"
     };
-    
+
     public static BlockDefinition Cobblestone = new()
     {
         Id = 4,
@@ -41,7 +41,7 @@ public class Blocks
         Textures = BlockDefinition.ConstructBlockTextures(all: Textures.Cobblestone),
         Model = "blocks.json"
     };
-    
+
     public static BlockDefinition DiamondBlock = new()
     {
         Id = 5,
@@ -55,10 +55,11 @@ public class Blocks
         Id = 6,
         Name = "Wooden Stair",
         Model = "stairs.json",
-        Textures = new() {
-            {"#side", Textures.OakPlank},
-            {"#top", Textures.OakPlank},
-            {"#bottom", Textures.OakPlank},
+        Textures = new()
+        {
+            { "#side", Textures.OakPlank },
+            { "#top", Textures.OakPlank },
+            { "#bottom", Textures.OakPlank },
         },
     };
 
@@ -76,6 +77,19 @@ public class Blocks
         Name = "Leave Block",
         Textures = BlockDefinition.ConstructBlockTextures(all: Textures.Leave),
         Model = "blocks.json"
+    };
+
+    public static BlockDefinition Beacon = new()
+    {
+        Id = 9,
+        Name = "Beacon Block",
+        Textures = new()
+        {
+            { "#glass", Textures.Glass },
+            { "#obsidian", Textures.Obsidian },
+            { "#beacon", Textures.Beacon },
+        },
+        Model = "beacon.json"
     };
 
     public static Dictionary<ushort, BlockDefinition> BlockList
@@ -99,5 +113,4 @@ public class Blocks
             return field;
         }
     }
-
 }

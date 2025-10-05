@@ -32,6 +32,7 @@
   
   <ItemGroup>
     <None Include="Resources/Shaders/skybox.fs" />
+    <None Include="Resources\Shaders\customFragment.fs" />
   </ItemGroup>
   
 </Project>
