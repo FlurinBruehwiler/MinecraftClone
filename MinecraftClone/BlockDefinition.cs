@@ -2,36 +2,47 @@
 
 public class BlockDefinition
 {
-    public string LeftTexture { get; set; } = null!;
-    public string RightTexture { get; set; } = null!;
-    public string TopTexture { get; set; } = null!;
-    public string BottomTexture { get; set; } = null!;
-    public string BackTexture { get; set; } = null!;
-    public string FrontTexture { get; set; } = null!;
-    public required string Name { get; set; }
-    public required ushort Id { get; set; }
+    public Dictionary<string, string> Textures = [];
+    public string Model;
+    public required string Name;
+    public required ushort Id;
+    public JsonBlockModel ParsedModel;
 
-    public string SideTexture
+    public static Dictionary<string, string> ConstructBlockTextures(
+        string all = "",
+        string sides = "",
+        string top = "",
+        string bottom = "",
+        string north = "",
+        string west = "",
+        string east = "",
+        string south = ""
+    )
     {
-        set
+        var dict = new Dictionary<string, string>();
+
+        dict.Add("#top", all);
+        dict.Add("#bottom", all);
+        dict.Add("#north", all);
+        dict.Add("#west", all);
+        dict.Add("#east", all);
+        dict.Add("#south", all);
+
+        if (sides != "")
         {
-            LeftTexture = value;
-            RightTexture = value;
-            BackTexture = value;
-            FrontTexture = value;
+            dict["#north"] = sides;
+            dict["#west"] = sides;
+            dict["#east"] = sides;
+            dict["#south"] = sides;
         }
-    }
-    
-    public string Texture
-    {
-        set
-        {
-            LeftTexture = value;
-            RightTexture = value;
-            BackTexture = value;
-            FrontTexture = value;
-            TopTexture = value;
-            BottomTexture = value;
-        }
+
+        if (top != "") dict["#top"] = top;
+        if (bottom != "") dict["#bottom"] = bottom;
+        if (north != "") dict["#north"] = north;
+        if (west != "") dict["#west"] = west;
+        if (east != "") dict["#east"] = east;
+        if (south != "") dict["#south"] = south;
+
+        return dict;
     }
 }

@@ -85,7 +85,7 @@ public class Game
 
                         if (slot.Count != 0)
                         {
-                            var pos = Textures.GetTexturePosForBlockPreview(slot.BlockDefinition.Id);
+                            var pos = Textures.GetTexturePosForBlockPreview(slot.BlockId);
 
 
                             ui.Image(new GpuTexture

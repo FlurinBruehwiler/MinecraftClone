@@ -13,14 +13,14 @@ public class Chunk : IDisposable
     public Block[] Blocks;
     public required IntVector3 Pos;
 
-    public static readonly IntVector3 _bottomLeftFront = new(0, 0, 0);
-    public static readonly IntVector3 _bottomRightFront = new(1, 0, 0);
-    public static readonly IntVector3 _bottomLeftBack = new(0, 0, 1);
-    public static readonly IntVector3 _bottomRightBack = new(1, 0, 1);
-    public static readonly IntVector3 _topLeftFront = new(0, 1, 0);
-    public static readonly IntVector3 _topRightFront = new(1, 1, 0);
-    public static readonly IntVector3 _topLeftBack = new(0, 1, 1);
-    public static readonly IntVector3 _topRightBack = new(1, 1, 1);
+    // public static readonly IntVector3 blockDev.BottomLeftFront() = new(0, 0, 0);
+    // public static readonly IntVector3 blockDev.BottomRightFront() = new(1, 0, 0);
+    // public static readonly IntVector3 blockDev.BottomLeftBack() = new(0, 0, 1);
+    // public static readonly IntVector3 blockDev.BottomRightBack() = new(1, 0, 1);
+    // public static readonly IntVector3 blockDev.TopLeftFront() = new(0, 1, 0);
+    // public static readonly IntVector3 blockDev.TopRightFront() = new(1, 1, 0);
+    // public static readonly IntVector3 blockDev.TopLeftBack() = new(0, 1, 1);
+    // public static readonly IntVector3 blockDev.TopRightBack() = new(1, 1, 1);
 
     public Chunk(World world)
     {
@@ -65,12 +65,17 @@ public class Chunk : IDisposable
 
                     if (!block.IsAir())
                     {
-                        AddQuadFor(pos, block.BlockId, BlockFace.Left, verticesList);
-                        AddQuadFor(pos, block.BlockId, BlockFace.Right, verticesList);
-                        AddQuadFor(pos, block.BlockId, BlockFace.Top, verticesList);
-                        AddQuadFor(pos, block.BlockId, BlockFace.Bottom, verticesList);
-                        AddQuadFor(pos, block.BlockId, BlockFace.Back, verticesList);
-                        AddQuadFor(pos, block.BlockId, BlockFace.Front, verticesList);
+                        var blockDefinition = RayLib3dTest.Blocks.BlockList[block.BlockId];
+                        foreach (var element in blockDefinition.ParsedModel.Elements)
+                        {
+                            foreach (var (direction, face) in element.Faces)
+                            {
+                                var t = blockDefinition.Textures[face.Texture];
+                                var uvs = Textures.GetUvCoordinatesForTexture(t, face.UvVector);
+
+                                AddQuadFor(pos, uvs, direction, element.BlockDev, verticesList, face.CullfaceDirection != JsonBlockFaceDirection.None);
+                            }
+                        }
                     }
                 }
             }
@@ -126,133 +131,36 @@ public class Chunk : IDisposable
         Model.Materials[0].Maps->Texture = _world.TextureAtlas;
     }
 
-    private IntVector3 GetOffset(BlockFace blockFace)
+    private IntVector3 GetOffset(JsonBlockFaceDirection blockFace)
     {
         return blockFace switch
         {
-            BlockFace.Left => new IntVector3(-1, 0, 0),
-            BlockFace.Right => new IntVector3(1, 0, 0),
-            BlockFace.Bottom => new IntVector3(0, -1, 0),
-            BlockFace.Top => new IntVector3(0, 1, 0),
-            BlockFace.Back => new IntVector3(0, 0, 1),
-            BlockFace.Front => new IntVector3(0, 0, -1),
+            JsonBlockFaceDirection.West => new IntVector3(-1, 0, 0),
+            JsonBlockFaceDirection.East => new IntVector3(1, 0, 0),
+            JsonBlockFaceDirection.Down => new IntVector3(0, -1, 0),
+            JsonBlockFaceDirection.Up => new IntVector3(0, 1, 0),
+            JsonBlockFaceDirection.South => new IntVector3(0, 0, 1),
+            JsonBlockFaceDirection.North => new IntVector3(0, 0, -1),
             _ => throw new ArgumentOutOfRangeException(nameof(blockFace), blockFace, null)
         };
     }
 
-    private void AddBetterVertices(IntVector3 block, IntVector3 p1, IntVector3 p2, IntVector3 p3, IntVector3 p4,
+    private void AddBetterVertices(IntVector3 block, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4,
         List<Vertex> vertices,
-        ushort blockId, BlockFace blockFace)
+        UvCoordinates uvCoordinates)
     {
-        var uvCoordinates = Textures.GetUvCoordinatesForFace(blockId, blockFace);
+        AddVertices(block, p1, vertices, uvCoordinates.topLeft);
+        AddVertices(block, p2, vertices, uvCoordinates.bottomRight);
+        AddVertices(block, p3, vertices, uvCoordinates.topRight);
 
-        AddVertices(block, p1, vertices, uvCoordinates.topLeft, blockFace, Corner2d.TopLeft);
-        AddVertices(block, p2, vertices, uvCoordinates.bottomRight, blockFace, Corner2d.BottomRight);
-        AddVertices(block, p3, vertices, uvCoordinates.topRight, blockFace, Corner2d.TopRight);
-
-        AddVertices(block, p4, vertices, uvCoordinates.bottomLeft, blockFace, Corner2d.BottomLeft);
-        AddVertices(block, p2, vertices, uvCoordinates.bottomRight, blockFace, Corner2d.BottomRight);
-        AddVertices(block, p1, vertices, uvCoordinates.topLeft, blockFace, Corner2d.TopLeft);
+        AddVertices(block, p4, vertices, uvCoordinates.bottomLeft);
+        AddVertices(block, p2, vertices, uvCoordinates.bottomRight);
+        AddVertices(block, p1, vertices, uvCoordinates.topLeft);
     }
 
-    enum Corner2d
+    private void AddVertices(IntVector3 blockPos, Vector3 corner, List<Vertex> vertices, Vector2 texCoord)
     {
-        TopLeft,
-        TopRight,
-        BottomLeft,
-        BottomRight
-    }
-
-    private void AddVertices(IntVector3 blockPos, IntVector3 corner, List<Vertex> vertices, Vector2 texCoord,
-        BlockFace blockFace, Corner2d corner2d)
-    {
-        //ToDo refactor ambient occlusion checks
-        var blocksToCheck = blockFace switch
-        {
-            BlockFace.Left => corner2d switch
-            {
-                Corner2d.TopRight => (new IntVector3(-1, 0, +1), new IntVector3(-1, +1, 0), new IntVector3()),
-                Corner2d.TopLeft => (new IntVector3(-1, 0, -1), new IntVector3(-1, +1, 0), new IntVector3()),
-                Corner2d.BottomRight => (new IntVector3(-1, 0, +1), new IntVector3(-1, -1, 0), new IntVector3()),
-                Corner2d.BottomLeft => (new IntVector3(-1, 0, -1), new IntVector3(-1, -1, 0), new IntVector3()),
-                _ => throw new ArgumentOutOfRangeException(nameof(corner2d), corner2d, null)
-            },
-            BlockFace.Right => corner2d switch
-            {
-                Corner2d.TopRight => (new IntVector3(+1, 0, -1), new IntVector3(+1, +1, 0), new IntVector3()),
-                Corner2d.TopLeft => (new IntVector3(+1, 0, +1), new IntVector3(+1, +1, 0), new IntVector3()),
-                Corner2d.BottomRight => (new IntVector3(+1, 0, -1), new IntVector3(+1, -1, 0), new IntVector3()),
-                Corner2d.BottomLeft => (new IntVector3(+1, 0, +1), new IntVector3(+1, -1, 0), new IntVector3()),
-                _ => throw new ArgumentOutOfRangeException(nameof(corner2d), corner2d, null)
-            },
-            BlockFace.Bottom => corner2d switch
-            {
-                Corner2d.TopLeft => (new IntVector3(0, -1, 0), new IntVector3(0, -1, 0), new IntVector3()),
-                Corner2d.TopRight => (new IntVector3(0, -1, 0), new IntVector3(0, -1, 0), new IntVector3()),
-                Corner2d.BottomLeft => (new IntVector3(0, -1, 0), new IntVector3(0, -1, 0), new IntVector3()),
-                Corner2d.BottomRight => (new IntVector3(0, -1, 0), new IntVector3(0, -1, 0), new IntVector3()),
-                _ => throw new ArgumentOutOfRangeException(nameof(corner2d), corner2d, null)
-            },
-            BlockFace.Top => corner2d switch
-            {
-                Corner2d.TopLeft => (new IntVector3(0, +1, +1), new IntVector3(+1, +1, 0), new IntVector3(+1,1,+1)),
-                Corner2d.TopRight => (new IntVector3(-1, +1, 0), new IntVector3(0, +1, +1), new IntVector3(-1, +1, +1)),
-                Corner2d.BottomLeft => (new IntVector3(0, +1, -1), new IntVector3(+1, +1, 0), new IntVector3(+1, +1, -1)),
-                Corner2d.BottomRight => (new IntVector3(-1, +1, 0), new IntVector3(0, +1, -1), new IntVector3(-1, +1, -1)),
-                _ => throw new ArgumentOutOfRangeException(nameof(corner2d), corner2d, null)
-            },
-            BlockFace.Back => corner2d switch
-            {
-                Corner2d.TopLeft => (new IntVector3(-1, 0, +1), new IntVector3(0, +1, +1), new IntVector3()),
-                Corner2d.TopRight => (new IntVector3(+1, 0, +1), new IntVector3(0, +1, +1), new IntVector3()),
-                Corner2d.BottomLeft => (new IntVector3(-1, 0, +1), new IntVector3(0, -1, +1), new IntVector3()),
-                Corner2d.BottomRight => (new IntVector3(+1, 0, +1), new IntVector3(0, -1, +1), new IntVector3()),
-                _ => throw new ArgumentOutOfRangeException(nameof(corner2d), corner2d, null)
-            },
-            BlockFace.Front => corner2d switch
-            {
-                Corner2d.TopLeft => (new IntVector3(+1, 0, -1), new IntVector3(0, +1, -1), new IntVector3(+1, +1, -1)),
-                Corner2d.TopRight => (new IntVector3(-1, 0, -1), new IntVector3(0, +1, -1), new IntVector3(-1, +1, -1)),
-                Corner2d.BottomLeft => (new IntVector3(+1, 0, -1), new IntVector3(0, -1, -1), new IntVector3(+1, -1, -1)),
-                Corner2d.BottomRight => (new IntVector3(-1, 0, -1), new IntVector3(0, -1, -1), new IntVector3(-1, -1, -1)),
-                _ => throw new ArgumentOutOfRangeException(nameof(corner2d), corner2d, null)
-            },
-            _ => throw new ArgumentOutOfRangeException(nameof(blockFace), blockFace, null)
-        };
-
-        var occlusionCount = 0;
-
-        var neighbourBlock1 = TryGetBlockAtPos(blockPos + blocksToCheck.Item1, out var wasFound1);
-        var neighbourBlock2 = TryGetBlockAtPos(blockPos + blocksToCheck.Item2, out var wasFound2);
-        var neighbourBlock3 = TryGetBlockAtPos(blockPos + blocksToCheck.Item3, out var wasFound3);
-
-        if (wasFound1 && !neighbourBlock1.IsAir())
-            occlusionCount++;
-
-        if (wasFound2 && !neighbourBlock2.IsAir())
-            occlusionCount++;
-
-        if (occlusionCount == 0 
-            && wasFound3 
-            && !neighbourBlock3.IsAir() 
-            && blocksToCheck.Item3 != new IntVector3(0, 0, 0))
-            occlusionCount++;
-
-        Color color;
-        if (occlusionCount == 0)
-        {
-            color = new Color(255, 255, 255, 255);
-        }
-        else if (occlusionCount == 1)
-        {
-            color = new Color(200, 200, 200, 255);
-        }
-        else
-        {
-            color = new Color(150, 150, 150, 255);
-        }
-
-        vertices.Add(new Vertex((blockPos + corner).ToVector3NonCenter(), texCoord, color));
+        vertices.Add(new Vertex(blockPos.ToVector3NonCenter() + corner, texCoord, new Color(255, 255, 255, 255)));
     }
 
     private Block TryGetBlockAtPos(IntVector3 blockInChunk, out bool wasFound)
@@ -269,7 +177,7 @@ public class Chunk : IDisposable
         return Blocks[GetIdx(blockInChunk.X, blockInChunk.Y, blockInChunk.Z)];
     }
 
-    private void AddQuadFor(IntVector3 block, ushort blockId, BlockFace blockFace, List<Vertex> vertices)
+    private void AddQuadFor(IntVector3 block, UvCoordinates uvCoordinates, JsonBlockFaceDirection blockFace, BlockDev blockDev, List<Vertex> vertices, bool cullFace)
     {
         var neighbourBlock = TryGetBlockAtPos(block + GetOffset(blockFace), out var wasFound);
 
@@ -278,34 +186,33 @@ public class Chunk : IDisposable
             return;
 
         //is solid block
-        if (!neighbourBlock.IsAir())
+        if (cullFace && RayLib3dTest.Blocks.BlockList[neighbourBlock.BlockId].ParsedModel.IsFullBlock)
             return;
 
         switch (blockFace)
         {
-            case BlockFace.Left:
-                AddBetterVertices(block, _topLeftFront, _bottomLeftBack, _topLeftBack, _bottomLeftFront, vertices,
-                    blockId, blockFace);
+            case JsonBlockFaceDirection.West:
+                AddBetterVertices(block, blockDev.TopLeftFront(), blockDev.BottomLeftBack(), blockDev.TopLeftBack(), blockDev.BottomLeftFront(), vertices,
+                    uvCoordinates);
                 break;
-            case BlockFace.Right:
-                AddBetterVertices(block, _topRightBack, _bottomRightFront, _topRightFront, _bottomRightBack, vertices,
-                    blockId, blockFace);
+            case JsonBlockFaceDirection.East:
+                AddBetterVertices(block, blockDev.TopRightBack(), blockDev.BottomRightFront(), blockDev.TopRightFront(), blockDev.BottomRightBack(), vertices,
+                    uvCoordinates);
                 break;
-            case BlockFace.Bottom:
-                AddBetterVertices(block, _bottomRightFront, _bottomLeftBack, _bottomLeftFront, _bottomRightBack,
-                    vertices, blockId, blockFace);
+            case JsonBlockFaceDirection.Down:
+                AddBetterVertices(block, blockDev.BottomRightFront(), blockDev.BottomLeftBack(), blockDev.BottomLeftFront(), blockDev.BottomRightBack(),
+                    vertices, uvCoordinates);
                 break;
-            case BlockFace.Top:
-                AddBetterVertices(block, _topRightBack, _topLeftFront, _topLeftBack, _topRightFront, vertices, blockId,
-                    blockFace);
+            case JsonBlockFaceDirection.Up:
+                AddBetterVertices(block, blockDev.TopRightBack(), blockDev.TopLeftFront(), blockDev.TopLeftBack(), blockDev.TopRightFront(), vertices, uvCoordinates);
                 break;
-            case BlockFace.Back:
-                AddBetterVertices(block, _topLeftBack, _bottomRightBack, _topRightBack, _bottomLeftBack, vertices,
-                    blockId, blockFace);
+            case JsonBlockFaceDirection.South:
+                AddBetterVertices(block, blockDev.TopLeftBack(), blockDev.BottomRightBack(), blockDev.TopRightBack(), blockDev.BottomLeftBack(), vertices,
+                    uvCoordinates);
                 break;
-            case BlockFace.Front:
-                AddBetterVertices(block, _topRightFront, _bottomLeftFront, _topLeftFront, _bottomRightFront, vertices,
-                    blockId, blockFace);
+            case JsonBlockFaceDirection.North:
+                AddBetterVertices(block, blockDev.TopRightFront(), blockDev.BottomLeftFront(), blockDev.TopLeftFront(), blockDev.BottomRightFront(), vertices,
+                    uvCoordinates);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

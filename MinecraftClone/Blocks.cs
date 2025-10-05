@@ -14,63 +14,90 @@ public class Blocks
     {
         Id = 1,
         Name = "Gras",
-        TopTexture = Textures.GrassTop,
-        BottomTexture = Textures.Dirt,
-        SideTexture = Textures.Grass
+        Textures = BlockDefinition.ConstructBlockTextures(bottom: Textures.Dirt, sides: Textures.Grass, top: Textures.GrassTop),
+        Model = "blocks.json"
     };
     
     public static BlockDefinition Dirt = new()
     {
         Id = 2,
         Name = "Dirt",
-        Texture = Textures.Dirt,
+        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.Dirt),
+        Model = "blocks.json"
     };
-    
+
     public static BlockDefinition WoodenPlank = new()
     {
         Id = 3,
         Name = "WoodenPlank",
-        Texture = Textures.OakPlank,
+        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.OakPlank),
+        Model = "blocks.json"
     };
     
     public static BlockDefinition Cobblestone = new()
     {
         Id = 4,
         Name = "Cobblestone",
-        Texture = Textures.Cobblestone,
+        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.Cobblestone),
+        Model = "blocks.json"
     };
     
     public static BlockDefinition DiamondBlock = new()
     {
         Id = 5,
         Name = "Diamon Block",
-        Texture = Textures.DiamondBlock,
+        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.DiamondBlock),
+        Model = "blocks.json"
+    };
+
+    public static BlockDefinition WoodenStairs = new()
+    {
+        Id = 6,
+        Name = "Wooden Stair",
+        Model = "stairs.json",
+        Textures = new() {
+            {"#side", Textures.OakPlank},
+            {"#top", Textures.OakPlank},
+            {"#bottom", Textures.OakPlank},
+        },
     };
 
     public static BlockDefinition OakLog = new()
     {
-        Id = 6,
+        Id = 7,
         Name = "Trunk",
-        TopTexture = Textures.LogOakTop,
-        BottomTexture = Textures.LogOakTop,
-        SideTexture = Textures.LogOak
+        Textures = BlockDefinition.ConstructBlockTextures(bottom: Textures.LogOakTop, sides: Textures.LogOak, top: Textures.LogOakTop),
+        Model = "blocks.json"
     };
 
     public static BlockDefinition LeaveBlock = new()
     {
-        Id = 7,
+        Id = 8,
         Name = "Leave Block",
-        Texture = Textures.Leave,
+        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.Leave),
+        Model = "blocks.json"
     };
-    
-    public static Dictionary<ushort, BlockDefinition> BlockList { get; }
 
-    static Blocks()
+    public static Dictionary<ushort, BlockDefinition> BlockList
     {
-        BlockList = typeof(Blocks)
-            .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-            .Where(x => !x.IsInitOnly && x.FieldType == typeof(BlockDefinition))
-            .Select(x => (BlockDefinition)x.GetValue(null)!)
-            .ToDictionary(x => x.Id, x => x);
+        get
+        {
+            if (field == null)
+            {
+                field = typeof(Blocks)
+                    .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+                    .Where(x => !x.IsInitOnly && x.FieldType == typeof(BlockDefinition))
+                    .Select(x => (BlockDefinition)x.GetValue(null)!)
+                    .ToDictionary(x => x.Id, x => x);
+
+                foreach (var (_, block) in field)
+                {
+                    block.ParsedModel = BlockModels.Get(block.Model);
+                }
+            }
+
+            return field;
+        }
     }
+
 }

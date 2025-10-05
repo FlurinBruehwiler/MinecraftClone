@@ -2,7 +2,7 @@
 
 public struct InventorySlot
 {
-    public BlockDefinition BlockDefinition;
+    public ushort BlockId;
     public int Count;
 }
 
@@ -61,7 +61,7 @@ public class Player
             {
                 Inventory[i] = new InventorySlot
                 {
-                    BlockDefinition = block,
+                    BlockId = block.Id,
                     Count = 64
                 };
                 i++;
@@ -274,8 +274,11 @@ public class Player
                         ref var res = ref Inventory[SelectedHotbarSlot];
                         if (res.Count > 0)
                         {
-                            b.BlockId = res.BlockDefinition.Id;
+                            b.BlockId = res.BlockId;
                             res.Count--;
+
+                            if(res.Count == 0)
+                                res = new InventorySlot();
                         }
 
                         CurrentWorld.InformBlockUpdate(previousBlock);
@@ -298,7 +301,7 @@ public class Player
                     for (var i = 0; i < Inventory.Length; i++)
                     {
                         ref var inventorySlot = ref Inventory[i];
-                        if (inventorySlot.BlockDefinition?.Id == b.BlockId)
+                        if (inventorySlot.BlockId == b.BlockId)
                         {
                             inventorySlot.Count++;
                             inventorySlot.Count = Math.Min(inventorySlot.Count, 64);

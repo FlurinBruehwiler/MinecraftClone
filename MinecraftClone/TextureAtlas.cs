@@ -85,60 +85,63 @@ public static class TextureAtlas
 
     private static void DrawSingleBlockPreview(BlockDefinition blockDefinition, Vector2 position)
     {
-        Rlgl.PushMatrix();
+        //todo make working with non full blocks
+        return;
 
-
-        Rlgl.Translatef(position.X, position.Y, 0);
-        const float scale = -5;
-        Rlgl.Scalef(scale, scale, scale);
-
-        Rlgl.Rotatef(-30 , 1, 0, 0);
-        Rlgl.Rotatef(-45 , 0, 1, 0);
-
-        Rlgl.Translatef(-5, -5, -5);
-
-        var coords = Textures.GetUvCoordinatesForFace(blockDefinition.Id, BlockFace.Left);
-
-        var white = Color.White;
-
-        Rlgl.Color4ub(white.R, white.G, white.B, white.A);
-        Rlgl.TexCoord2f(coords.topRight.X, coords.topRight.Y);
-        Rlgl.Vertex3f(10, 10, 0); // Bottom Right
-        Rlgl.TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
-        Rlgl.Vertex3f(10, 0, 0); // Bottom Left
-        Rlgl.TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
-        Rlgl.Vertex3f(0, 0, 0); // Top Left
-        Rlgl.TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
-        Rlgl.Vertex3f(0, 10, 0); // Top Right
-
-        coords = Textures.GetUvCoordinatesForFace(blockDefinition.Id, BlockFace.Right);
-
-        var red = Color.White;
-        Rlgl.Color4ub(red.R, red.G, red.B, red.A);
-        Rlgl.TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
-        Rlgl.Vertex3f(0, 10, 10); // Bottom Right
-        Rlgl.TexCoord2f(coords.topRight.X, coords.topRight.Y);
-        Rlgl.Vertex3f(0, 10, 0); // Bottom Left
-        Rlgl.TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
-        Rlgl.Vertex3f(0, 0, 0); // Top Left
-        Rlgl.TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
-        Rlgl.Vertex3f(0, 0, 10); // Top Right
-
-        coords = Textures.GetUvCoordinatesForFace(blockDefinition.Id, BlockFace.Top);
-
-        var blue = Color.White;
-        Rlgl.Color4ub(blue.R, blue.G, blue.B, blue.A);
-        Rlgl.TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
-        Rlgl.Vertex3f(10, 10, 10); // Bottom Right
-        Rlgl.TexCoord2f(coords.topRight.X, coords.topRight.Y);
-        Rlgl.Vertex3f(10, 10, 0); // Bottom Left
-        Rlgl.TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
-        Rlgl.Vertex3f(0, 10, 0); // Top Left
-        Rlgl.TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
-        Rlgl.Vertex3f(0, 10, 10); // Top Right
-
-        Rlgl.PopMatrix();
-
-        Rlgl.End();
+        // Rlgl.PushMatrix();
+        //
+        //
+        // Rlgl.Translatef(position.X, position.Y, 0);
+        // const float scale = -5;
+        // Rlgl.Scalef(scale, scale, scale);
+        //
+        // Rlgl.Rotatef(-30 , 1, 0, 0);
+        // Rlgl.Rotatef(-45 , 0, 1, 0);
+        //
+        // Rlgl.Translatef(-5, -5, -5);
+        //
+        // var coords = Textures.GetUvCoordinatesForFace(blockDefinition.Id, BlockFace.Left);
+        //
+        // var white = Color.White;
+        //
+        // Rlgl.Color4ub(white.R, white.G, white.B, white.A);
+        // Rlgl.TexCoord2f(coords.topRight.X, coords.topRight.Y);
+        // Rlgl.Vertex3f(10, 10, 0); // Bottom Right
+        // Rlgl.TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
+        // Rlgl.Vertex3f(10, 0, 0); // Bottom Left
+        // Rlgl.TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
+        // Rlgl.Vertex3f(0, 0, 0); // Top Left
+        // Rlgl.TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
+        // Rlgl.Vertex3f(0, 10, 0); // Top Right
+        //
+        // coords = Textures.GetUvCoordinatesForFace(blockDefinition.Id, BlockFace.Right);
+        //
+        // var red = Color.White;
+        // Rlgl.Color4ub(red.R, red.G, red.B, red.A);
+        // Rlgl.TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
+        // Rlgl.Vertex3f(0, 10, 10); // Bottom Right
+        // Rlgl.TexCoord2f(coords.topRight.X, coords.topRight.Y);
+        // Rlgl.Vertex3f(0, 10, 0); // Bottom Left
+        // Rlgl.TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
+        // Rlgl.Vertex3f(0, 0, 0); // Top Left
+        // Rlgl.TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
+        // Rlgl.Vertex3f(0, 0, 10); // Top Right
+        //
+        // coords = Textures.GetUvCoordinatesForFace(blockDefinition.Id, BlockFace.Top);
+        //
+        // var blue = Color.White;
+        // Rlgl.Color4ub(blue.R, blue.G, blue.B, blue.A);
+        // Rlgl.TexCoord2f(coords.topLeft.X, coords.topLeft.Y);
+        // Rlgl.Vertex3f(10, 10, 10); // Bottom Right
+        // Rlgl.TexCoord2f(coords.topRight.X, coords.topRight.Y);
+        // Rlgl.Vertex3f(10, 10, 0); // Bottom Left
+        // Rlgl.TexCoord2f(coords.bottomRight.X, coords.bottomRight.Y);
+        // Rlgl.Vertex3f(0, 10, 0); // Top Left
+        // Rlgl.TexCoord2f(coords.bottomLeft.X, coords.bottomLeft.Y);
+        // Rlgl.Vertex3f(0, 10, 10); // Top Right
+        //
+        // Rlgl.PopMatrix();
+        //
+        // Rlgl.End();
     }
 }
