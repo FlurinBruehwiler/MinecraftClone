@@ -72,6 +72,16 @@ public class Game
     {
         using (ui.Rect().MainAlign(MAlign.End).CrossAlign(XAlign.Center))
         {
+            // using (ui.Rect().Color(C.Red4.WithAlpha(100)).Width(500).Height(500))
+            // {
+            //     ui.Image(new GpuTexture
+            //     {
+            //         TextureId = CurrentWorld.BlockPreviewAtlas.Id,
+            //         Height = CurrentWorld.BlockPreviewAtlas.Height,
+            //         Width = CurrentWorld.BlockPreviewAtlas.Width
+            //     }).SubImage(new Bounds(0, 0, 1000, 1000)).FlipVertically();
+            // }
+
             //Hotbar
             using (ui.Rect().Height(80).ShrinkWidth().Color(C.Black.WithAlpha(100)).Direction(Dir.Horizontal))
             {
@@ -98,7 +108,7 @@ public class Game
                                 TextureId = CurrentWorld.BlockPreviewAtlas.Id,
                                 Height = CurrentWorld.BlockPreviewAtlas.Height,
                                 Width = CurrentWorld.BlockPreviewAtlas.Width
-                            }).SubImage(new Bounds(pos.X * 100, pos.Y * 100, 100, 100));
+                            }).SubImage(new Bounds(pos.X * 100, CurrentWorld.BlockPreviewAtlas.Height - 100 - pos.Y * 100, 100, 100)).FlipVertically();
 
 
                             using (ui.Rect().AbsolutePosition().AbsoluteSize(widthOffsetParent: 0, heightOffsetParent:0)

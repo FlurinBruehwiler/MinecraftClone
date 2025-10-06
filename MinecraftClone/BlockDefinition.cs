@@ -7,6 +7,7 @@ public class BlockDefinition
     public required string Name;
     public required ushort Id;
     public JsonBlockModel ParsedModel;
+    public bool IsTransparent;
 
     public static Dictionary<string, string> ConstructBlockTextures(
         string all = "",

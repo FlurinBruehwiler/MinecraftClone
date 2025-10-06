@@ -7,7 +7,8 @@ public class Blocks
     public static BlockDefinition Air = new()
     {
         Id = 0,
-        Name = "Air"
+        Name = "Air",
+        IsTransparent = true
     };
 
     public static BlockDefinition Gras = new()
@@ -61,6 +62,7 @@ public class Blocks
             { "#top", Textures.OakPlank },
             { "#bottom", Textures.OakPlank },
         },
+        IsTransparent = true
     };
 
     public static BlockDefinition OakLog = new()
@@ -76,7 +78,8 @@ public class Blocks
         Id = 8,
         Name = "Leave Block",
         Textures = BlockDefinition.ConstructBlockTextures(all: Textures.Leave),
-        Model = "blocks.json"
+        Model = "blocks.json",
+        IsTransparent = true
     };
 
     public static BlockDefinition Beacon = new()
@@ -89,7 +92,8 @@ public class Blocks
             { "#obsidian", Textures.Obsidian },
             { "#beacon", Textures.Beacon },
         },
-        Model = "beacon.json"
+        Model = "beacon.json",
+        IsTransparent = true
     };
 
     public static Dictionary<ushort, BlockDefinition> BlockList

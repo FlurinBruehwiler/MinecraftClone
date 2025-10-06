@@ -35,7 +35,7 @@ public static class TextureAtlas
         return renderTarget.Texture;
     }
 
-    public static Texture2D GenerateBlockPreviews(Texture2D textureAtlas)
+    public static Texture2D GenerateBlockPreviews(Texture2D textureAtlas, Shader shader)
     {
 
         var camera = new Camera3D
@@ -55,8 +55,7 @@ public static class TextureAtlas
         Raylib.ClearBackground(new Color(0, 0, 0, 0));
 
         Raylib.BeginMode3D(camera);
-
-
+        Raylib.BeginShaderMode(shader);
         Rlgl.Begin(DrawMode.Triangles);
         Rlgl.SetTexture(textureAtlas.Id);
 
@@ -70,6 +69,9 @@ public static class TextureAtlas
             idx++;
         }
 
+        Rlgl.End();
+
+        Raylib.EndShaderMode();
         Raylib.EndMode3D();
         Raylib.EndDrawing();
 
@@ -93,7 +95,7 @@ public static class TextureAtlas
         Rlgl.PushMatrix();
 
         Rlgl.Translatef(position.X, position.Y, 0);
-        const float scale = -50;
+        const float scale = 50;
         Rlgl.Scalef(scale, scale, scale);
 
         Rlgl.Rotatef(-30 , 1, 0, 0);
@@ -110,6 +112,5 @@ public static class TextureAtlas
 
         Rlgl.PopMatrix();
 
-        Rlgl.End();
     }
 }

@@ -6,7 +6,6 @@ namespace RayLib3dTest;
 
 public class JsonBlockModel
 {
-    public bool IsFullBlock = false;
     public List<JsonBlockElement> Elements;
 }
 
@@ -100,16 +99,16 @@ public class BlockModels
             }
         }
 
-        if (blockModel.Elements.Count == 1)
-        {
-            if (blockModel.Elements[0].BlockDev.From == new Vector3())
-            {
-                if (blockModel.Elements[0].BlockDev.To == new Vector3(16, 16, 16))
-                {
-                    blockModel.IsFullBlock = true;
-                }
-            }
-        }
+        // if (blockModel.Elements.Count == 1)
+        // {
+        //     if (blockModel.Elements[0].BlockDev.From == new Vector3())
+        //     {
+        //         if (blockModel.Elements[0].BlockDev.To == new Vector3(16, 16, 16))
+        //         {
+        //             blockModel.IsFullBlock = true;
+        //         }
+        //     }
+        // }
 
         Cache.Add(file, blockModel);
 

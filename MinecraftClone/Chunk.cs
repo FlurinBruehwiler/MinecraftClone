@@ -156,14 +156,14 @@ public class Chunk : IDisposable
 
             if (wasFound)
             {
-                return RayLib3dTest.Blocks.BlockList[block.BlockId].ParsedModel.IsFullBlock;
+                return !RayLib3dTest.Blocks.BlockList[block.BlockId].IsTransparent;
             }
 
             return false;
         }
 
         var b = Blocks[GetIdx(blockInChunk.X, blockInChunk.Y, blockInChunk.Z)];
-        return RayLib3dTest.Blocks.BlockList[b.BlockId].ParsedModel.IsFullBlock;
+        return !RayLib3dTest.Blocks.BlockList[b.BlockId].IsTransparent;
     }
 
 
