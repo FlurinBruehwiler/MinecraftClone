@@ -126,17 +126,53 @@ public class Game
         }
     }
 
+    private Camera3D debugCamera = new(new Vector3(0, 100, 0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 100,
+        CameraProjection.Perspective);
+
+    private bool isDebugCamera = false;
+    private bool isDebugControls = false;
+
     public void GameLoop()
     {
         while (!Raylib.WindowShouldClose())
         {
-            Update();
+            if (Raylib.IsKeyPressed(KeyboardKey.G))
+            {
+                isDebugCamera = !isDebugCamera;
+                isDebugControls = isDebugCamera;
+                if (isDebugCamera)
+                {
+                    debugCamera.Position = _player.Camera.Position;
+                    debugCamera.Target = _player.Camera.Target;
+                    debugCamera.Up = _player.Camera.Up;
+                    debugCamera.FovY = _player.Camera.FovY;
+                }
+            }
+
+            if (Raylib.IsKeyPressed(KeyboardKey.K))
+            {
+                isDebugControls = !isDebugControls;
+            }
+
+            if (isDebugControls)
+            {
+                Raylib.UpdateCamera(ref debugCamera, CameraMode.Free);
+            }
+            else
+            {
+                Update();
+            }
 
             Raylib.BeginDrawing();
 
             Raylib.ClearBackground(Color.RayWhite);
 
-            Raylib.BeginMode3D(_player.Camera);
+            var camera = _player.Camera;
+            if (isDebugCamera)
+            {
+                camera = debugCamera;
+            }
+            Raylib.BeginMode3D(camera);
 
                 Draw3d();
 
@@ -210,22 +246,22 @@ public class Game
         Raylib.DrawLine(centerX - 10, centerY, centerX + 10, centerY, Color.Black); // Horizontal
         Raylib.DrawLine(centerX, centerY - 10, centerX, centerY + 10, Color.Black); // Vertical
 
-        var commands = StaticFunctions.Render(UiTree, Matrix4X4<float>.Identity);
-
-        var texture = StaticFunctions.ExecuteRenderInstructions(commands, _renderer, Raylib.GetScreenWidth(), Raylib.GetScreenHeight(), isExternal: true);
-
-        var raylibTexture = new Texture2D
-        {
-            Id = texture.textureId,
-            Width = texture.width,
-            Height = texture.height,
-            Format = PixelFormat.UncompressedR8G8B8A8,
-            Mipmaps = 1
-        };
-
-        Rectangle src = new Rectangle( 0, 0, texture.width, -texture.height );
-        Rectangle dst = new Rectangle( 0, 0, texture.width, texture.height );
-        Raylib.DrawTexturePro(raylibTexture, src, dst, new Vector2(0, 0), 0, Color.White);
+        // var commands = StaticFunctions.Render(UiTree, Matrix4X4<float>.Identity);
+        //
+        // var texture = StaticFunctions.ExecuteRenderInstructions(commands, _renderer, Raylib.GetScreenWidth(), Raylib.GetScreenHeight(), isExternal: true);
+        //
+        // var raylibTexture = new Texture2D
+        // {
+        //     Id = texture.textureId,
+        //     Width = texture.width,
+        //     Height = texture.height,
+        //     Format = PixelFormat.UncompressedR8G8B8A8,
+        //     Mipmaps = 1
+        // };
+        //
+        // Rectangle src = new Rectangle( 0, 0, texture.width, -texture.height );
+        // Rectangle dst = new Rectangle( 0, 0, texture.width, texture.height );
+        // Raylib.DrawTexturePro(raylibTexture, src, dst, new Vector2(0, 0), 0, Color.White);
 
 
         // Raylib.DrawRectangle(0, 0, CurrentWorld.BlockPreviewAtlas.Width, CurrentWorld.BlockPreviewAtlas.Height, Color.Red);
@@ -234,8 +270,6 @@ public class Game
 
     private void Draw3d()
     {
-        
-
         { //Draw Skybox
 
             Rlgl.DisableBackfaceCulling();
