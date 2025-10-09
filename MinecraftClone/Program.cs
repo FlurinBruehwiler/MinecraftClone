@@ -30,7 +30,7 @@ Raylib.InitWindow(screenWidth, screenHeight, "3dtest");
 if (!Debugger.IsAttached)
     Raylib.DisableCursor();
 
-Raylib.SetTargetFPS(120);
+//Raylib.SetTargetFPS(120);
 Raylib.SetConfigFlags(ConfigFlags.Msaa4xHint);
 // Raylib.SetExitKey(KeyboardKey.Back);
 // RaylibSetTraceLogLevel(TraceLogLevel.LOG_ERROR);

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Drawing;
 using Flamui;
 using Flamui.Drawing;
@@ -258,11 +259,17 @@ public class Game
         foreach (var (_, chunk) in CurrentWorld.Chunks)
         {
             var pos = new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16);
-            if(chunk.HasMesh)
-                Raylib.DrawModel(chunk.Model, pos, 1, Color.White);
 
-            // if(DevTools.DevToolsEnabled)
-                // DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
+            if (ChunkShouldBeRendered(chunk.Pos.ToVector3NonCenter()))
+            {
+                if(chunk.HasMesh)
+                    Raylib.DrawModel(chunk.Model, pos, 1, Color.White);
+
+                // if(DevTools.DevToolsEnabled)
+                    // DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
+            }
+            
+            
         }
         Raylib.EndBlendMode();
 
@@ -274,4 +281,33 @@ public class Game
             bot.Render();
         }
     }
+
+    public bool ChunkShouldBeRendered(Vector3 chunkPosition)
+    {
+        foreach (var corner in CubeCorners)
+        {
+            var cornerPos = (chunkPosition + corner) * 16;
+            
+            var cornerVector =  cornerPos - _player.Camera.Position;
+
+            var dot = Vector3.Dot(Vector3.Normalize(_player.Direction), Vector3.Normalize(cornerVector));
+            var angle = Math.Acos(dot) * Raylib.RAD2DEG;
+
+            if (angle < _player.Camera.FovY / 2 + 30)
+                return true;
+        }
+
+        return false;
+    }
+    
+    public static Vector3[] CubeCorners = [
+        new Vector3(1, 0, 0),
+        new Vector3(0, 0, 0),
+        new Vector3(1, 1, 0),
+        new Vector3(0, 1, 0),
+        new Vector3(1, 1, 1),
+        new Vector3(0, 1, 1),
+        new Vector3(1, 0, 1),
+        new Vector3(0, 0, 1),
+    ];
 }
