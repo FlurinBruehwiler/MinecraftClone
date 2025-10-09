@@ -97,11 +97,6 @@ public class Chunk : IDisposable
 
         DevTools.Plot(Stopwatch.GetElapsedTime(startTime).Microseconds, new Plotable("mesh gen", 0, 1200));
 
-
-        Span<float> vertices;
-        Span<float> texcoords;
-        Span<byte> colors;
-
         if (verticesList.Count == 0)
         {
             HasMesh = false;
@@ -114,13 +109,16 @@ public class Chunk : IDisposable
         mesh.TriangleCount = verticesList.Count / 3;
 
         mesh.Vertices = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
-        vertices = new Span<float>(mesh.Vertices, verticesList.Count * 3);
+        Span<float> vertices = new Span<float>(mesh.Vertices, verticesList.Count * 3);
+
+        mesh.Normals = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
+        Span<float> normals = new Span<float>(mesh.Normals, verticesList.Count * 3);
 
         mesh.TexCoords = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 2, sizeof(float));
-        texcoords = new Span<float>(mesh.TexCoords, verticesList.Count * 2);
+        Span<float> texcoords = new Span<float>(mesh.TexCoords, verticesList.Count * 2);
 
         mesh.Colors = (byte*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 4, sizeof(byte));
-        colors = new Span<byte>(mesh.Colors, verticesList.Count * 4);
+        Span<byte> colors = new Span<byte>(mesh.Colors, verticesList.Count * 4);
 
         for (var i = 0; i < verticesList.Count; i++)
         {
@@ -128,6 +126,10 @@ public class Chunk : IDisposable
             vertices[i * 3] = vertex.Pos.X;
             vertices[i * 3 + 1] = vertex.Pos.Y;
             vertices[i * 3 + 2] = vertex.Pos.Z;
+
+            normals[i * 3] = vertex.Normal.X;
+            normals[i * 3 + 1] = vertex.Normal.Y;
+            normals[i * 3 + 2] = vertex.Normal.Z;
 
             texcoords[i * 2] = vertex.TextCoord.X;
             texcoords[i * 2 + 1] = vertex.TextCoord.Y;
@@ -143,7 +145,7 @@ public class Chunk : IDisposable
 
         Model = Raylib.LoadModelFromMesh(Mesh);
         Model.Materials[0].Maps->Texture = _world.TextureAtlas;
-        Model.Materials[0].Shader = CurrentWorld.Game.CustomFragmentShader;
+        Model.Materials[0].Shader = CurrentWorld.Game.ChunkShader;
     }
 
     private bool IsSolidBlock(IntVector3 blockInChunk)
@@ -183,4 +185,4 @@ public class Chunk : IDisposable
     }
 }
 
-public record struct Vertex(Vector3 Pos, Vector2 TextCoord, Color Color);
+public record struct Vertex(Vector3 Pos, Vector2 TextCoord, Color Color, Vector3 Normal);

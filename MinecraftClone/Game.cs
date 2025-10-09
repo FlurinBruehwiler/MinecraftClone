@@ -24,7 +24,9 @@ public class Game
         Initialize();
     }
 
-    public Shader CustomFragmentShader;
+    public Shader ChunkShader;
+
+    public int ShaderLocSunDirection;
 
     public unsafe void Initialize()
     {
@@ -49,10 +51,10 @@ public class Game
             Raylib.UnloadImage(img);
         }
 
-        CustomFragmentShader = Raylib.LoadShader(null, "Resources/Shaders/customFragment.fs");
+        ChunkShader = Raylib.LoadShader("Resources/Shaders/chunkVertex.vs", "Resources/Shaders/chunkFragment.fs");
+        ShaderLocSunDirection = Raylib.GetShaderLocation(ChunkShader, "sunDirection");
 
         HuskModel = Models.LoadModel("husk");
-
 
         var host = new RaylibUiTreeHost();
 
@@ -248,7 +250,10 @@ public class Game
         }
 
         DevTools.Draw3d();
-        
+
+        var sunDirection = Vector3.Normalize(new Vector3(-0.2f, 1, -1));
+        Raylib.SetShaderValue(ChunkShader, ShaderLocSunDirection, [sunDirection.X, sunDirection.Y, sunDirection.Z], ShaderUniformDataType.Vec3);
+
         Raylib.BeginBlendMode(BlendMode.Alpha);
         foreach (var (_, chunk) in CurrentWorld.Chunks)
         {
@@ -256,7 +261,6 @@ public class Game
             if(chunk.HasMesh)
                 Raylib.DrawModel(chunk.Model, pos, 1, Color.White);
 
-            
             // if(DevTools.DevToolsEnabled)
                 // DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
         }

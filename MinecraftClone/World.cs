@@ -18,7 +18,7 @@ public class World
     {
         Game = game;
         TextureAtlas = RayLib3dTest.TextureAtlas.Create();
-        BlockPreviewAtlas = RayLib3dTest.TextureAtlas.GenerateBlockPreviews(TextureAtlas, game.CustomFragmentShader);
+        BlockPreviewAtlas = RayLib3dTest.TextureAtlas.GenerateBlockPreviews(TextureAtlas, game.ChunkShader);
 
         // LoadFromDirectory(Game.SaveLocation);
     }

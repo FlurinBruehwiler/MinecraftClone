@@ -32,7 +32,9 @@
   
   <ItemGroup>
     <None Include="Resources/Shaders/skybox.fs" />
-    <None Include="Resources\Shaders\customFragment.fs" />
+    <None Include="Resources/Shaders/skybox.vs" />
+    <None Include="Resources\Shaders\chunkFragment.fs" />
+    <None Include="Resources\Shaders\chunkVertex.vs" />
   </ItemGroup>
   
 </Project>
