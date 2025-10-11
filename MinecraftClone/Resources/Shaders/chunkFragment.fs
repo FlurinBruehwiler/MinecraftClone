@@ -18,8 +18,8 @@ void main()
     if (texelColor.a < 0.1)
         discard;
 
-    float lightBrightness = 0;
-    if (sunDirection != vec3(0))
+    float lightBrightness = 0.5;
+    if (sunDirection.x > 0 || sunDirection.y > 0 || sunDirection.z > 0)
     {
         lightBrightness = clamp(dot(fragNormal, sunDirection), 0, 1);
     }

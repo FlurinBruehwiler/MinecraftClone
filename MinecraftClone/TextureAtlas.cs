@@ -55,8 +55,18 @@ public static class TextureAtlas
         Raylib.ClearBackground(new Color(0, 0, 0, 0));
 
         Raylib.BeginMode3D(camera);
+
+        var dir = Vector3.Normalize(new Vector3(-1.0f, -1.0f, -1.0f));
+        Span<float> direction = [dir.X, dir.Y, dir.Z];
+
+        Raylib.SetShaderValue(shader, Game.ShaderLocSunDirection, direction, ShaderUniformDataType.Vec3);
+
+
         Raylib.BeginShaderMode(shader);
+
         Rlgl.Begin(DrawMode.Triangles);
+
+
         Rlgl.SetTexture(textureAtlas.Id);
 
         int idx = 0;

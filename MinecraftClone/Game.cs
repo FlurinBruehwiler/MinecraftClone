@@ -27,7 +27,7 @@ public class Game
 
     public Shader ChunkShader;
 
-    public int ShaderLocSunDirection;
+    public static int ShaderLocSunDirection;
 
     public unsafe void Initialize()
     {
@@ -246,26 +246,22 @@ public class Game
         Raylib.DrawLine(centerX - 10, centerY, centerX + 10, centerY, Color.Black); // Horizontal
         Raylib.DrawLine(centerX, centerY - 10, centerX, centerY + 10, Color.Black); // Vertical
 
-        // var commands = StaticFunctions.Render(UiTree, Matrix4X4<float>.Identity);
-        //
-        // var texture = StaticFunctions.ExecuteRenderInstructions(commands, _renderer, Raylib.GetScreenWidth(), Raylib.GetScreenHeight(), isExternal: true);
-        //
-        // var raylibTexture = new Texture2D
-        // {
-        //     Id = texture.textureId,
-        //     Width = texture.width,
-        //     Height = texture.height,
-        //     Format = PixelFormat.UncompressedR8G8B8A8,
-        //     Mipmaps = 1
-        // };
-        //
-        // Rectangle src = new Rectangle( 0, 0, texture.width, -texture.height );
-        // Rectangle dst = new Rectangle( 0, 0, texture.width, texture.height );
-        // Raylib.DrawTexturePro(raylibTexture, src, dst, new Vector2(0, 0), 0, Color.White);
+        var commands = StaticFunctions.Render(UiTree, Matrix4X4<float>.Identity);
 
+        var texture = StaticFunctions.ExecuteRenderInstructions(commands, _renderer, Raylib.GetScreenWidth(), Raylib.GetScreenHeight(), isExternal: true);
 
-        // Raylib.DrawRectangle(0, 0, CurrentWorld.BlockPreviewAtlas.Width, CurrentWorld.BlockPreviewAtlas.Height, Color.Red);
-        // Raylib.DrawTexture(CurrentWorld.BlockPreviewAtlas, 0, 0, Color.White);
+        var raylibTexture = new Texture2D
+        {
+            Id = texture.textureId,
+            Width = texture.width,
+            Height = texture.height,
+            Format = PixelFormat.UncompressedR8G8B8A8,
+            Mipmaps = 1
+        };
+
+        Rectangle src = new Rectangle( 0, 0, texture.width, -texture.height );
+        Rectangle dst = new Rectangle( 0, 0, texture.width, texture.height );
+        Raylib.DrawTexturePro(raylibTexture, src, dst, new Vector2(0, 0), 0, Color.White);
     }
 
     private void Draw3d()

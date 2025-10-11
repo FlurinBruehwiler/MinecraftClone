@@ -19,7 +19,7 @@ public class JsonBlockElement
 }
 
 [Flags]
-public enum JsonBlockFaceDirection
+public enum JsonBlockFaceDirection : byte
 {
     None = 0,
     North = 1,
