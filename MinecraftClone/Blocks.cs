@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using SourceGen;
 
 namespace RayLib3dTest;
 
@@ -15,15 +16,14 @@ public class Blocks
     {
         Id = 1,
         Name = "Gras",
-        Textures = BlockDefinition.ConstructBlockTextures(bottom: Textures.Dirt, sides: Textures.Grass, top: Textures.GrassTop),
-        Model = "blocks.json"
+        Model = "grass_block.json" //textures are referenced within the model
     };
 
     public static BlockDefinition Dirt = new()
     {
         Id = 2,
         Name = "Dirt",
-        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.Dirt),
+        Textures = BlockDefinition.ConstructBlockTextures(all: Resources.Block.dirt),
         Model = "blocks.json"
     };
 
@@ -31,7 +31,7 @@ public class Blocks
     {
         Id = 3,
         Name = "WoodenPlank",
-        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.OakPlank),
+        Textures = BlockDefinition.ConstructBlockTextures(all: Resources.Block.oak_planks),
         Model = "blocks.json"
     };
 
@@ -39,7 +39,7 @@ public class Blocks
     {
         Id = 4,
         Name = "Cobblestone",
-        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.Cobblestone),
+        Textures = BlockDefinition.ConstructBlockTextures(all: Resources.Block.cobblestone),
         Model = "blocks.json"
     };
 
@@ -47,7 +47,7 @@ public class Blocks
     {
         Id = 5,
         Name = "Diamon Block",
-        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.DiamondBlock),
+        Textures = BlockDefinition.ConstructBlockTextures(all: Resources.Block.diamond_block),
         Model = "blocks.json"
     };
 
@@ -58,9 +58,9 @@ public class Blocks
         Model = "stairs.json",
         Textures = new()
         {
-            { "#side", Textures.OakPlank },
-            { "#top", Textures.OakPlank },
-            { "#bottom", Textures.OakPlank },
+            { "side", Resources.Block.oak_planks },
+            { "top", Resources.Block.oak_planks },
+            { "bottom", Resources.Block.oak_planks },
         },
         IsTransparent = true
     };
@@ -69,7 +69,7 @@ public class Blocks
     {
         Id = 7,
         Name = "Trunk",
-        Textures = BlockDefinition.ConstructBlockTextures(bottom: Textures.LogOakTop, sides: Textures.LogOak, top: Textures.LogOakTop),
+        Textures = BlockDefinition.ConstructBlockTextures(bottom: Resources.Block.log_oak_top, sides: Resources.Block.log_oak, top: Resources.Block.log_oak_top),
         Model = "blocks.json"
     };
 
@@ -77,7 +77,7 @@ public class Blocks
     {
         Id = 8,
         Name = "Leave Block",
-        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.Leave),
+        Textures = BlockDefinition.ConstructBlockTextures(all: Resources.Block.azalea_leaves),
         Model = "blocks.json",
         IsTransparent = true
     };
@@ -88,33 +88,13 @@ public class Blocks
         Name = "Beacon Block",
         Textures = new()
         {
-            { "#glass", Textures.Glass },
-            { "#obsidian", Textures.Obsidian },
-            { "#beacon", Textures.Beacon },
+            { "glass", Resources.Block.glass },
+            { "obsidian", Resources.Block.obsidian },
+            { "beacon", Resources.Block.beacon },
         },
         Model = "beacon.json",
         IsTransparent = true
     };
 
-    public static Dictionary<ushort, BlockDefinition> BlockList
-    {
-        get
-        {
-            if (field == null)
-            {
-                field = typeof(Blocks)
-                    .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-                    .Where(x => !x.IsInitOnly && x.FieldType == typeof(BlockDefinition))
-                    .Select(x => (BlockDefinition)x.GetValue(null)!)
-                    .ToDictionary(x => x.Id, x => x);
-
-                foreach (var (_, block) in field)
-                {
-                    block.ParsedModel = BlockModels.Get(block.Model);
-                }
-            }
-
-            return field;
-        }
-    }
+    public static Dictionary<ushort, BlockDefinition> BlockList;
 }

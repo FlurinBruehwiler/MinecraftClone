@@ -20,7 +20,7 @@ public static class TextureAtlas
                     goto end;
 
                 var texture = enumerator.Current;
-                var blockTexture = Raylib.LoadTexture($"Resources/{texture.Key}.png");
+                var blockTexture = Raylib.LoadTexture($"Resources/{texture.Key}");
                 Raylib.DrawTexturePro(blockTexture, new Rectangle(0, 0, blockTexture.Width, blockTexture.Height),
                     new Rectangle((x + 1) * 16, 160 - y * 16, 16, 16), new Vector2(0, 0), 180, Color.White);
             }
@@ -29,8 +29,18 @@ public static class TextureAtlas
 
         Raylib.EndTextureMode();
 
-        Image textureAtlas = Raylib.LoadImageFromTexture(renderTarget.Texture);
-        Raylib.ExportImage(textureAtlas, "Resources/textureatlas.png");
+        renderTarget.Texture.Mipmaps = 2;
+        Raylib.GenTextureMipmaps(ref renderTarget.Texture);
+
+        // Raylib.SetTextureFilter(renderTarget.Texture, );
+        // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_LINEAR_MIP_NEAREST);
+        // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_MIP_LINEAR);
+        // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_MIP_NEAREST);
+        Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_NEAREST_MIP_LINEAR);
+        // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_FILTER_ANISOTROPIC, 0);
+
+        // Image textureAtlas = Raylib.LoadImageFromTexture(renderTarget.Texture);
+        // Raylib.ExportImage(textureAtlas, "Resources/textureatlas.png");
 
         return renderTarget.Texture;
     }

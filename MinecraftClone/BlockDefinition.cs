@@ -22,27 +22,27 @@ public class BlockDefinition
     {
         var dict = new Dictionary<string, string>();
 
-        dict.Add("#top", all);
-        dict.Add("#bottom", all);
-        dict.Add("#north", all);
-        dict.Add("#west", all);
-        dict.Add("#east", all);
-        dict.Add("#south", all);
+        dict.Add("top", all);
+        dict.Add("bottom", all);
+        dict.Add("north", all);
+        dict.Add("west", all);
+        dict.Add("east", all);
+        dict.Add("south", all);
 
         if (sides != "")
         {
-            dict["#north"] = sides;
-            dict["#west"] = sides;
-            dict["#east"] = sides;
-            dict["#south"] = sides;
+            dict["north"] = sides;
+            dict["west"] = sides;
+            dict["east"] = sides;
+            dict["south"] = sides;
         }
 
-        if (top != "") dict["#top"] = top;
-        if (bottom != "") dict["#bottom"] = bottom;
-        if (north != "") dict["#north"] = north;
-        if (west != "") dict["#west"] = west;
-        if (east != "") dict["#east"] = east;
-        if (south != "") dict["#south"] = south;
+        if (top != "") dict["top"] = top;
+        if (bottom != "") dict["bottom"] = bottom;
+        if (north != "") dict["north"] = north;
+        if (west != "") dict["west"] = west;
+        if (east != "") dict["east"] = east;
+        if (south != "") dict["south"] = south;
 
         return dict;
     }

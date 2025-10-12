@@ -36,6 +36,7 @@ Raylib.SetConfigFlags(ConfigFlags.Msaa4xHint);
 // RaylibSetTraceLogLevel(TraceLogLevel.LOG_ERROR);
 
 
+AssetLoader.LoadAssets();
 
 var player = new Player();
 

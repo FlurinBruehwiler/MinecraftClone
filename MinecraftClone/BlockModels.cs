@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace RayLib3dTest;
@@ -7,7 +6,9 @@ namespace RayLib3dTest;
 public class JsonBlockModel
 {
     public List<JsonBlockElement> Elements;
+    public Dictionary<string, string> Textures = [];
 }
+
 
 public class JsonBlockElement
 {
@@ -41,11 +42,13 @@ public class JsonBlockFace
     public JsonBlockFaceDirection CullfaceDirection;
 }
 
-public static class Resources
+public static class ResourcesExtension
 {
-    public static string GetPath(string fileNameAndExtension)
+    private static string resDir = Path.Combine(Directory.GetParent(typeof(ResourcesExtension).Assembly.FullName)!.FullName, "Resources");
+
+    public static string GetResourcesPath(this string resourceId)
     {
-        return Path.Combine(Path.Combine(Directory.GetParent(typeof(Resources).Assembly.FullName)!.FullName, "Resources", fileNameAndExtension));
+        return Path.Combine(resDir, resourceId);
     }
 }
 
@@ -62,7 +65,7 @@ public class BlockModels
 
         string content = EmptyModel;
 
-        var path = Resources.GetPath(file);
+        var path = file.GetResourcesPath();
 
         if (File.Exists(path))
         {
@@ -96,6 +99,8 @@ public class BlockModels
                     "down" => JsonBlockFaceDirection.Down,
                     _ => JsonBlockFaceDirection.None
                 };
+
+                face.Texture = face.Texture.Replace("#", "");
             }
         }
 

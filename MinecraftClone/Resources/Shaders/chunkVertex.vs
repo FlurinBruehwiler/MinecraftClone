@@ -7,6 +7,7 @@ in vec3 vertexNormal;
 out vec2 fragTexCoord;
 out vec4 fragColor;
 out vec3 fragNormal;
+out vec3 foliageColor;
 
 uniform mat4 mvp;
 void main()

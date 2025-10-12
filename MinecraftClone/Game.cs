@@ -5,6 +5,7 @@ using Flamui;
 using Flamui.Drawing;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
+using SourceGen;
 using Color = Raylib_cs.Color;
 using PixelFormat = Raylib_cs.PixelFormat;
 using Rectangle = Raylib_cs.Rectangle;
@@ -35,7 +36,7 @@ public class Game
             var cube = Raylib.GenMeshCube(1, 1, 1);
             _skyBox = Raylib.LoadModelFromMesh(cube);
 
-            var shader = Raylib.LoadShader("Resources/Shaders/skybox.vs", "Resources/Shaders/skybox.fs");
+            var shader = Raylib.LoadShader(Resources.Shaders.skyboxVertex.GetResourcesPath(), Resources.Shaders.skyboxFragment.GetResourcesPath());
 
             _skyBox.Materials[0].Shader = shader;
 
@@ -47,12 +48,12 @@ public class Game
             Raylib.SetShaderValue(shader, Raylib.GetShaderLocation(shader, "doGamma"),  doGamma, ShaderUniformDataType.Int);
             Raylib.SetShaderValue(shader, Raylib.GetShaderLocation(shader, "vflipped"), vflipped, ShaderUniformDataType.Int);
 
-            var img = Raylib.LoadImage("Resources/skybox.png");
+            var img = Raylib.LoadImage(Resources.Textures.skybox.GetResourcesPath());
             _skyBox.Materials[0].Maps[(int)MaterialMapIndex.Cubemap].Texture = Raylib.LoadTextureCubemap(img, CubemapLayout.AutoDetect);
             Raylib.UnloadImage(img);
         }
 
-        ChunkShader = Raylib.LoadShader("Resources/Shaders/chunkVertex.vs", "Resources/Shaders/chunkFragment.fs");
+        ChunkShader = Raylib.LoadShader(Resources.Shaders.chunkVertex.GetResourcesPath(), Resources.Shaders.chunkFragment.GetResourcesPath());
         ShaderLocSunDirection = Raylib.GetShaderLocation(ChunkShader, "sunDirection");
 
         HuskModel = Models.LoadModel("husk");
