@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using SourceGen;
 
 namespace RayLib3dTest;
@@ -12,7 +12,7 @@ public class Blocks
         IsTransparent = true
     };
 
-    public static BlockDefinition Gras = new()
+    public static BlockDefinition Grass = new()
     {
         Id = 1,
         Name = "Gras",
@@ -46,8 +46,8 @@ public class Blocks
     public static BlockDefinition DiamondBlock = new()
     {
         Id = 5,
-        Name = "Diamon Block",
-        Textures = BlockDefinition.ConstructBlockTextures(all: Resources.Block.diamond_block),
+        Name = "Diamond Block",
+        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.DiamondBlock),
         Model = "blocks.json"
     };
 

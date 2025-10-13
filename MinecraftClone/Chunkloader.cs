@@ -85,7 +85,7 @@ public static class Chunkloader
                     }
                     else if (chunk.Pos.Y * 16 + y == height)
                     {
-                        chunk.Blocks[idx].BlockId = Blocks.Gras.Id;
+                        chunk.Blocks[idx].BlockId = Blocks.Grass.Id;
                     }
                     else
                     {
