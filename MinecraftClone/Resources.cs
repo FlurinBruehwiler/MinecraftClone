@@ -5,8 +5,8 @@ public static class Resources
     public const string blocks = "blocks.json";
     public const string creeper = "creeper.jem";
     public const string grass_block = "grass_block.json";
+    public const string grass_cross = "grass_cross.json";
     public const string husk = "husk.jem";
-    public const string short_grass = "short_grass.json";
     public const string stairs = "stairs.json";
 
     public static class Block
@@ -25,6 +25,8 @@ public static class Resources
         public const string oak_planks = "block/oak_planks.png";
         public const string obsidian = "block/obsidian.png";
         public const string short_grass = "block/short_grass.png";
+        public const string tall_grass_bottom = "block/tall_grass_bottom.png";
+        public const string tall_grass_top = "block/tall_grass_top.png";
 
     }
     public static class Shaders

@@ -58,7 +58,7 @@ public class Player
 
         int i = 0;
 
-        IEnumerable<BlockDefinition> blocks = [Blocks.Dirt, Blocks.Grass, Blocks.ShortGrass, Blocks.DiamondBlock, Blocks.WoodenPlank, Blocks.LeaveBlock];
+        IEnumerable<BlockDefinition> blocks = [Blocks.Dirt, Blocks.Grass, Blocks.ShortGrass, Blocks.DiamondBlock, Blocks.WoodenPlank, Blocks.LeaveBlock, Blocks.TallGrassBottom, Blocks.TallGrassTop];
 
         foreach (var block in blocks)
         {

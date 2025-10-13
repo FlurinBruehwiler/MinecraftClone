@@ -232,7 +232,7 @@ public static class Physics
                     }
                 }else if (collisionMask == CollisionMask.IgnoreNonSolidBlocks)
                 {
-                    if (b.BlockId != Blocks.Air.Id && b.BlockId != Blocks.ShortGrass.Id)
+                    if (b.BlockId != Blocks.Air.Id && b.BlockId != Blocks.ShortGrass.Id && b.BlockId != Blocks.TallGrassBottom.Id && b.BlockId != Blocks.TallGrassTop.Id)
                         return start;
                 }
 

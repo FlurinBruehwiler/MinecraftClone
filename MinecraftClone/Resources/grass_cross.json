@@ -2,10 +2,6 @@
 	"format_version": "1.21.6",
 	"credit": "Made with Blockbench",
 	"ambientocclusion": false,
-	"textures": {
-		"particle": "block/short_grass",
-		"cross": "block/short_grass"
-	},
 	"elements": [
 		{
 			"from": [0.8, 0, 8],

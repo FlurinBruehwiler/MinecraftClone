@@ -40,6 +40,12 @@ public class Chunk : IDisposable
         return x + y * 16 + z * 16 * 16;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int GetIdx(IntVector3 vec)
+    {
+        return vec.X + vec.Y * 16 + vec.Z * 16 * 16;
+    }
+
     private static IntVector3 GetOffset(JsonBlockFaceDirection blockFace)
     {
         return blockFace switch
@@ -175,6 +181,15 @@ public class Chunk : IDisposable
         Raylib.UnloadModel(Model);
     }
 
+    public IntVector3 GetLocalCoord(IntVector3 vec)
+    {
+        var globalX = vec.X - Pos.X * 16;
+        var globalY = vec.Y - Pos.Y * 16;
+        var globalZ = vec.Z - Pos.Z * 16;
+
+        return new IntVector3(globalX, globalY, globalZ);
+    }
+
     public IntVector3 GetGlobalCoord(int x, int y, int z)
     {
         var globalX = x + Pos.X * 16;
@@ -182,6 +197,19 @@ public class Chunk : IDisposable
         var globalZ = z + Pos.Z * 16;
 
         return new IntVector3(globalX, globalY, globalZ);
+    }
+
+    public bool ContainsGlobalCoord(IntVector3 pos)
+    {
+        var min = GetGlobalCoord(0, 0, 0);
+        var max = GetGlobalCoord(15, 15, 15);
+        if (pos.X >= min.X && pos.Y >= min.Y && pos.Z >= min.Z
+            && pos.X <= max.X && pos.Y <= max.Y && pos.Z <= max.Z)
+        {
+            return true;
+        }
+
+        return false;
     }
 }
 

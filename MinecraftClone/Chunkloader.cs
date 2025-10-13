@@ -72,28 +72,17 @@ public static class Chunkloader
             for (var z = 0; z < 16; z++)
             {
                 var g = chunk.GetGlobalCoord(x, 0, z);
+                g.Y = 0;
 
                 var height = GetTerrainHeightAt(g.X, g.Z);
-                var hasGrass = GetRandomInt(g, 742389, 0, 10) > 5;
 
                 for (var y = 0; y < 16; y++)
                 {
                     var idx = Chunk.GetIdx(x, y, z);
 
-                    if (chunk.Pos.Y * 16 + y > height + 1)
+                    if (chunk.Pos.Y * 16 + y > height)
                     {
                         chunk.Blocks[idx].BlockId = Blocks.Air.Id;
-                    }
-                    else if (chunk.Pos.Y * 16 + y == height + 1)
-                    {
-                        if (hasGrass)
-                        {
-                            chunk.Blocks[idx].BlockId = Blocks.ShortGrass.Id;
-                        }
-                        else
-                        {
-                            chunk.Blocks[idx].BlockId = Blocks.Air.Id;
-                        }
                     }
                     else if (chunk.Pos.Y * 16 + y == height)
                     {
@@ -105,8 +94,19 @@ public static class Chunkloader
                     }
                 }
 
+                var grassRand = GetRandomInt(g, 742389, 0, 20);
+                if (grassRand >= 19)
+                {
+                    SetBlockIfWithinChunk(chunk, g with { Y = height + 1 }, Blocks.TallGrassBottom.Id);
+                    SetBlockIfWithinChunk(chunk, g with { Y = height + 2 }, Blocks.TallGrassTop.Id);
+                }
+                else if (grassRand > 10)
+                {
+                    SetBlockIfWithinChunk(chunk, g with { Y = height + 1 }, Blocks.ShortGrass.Id);
+                }
             }
         }
+
 
         //generate trees
         var posX = GetRandomInt(pos, 606186665, 0, 15);
@@ -137,6 +137,14 @@ public static class Chunkloader
         }
 
         return chunk;
+    }
+
+    public static void SetBlockIfWithinChunk(Chunk chunk, IntVector3 pos, ushort blockId)
+    {
+        if (chunk.ContainsGlobalCoord(pos))
+        {
+            chunk.Blocks[Chunk.GetIdx(chunk.GetLocalCoord(pos))].BlockId = blockId;
+        }
     }
 
     public static int GetTerrainHeightAt(int globalX, int globalZ)
