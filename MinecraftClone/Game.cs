@@ -56,19 +56,21 @@ public class Game
         ChunkShader = Raylib.LoadShader(Resources.Shaders.chunkVertex.GetResourcesPath(), Resources.Shaders.chunkFragment.GetResourcesPath());
         ShaderLocSunDirection = Raylib.GetShaderLocation(ChunkShader, "sunDirection");
 
-        HuskModel = Models.LoadModel("husk");
+        HuskModel = Models.LoadModel(Resources.husk);
 
         var host = new RaylibUiTreeHost();
 
         _renderer = new Renderer();
 
 
-        var gl = GL.GetApi(new RaylibGlContext());
-        _renderer.Initialize(gl, host);
+        Gl = GL.GetApi(new RaylibGlContext());
+        _renderer.Initialize(Gl, host);
 
 
         UiTree = new UiTree(host, RenderUI);
     }
+
+    public static GL Gl;
 
     public JemFile HuskModel; //should not be here
 
@@ -166,7 +168,7 @@ public class Game
 
             Raylib.BeginDrawing();
 
-            Raylib.ClearBackground(Color.RayWhite);
+            Raylib.ClearBackground(Color.Black);
 
             var camera = _player.Camera;
             if (isDebugCamera)
@@ -272,10 +274,10 @@ public class Game
             Rlgl.DisableBackfaceCulling();
 
             Rlgl.DisableDepthMask();
-            
+
 
             Raylib.DrawModel(_skyBox, Vector3.Zero, 1, Color.White);
-            
+
 
             Rlgl.EnableBackfaceCulling();
             Rlgl.EnableDepthMask();

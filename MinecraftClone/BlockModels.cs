@@ -9,12 +9,29 @@ public class JsonBlockModel
     public Dictionary<string, string> Textures = [];
 }
 
+public enum Axis
+{
+    X,
+    Y,
+    Z
+}
+
+public class JsonBlockElementRotation
+{
+    public float Angle;
+    public string Axis;
+    public float[] Origin;
+    public bool Rescale;
+
+    [JsonIgnore] public Vector3 OriginVector;
+}
 
 public class JsonBlockElement
 {
     public float[] From;
     public float[] To;
     public Dictionary<JsonBlockFaceDirection, JsonBlockFace> Faces;
+    public JsonBlockElementRotation? Rotation;
 
     [JsonIgnore] public BlockDev BlockDev;
 }
@@ -84,6 +101,11 @@ public class BlockModels
                 From = new Vector3(element.From[0], element.From[1], element.From[2]),
                 To = new Vector3(element.To[0], element.To[1], element.To[2])
             };
+
+            if (element.Rotation != null)
+            {
+                element.Rotation.OriginVector = new Vector3(element.Rotation.Origin[0], element.Rotation.Origin[1], element.Rotation.Origin[2]);
+            }
 
             foreach (var (_, face) in element.Faces)
             {

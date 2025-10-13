@@ -5,7 +5,7 @@ namespace RayLib3dTest;
 
 public static class AssetLoader
 {
-    private static string[] grayscaleTextures = [ Resources.Block.grass_block_side_overlay, Resources.Block.grass_block_top ];
+    private static string[] grayscaleTextures = [ Resources.Block.grass_block_side_overlay, Resources.Block.grass_block_top, Resources.Block.short_grass ];
 
     public static void LoadAssets()
     {

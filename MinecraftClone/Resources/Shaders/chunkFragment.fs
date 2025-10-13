@@ -15,7 +15,7 @@ void main()
 {
     vec4 texelColor = texture(texture0, fragTexCoord);
 
-    if (texelColor.a < 0.1)
+    if (texelColor.a < 1)
         discard;
 
     float lightBrightness = 0.5;

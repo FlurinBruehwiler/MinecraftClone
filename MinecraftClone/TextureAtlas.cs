@@ -1,3 +1,6 @@
+using Silk.NET.OpenGL;
+using Shader = Raylib_cs.Shader;
+
 namespace RayLib3dTest;
 
 public static class TextureAtlas
@@ -16,27 +19,40 @@ public static class TextureAtlas
         {
             for (var x = 0; x < 10; x++)
             {
-                if (!enumerator.MoveNext())
-                    goto end;
+                var dest = new Rectangle((x + 1) * 16, 160 - y * 16, 16, 16);
 
-                var texture = enumerator.Current;
-                var blockTexture = Raylib.LoadTexture($"Resources/{texture.Key}");
-                Raylib.DrawTexturePro(blockTexture, new Rectangle(0, 0, blockTexture.Width, blockTexture.Height),
-                    new Rectangle((x + 1) * 16, 160 - y * 16, 16, 16), new Vector2(0, 0), 180, Color.White);
+                if (!enumerator.MoveNext())
+                {
+                    Raylib.DrawRectanglePro(dest, Vector2.Zero, 180, Color.Red);
+                }
+                else
+                {
+                    var texture = enumerator.Current;
+                    var blockTexture = Raylib.LoadTexture($"Resources/{texture.Key}");
+
+                    Raylib.DrawTexturePro(blockTexture, new Rectangle(0, 0, blockTexture.Width, blockTexture.Height),
+                        dest, new Vector2(0, 0), 180, Color.White);
+                }
             }
         }
-        end:
+
 
         Raylib.EndTextureMode();
 
-        renderTarget.Texture.Mipmaps = 2;
         Raylib.GenTextureMipmaps(ref renderTarget.Texture);
+
+        Game.Gl.BindTexture(GLEnum.Texture2D, renderTarget.Texture.Id);
+        Game.Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMaxLevel, 4);
 
         // Raylib.SetTextureFilter(renderTarget.Texture, );
         // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_LINEAR_MIP_NEAREST);
         // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_MIP_LINEAR);
-        // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_MIP_NEAREST);
-        Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_NEAREST_MIP_LINEAR);
+        Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_MIP_NEAREST);
+        // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_NEAREST_MIP_LINEAR);
+
+        // Game.Gl.GetFloat(GLEnum.MaxTextureMaxAnisotropy, out float maxAniso);
+        // Game.Gl.TextureParameter(renderTarget.Texture.Id, GLEnum.TextureMaxAnisotropy, 1);
+
         // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_FILTER_ANISOTROPIC, 0);
 
         // Image textureAtlas = Raylib.LoadImageFromTexture(renderTarget.Texture);

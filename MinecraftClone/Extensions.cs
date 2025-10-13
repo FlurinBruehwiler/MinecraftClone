@@ -18,6 +18,4 @@ public static class Extensions
     {
         return new Vector3(pos.X + 0.5f, pos.Y + 0.5f, pos.Z + 0.5f);
     }
-
-
 }

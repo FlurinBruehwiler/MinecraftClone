@@ -34,9 +34,9 @@ public class JemBox
 
 public static class Models
 {
-    public static JemFile LoadModel(string m)
+    public static JemFile LoadModel(string resourceId)
     {
-        var str = File.ReadAllText($"Resources/{m}.jem");
+        var str = File.ReadAllText(resourceId.GetResourcesPath());
         var options = new JsonSerializerOptions();
         options.IncludeFields = true;
         options.PropertyNameCaseInsensitive = true;

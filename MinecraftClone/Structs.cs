@@ -11,6 +11,11 @@ public record struct Block
     {
         return BlockId == Blocks.Air.Id;
     }
+
+    public bool IsSolid()
+    {
+        return BlockId == Blocks.Air.Id || BlockId == Blocks.ShortGrass.Id;
+    }
 }
 
 public enum BlockFace

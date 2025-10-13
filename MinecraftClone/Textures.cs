@@ -86,6 +86,7 @@ public static class Textures
         var topLeftOffset = new Vector2(subUvCoordinates.X, subUvCoordinates.Y) / 16 / 10;
         var topRightOffset = new Vector2(subUvCoordinates.Z, subUvCoordinates.Y) / 16 / 10;
 
+
         UvCoordinates uvCoordinates = default;
         uvCoordinates.topLeft = baseCoords + topLeftOffset;
         uvCoordinates.topRight = baseCoords + topRightOffset;

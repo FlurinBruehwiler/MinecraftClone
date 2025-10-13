@@ -55,7 +55,10 @@ public class Player
             CameraProjection.Perspective);
 
         int i = 0;
-        foreach (var (_, block) in Blocks.BlockList)
+
+        IEnumerable<BlockDefinition> blocks = [Blocks.Dirt, Blocks.Gras, Blocks.ShortGrass, Blocks.DiamondBlock, Blocks.WoodenPlank, Blocks.LeaveBlock];
+
+        foreach (var block in blocks)
         {
             if (block != Blocks.Air)
             {

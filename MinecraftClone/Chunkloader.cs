@@ -74,14 +74,26 @@ public static class Chunkloader
                 var g = chunk.GetGlobalCoord(x, 0, z);
 
                 var height = GetTerrainHeightAt(g.X, g.Z);
+                var hasGrass = GetRandomInt(g, 742389, 0, 10) > 5;
 
                 for (var y = 0; y < 16; y++)
                 {
                     var idx = Chunk.GetIdx(x, y, z);
 
-                    if (chunk.Pos.Y * 16 + y > height)
+                    if (chunk.Pos.Y * 16 + y > height + 1)
                     {
                         chunk.Blocks[idx].BlockId = Blocks.Air.Id;
+                    }
+                    else if (chunk.Pos.Y * 16 + y == height + 1)
+                    {
+                        if (hasGrass)
+                        {
+                            chunk.Blocks[idx].BlockId = Blocks.ShortGrass.Id;
+                        }
+                        else
+                        {
+                            chunk.Blocks[idx].BlockId = Blocks.Air.Id;
+                        }
                     }
                     else if (chunk.Pos.Y * 16 + y == height)
                     {

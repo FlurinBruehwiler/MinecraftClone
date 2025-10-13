@@ -9,6 +9,7 @@ public class Blocks
     {
         Id = 0,
         Name = "Air",
+
         IsTransparent = true
     };
 
@@ -93,6 +94,14 @@ public class Blocks
             { "beacon", Resources.Block.beacon },
         },
         Model = "beacon.json",
+        IsTransparent = true
+    };
+
+    public static BlockDefinition ShortGrass = new()
+    {
+        Id = 10,
+        Name = "Short Grass",
+        Model = "short_grass.json",
         IsTransparent = true
     };
 
