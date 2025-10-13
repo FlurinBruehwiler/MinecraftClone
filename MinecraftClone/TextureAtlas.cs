@@ -36,7 +36,6 @@ public static class TextureAtlas
             }
         }
 
-
         Raylib.EndTextureMode();
 
         Raylib.GenTextureMipmaps(ref renderTarget.Texture);
@@ -44,19 +43,7 @@ public static class TextureAtlas
         Game.Gl.BindTexture(GLEnum.Texture2D, renderTarget.Texture.Id);
         Game.Gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMaxLevel, 4);
 
-        // Raylib.SetTextureFilter(renderTarget.Texture, );
-        // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_LINEAR_MIP_NEAREST);
-        // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_MIP_LINEAR);
         Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_MIP_NEAREST);
-        // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_MIN_FILTER, Rlgl.TEXTURE_FILTER_NEAREST_MIP_LINEAR);
-
-        // Game.Gl.GetFloat(GLEnum.MaxTextureMaxAnisotropy, out float maxAniso);
-        // Game.Gl.TextureParameter(renderTarget.Texture.Id, GLEnum.TextureMaxAnisotropy, 1);
-
-        // Rlgl.TextureParameters(renderTarget.Texture.Id, Rlgl.TEXTURE_FILTER_ANISOTROPIC, 0);
-
-        // Image textureAtlas = Raylib.LoadImageFromTexture(renderTarget.Texture);
-        // Raylib.ExportImage(textureAtlas, "Resources/textureatlas.png");
 
         return renderTarget.Texture;
     }

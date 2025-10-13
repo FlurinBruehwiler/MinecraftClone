@@ -48,7 +48,7 @@ public class Blocks
     {
         Id = 5,
         Name = "Diamond Block",
-        Textures = BlockDefinition.ConstructBlockTextures(all: Textures.DiamondBlock),
+        Textures = BlockDefinition.ConstructBlockTextures(all: Resources.Block.diamond_block),
         Model = "blocks.json"
     };
 

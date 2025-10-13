@@ -1,4 +1,6 @@
-﻿namespace RayLib3dTest;
+﻿using SourceGen;
+
+namespace RayLib3dTest;
 
 public struct InventorySlot
 {
@@ -56,7 +58,7 @@ public class Player
 
         int i = 0;
 
-        IEnumerable<BlockDefinition> blocks = [Blocks.Dirt, Blocks.Gras, Blocks.ShortGrass, Blocks.DiamondBlock, Blocks.WoodenPlank, Blocks.LeaveBlock];
+        IEnumerable<BlockDefinition> blocks = [Blocks.Dirt, Blocks.Grass, Blocks.ShortGrass, Blocks.DiamondBlock, Blocks.WoodenPlank, Blocks.LeaveBlock];
 
         foreach (var block in blocks)
         {

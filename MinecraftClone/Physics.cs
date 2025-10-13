@@ -82,6 +82,12 @@ public static class Physics
 
     private const bool collisionDebug = false;
 
+    public enum CollisionMask
+    {
+        IgnoreAir,
+        IgnoreNonSolidBlocks, //includes grass etc.
+    }
+
     public static void ForwardCollisions(ref Vector3 velocity, ref CollisionInfo colInfo, Vector3 playerPos, Hitbox hitbox)
     {
         var direction = Math.Sign(velocity.X);
@@ -94,7 +100,7 @@ public static class Physics
         foreach (var verticalRayOrigin in _forwardCollisions)
         {
             var origin = playerPos + hitbox.Shrink(SkinWidth).GetCorner(new Vector3(direction, verticalRayOrigin.Y, verticalRayOrigin.X));
-            var hit = Raycast(origin, new Vector3(direction, 0, 0), rayLength, out _, out var distance, collisionDebug);
+            var hit = Raycast(origin, new Vector3(direction, 0, 0), rayLength, out _, out var distance, collisionDebug, CollisionMask.IgnoreNonSolidBlocks);
 
             if (distance != 0 && !float.IsNormal(distance))
             {
@@ -124,7 +130,7 @@ public static class Physics
         foreach (var verticalRayOrigin in _sidewardCollisions)
         {
             var origin = playerPos + hitbox.Shrink(SkinWidth).GetCorner(new Vector3(verticalRayOrigin.X, verticalRayOrigin.Y, direction));
-            var hit = Raycast(origin, new Vector3(0, 0, direction), rayLength, out _, out var distance, collisionDebug);
+            var hit = Raycast(origin, new Vector3(0, 0, direction), rayLength, out _, out var distance, collisionDebug, CollisionMask.IgnoreNonSolidBlocks);
 
             if (distance != 0 && !float.IsNormal(distance))
             {
@@ -154,7 +160,7 @@ public static class Physics
         foreach (var verticalRayOrigin in _verticalRayOrigins)
         {
             var origin = playerPos + hitbox.Shrink(SkinWidth).GetCorner(new Vector3(verticalRayOrigin.X, direction, verticalRayOrigin.Y));
-            var hit = Raycast(origin, new Vector3(0, direction, 0), rayLength, out _, out var distance, collisionDebug);
+            var hit = Raycast(origin, new Vector3(0, direction, 0), rayLength, out _, out var distance, collisionDebug, CollisionMask.IgnoreNonSolidBlocks);
 
             if (distance != 0 && !float.IsNormal(distance))
             {
@@ -181,7 +187,7 @@ public static class Physics
             });
     }
 
-    public static IntVector3? Raycast(Vector3 pos, Vector3 dir, float length, out IntVector3 previousBlock, out float distance, bool debug = false)
+    public static IntVector3? Raycast(Vector3 pos, Vector3 dir, float length, out IntVector3 previousBlock, out float distance, bool debug = false, CollisionMask collisionMask = CollisionMask.IgnoreAir)
     {
         dir = Vector3.Normalize(dir);
         distance = 0f;
@@ -214,14 +220,22 @@ public static class Physics
 
             if (wasFound)
             {
-                if (!b.IsAir())
+                if (collisionMask == CollisionMask.IgnoreAir)
                 {
-                    if (debug)
+                    if (!b.IsAir())
                     {
-                        DebugRayHit(pos, dir, distance);
+                        if (debug)
+                        {
+                            DebugRayHit(pos, dir, distance);
+                        }
+                        return start;
                     }
-                    return start;
+                }else if (collisionMask == CollisionMask.IgnoreNonSolidBlocks)
+                {
+                    if (b.BlockId != Blocks.Air.Id && b.BlockId != Blocks.ShortGrass.Id)
+                        return start;
                 }
+
             }
 
             previousBlock = start;

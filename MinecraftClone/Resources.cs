@@ -6,8 +6,8 @@ public static class Resources
     public const string creeper = "creeper.jem";
     public const string grass_block = "grass_block.json";
     public const string husk = "husk.jem";
+    public const string short_grass = "short_grass.json";
     public const string stairs = "stairs.json";
-    public const string tinted_cross = "tinted_cross.json";
 
     public static class Block
     {
