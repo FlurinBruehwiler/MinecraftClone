@@ -46,6 +46,12 @@ public class Chunk : IDisposable
         return vec.X + vec.Y * 16 + vec.Z * 16 * 16;
     }
 
+    public Region GetRegion()
+    {
+        var bottomLeft = GetGlobalCoord(0, 0, 0);
+        return new Region { Location = bottomLeft, Dimensions = new IntVector3(16, 16,  16) };
+    }
+
     private static IntVector3 GetOffset(JsonBlockFaceDirection blockFace)
     {
         return blockFace switch

@@ -77,7 +77,7 @@ public class Blocks
     {
         Id = 8,
         Name = "Leave Block",
-        Textures = BlockDefinition.ConstructBlockTextures(all: Resources.Block.azalea_leaves),
+        Textures = BlockDefinition.ConstructBlockTextures(all: Resources.Block.oak_leaves),
         Model = Resources.blocks,
         IsTransparent = true
     };

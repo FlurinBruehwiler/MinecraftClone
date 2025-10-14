@@ -11,7 +11,6 @@ public static class Resources
 
     public static class Block
     {
-        public const string azalea_leaves = "block/azalea_leaves.png";
         public const string beacon = "block/beacon.png";
         public const string cobblestone = "block/cobblestone.png";
         public const string diamond_block = "block/diamond_block.png";
@@ -22,6 +21,7 @@ public static class Resources
         public const string grass_block_top = "block/grass_block_top.png";
         public const string log_oak = "block/log_oak.png";
         public const string log_oak_top = "block/log_oak_top.png";
+        public const string oak_leaves = "block/oak_leaves.png";
         public const string oak_planks = "block/oak_planks.png";
         public const string obsidian = "block/obsidian.png";
         public const string short_grass = "block/short_grass.png";

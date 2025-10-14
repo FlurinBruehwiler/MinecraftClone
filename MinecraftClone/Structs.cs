@@ -98,6 +98,11 @@ public struct IntVector3 : IEquatable<IntVector3 >
     {
         return obj is IntVector3 other && Equals(other);
     }
+
+    public static int Distance(IntVector3 origin, IntVector3 intVector3)
+    {
+        return (int)Vector3.Distance(origin.ToVector3(), intVector3.ToVector3());
+    }
 }
 
 public record struct IntVector2(int X, int Y)

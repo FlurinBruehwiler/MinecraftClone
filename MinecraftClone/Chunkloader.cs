@@ -119,15 +119,29 @@ public static class Chunkloader
         var trunkRegion = new Region { Location = new IntVector3(global.X, terrainHeightUnderTree + 1, global.Z), Dimensions = new IntVector3(1, trunkHeight, 1)};
         FillRegionInChunk(chunk, trunkRegion, Blocks.OakLog);
 
-        uijz 
+        var radius = 3;
+        var leaveRegion = new Region { Location = new IntVector3(global.X - radius, terrainHeightUnderTree + trunkHeight - radius, global.Z - radius), Dimensions = new IntVector3(radius * 2) };
+        var origin = leaveRegion.Location + new IntVector3(radius);
+
+        FillRegionInChunk(chunk, leaveRegion, (p, existingBlock) =>
+        {
+            if (existingBlock.BlockId == Blocks.OakLog.Id)
+                return Blocks.Air;
+
+            return IntVector3.Distance(origin, p) < radius ? Blocks.LeaveBlock : Blocks.Air;
+        });
 
         return chunk;
     }
 
     private static void FillRegionInChunk(Chunk chunk, Region region, BlockDefinition blockDefinition)
     {
-        var bottomLeft = chunk.GetGlobalCoord(0, 0, 0);
-        var chunkRegion = new Region { Location = bottomLeft, Dimensions = new IntVector3(16, 16,  16) };
+        FillRegionInChunk(chunk, region, (_, _) => blockDefinition);
+    }
+
+    private static void FillRegionInChunk(Chunk chunk, Region region, Func<IntVector3, Block, BlockDefinition> func)
+    {
+        var chunkRegion = chunk.GetRegion();
 
         var resultingRegion = region.Intersect(chunkRegion);
         for (int x = resultingRegion.Location.X; x < resultingRegion.Location.X + resultingRegion.Dimensions.X; x++)
@@ -136,15 +150,16 @@ public static class Chunkloader
             {
                 for (int z = resultingRegion.Location.Z; z < resultingRegion.Location.Z + resultingRegion.Dimensions.Z; z++)
                 {
-                    if (x == -9 && y == 61 && z == 1)
-                    {
+                    ref var existingBlock = ref chunk.Blocks[Chunk.GetIdx(chunk.GetLocalCoord(x, y, z))];
+                    var block = func(new IntVector3(x, y, z), existingBlock);
 
+                    if (block != Blocks.Air)
+                    {
+                        existingBlock = new Block
+                        {
+                            BlockId = block.Id
+                        };
                     }
-
-                    chunk.Blocks[Chunk.GetIdx(chunk.GetLocalCoord(x, y, z))] = new Block
-                    {
-                        BlockId = blockDefinition.Id
-                    };
                 }
             }
         }
