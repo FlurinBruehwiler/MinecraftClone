@@ -109,34 +109,45 @@ public static class Chunkloader
 
 
         //generate trees
-        var posX = GetRandomInt(pos, 606186665, 0, 15);
-        var posZ = GetRandomInt(pos, 1602518902, 0, 15);
+        var posX = GetRandomInt(pos with { Y = 0}, 606186665, 0, 15);
+        var posZ = GetRandomInt(pos with { Y = 0}, 1602518902, 0, 15);
         var trunkHeight = GetRandomInt(pos, 494945145, 5, 9);
         var global = chunk.GetGlobalCoord(posX, 0, posZ);
+
         var terrainHeightUnderTree = GetTerrainHeightAt(global.X, global.Z);
 
-        //ok, the above defines the tree trunk, now we need to actually fill in the blocks of the trunk, that belong to _this_ chunk.
-        //my idea is to have a BlockRange (Width, Length, Height) of both the trunk and the chunk,
-        //and then get the intersection of the two, then i can just fill the resulting BlockRange with one specific block.
-        //In the future,
+        var trunkRegion = new Region { Location = new IntVector3(global.X, terrainHeightUnderTree + 1, global.Z), Dimensions = new IntVector3(1, trunkHeight, 1)};
+        FillRegionInChunk(chunk, trunkRegion, Blocks.OakLog);
 
-
-        bool isTrunk = false;
-        for (int i = 1; i < 16; i++)
-        {
-            var idx = Chunk.GetIdx(posX, i, posZ);
-            if (chunk.Blocks[idx].IsAir() && !chunk.Blocks[Chunk.GetIdx(posX, i - 1 , posZ)].IsAir())
-            {
-                isTrunk = true;
-            }
-
-            if (isTrunk)
-            {
-                chunk.Blocks[idx].BlockId = Blocks.OakLog.Id;
-            }
-        }
+        uijz 
 
         return chunk;
+    }
+
+    private static void FillRegionInChunk(Chunk chunk, Region region, BlockDefinition blockDefinition)
+    {
+        var bottomLeft = chunk.GetGlobalCoord(0, 0, 0);
+        var chunkRegion = new Region { Location = bottomLeft, Dimensions = new IntVector3(16, 16,  16) };
+
+        var resultingRegion = region.Intersect(chunkRegion);
+        for (int x = resultingRegion.Location.X; x < resultingRegion.Location.X + resultingRegion.Dimensions.X; x++)
+        {
+            for (int y = resultingRegion.Location.Y; y < resultingRegion.Location.Y + resultingRegion.Dimensions.Y; y++)
+            {
+                for (int z = resultingRegion.Location.Z; z < resultingRegion.Location.Z + resultingRegion.Dimensions.Z; z++)
+                {
+                    if (x == -9 && y == 61 && z == 1)
+                    {
+
+                    }
+
+                    chunk.Blocks[Chunk.GetIdx(chunk.GetLocalCoord(x, y, z))] = new Block
+                    {
+                        BlockId = blockDefinition.Id
+                    };
+                }
+            }
+        }
     }
 
     public static void SetBlockIfWithinChunk(Chunk chunk, IntVector3 pos, ushort blockId)
@@ -161,12 +172,25 @@ public static class Chunkloader
         return height;
     }
 
+    public static int Combine(int a, int b, int c, int d)
+    {
+        unchecked
+        {
+            int hash = 17;
+            hash = hash * 31 + a;
+            hash = hash * 31 + b;
+            hash = hash * 31 + c;
+            hash = hash * 31 + d;
+            return hash;
+        }
+    }
+
     public static int GetRandomInt(IntVector3 hashPos, int seed, int min, int max)
     {
         if (min > max)
             throw new Exception();
 
-        var hash = HashCode.Combine(hashPos.X, hashPos.Y, hashPos.Z, seed);
+        var hash = Combine(hashPos.X, hashPos.Y, hashPos.Z, seed);
 
         var diff = max - min;
 
@@ -188,5 +212,42 @@ public static class Chunkloader
 
         var hash = SHA256.HashData(bytes);
         return BitConverter.ToInt32(hash, 0);
+    }
+}
+
+public struct Region
+{
+    public IntVector3 Location;
+    public IntVector3 Dimensions;
+
+    public Region Intersect(Region region)
+    {
+        var x = Intersect(region.Location.X, region.Dimensions.X, Location.X, Dimensions.X);
+        var y = Intersect(region.Location.Y, region.Dimensions.Y, Location.Y, Dimensions.Y);
+        var z = Intersect(region.Location.Z, region.Dimensions.Z, Location.Z, Dimensions.Z);
+
+        if (x.length <= 0 || y.length <= 0 || z.length <= 0)
+            return new Region();
+
+        return new Region
+        {
+            Location = new IntVector3(x.from, y.from, z.from),
+            Dimensions = new IntVector3(x.length, y.length, z.length)
+        };
+    }
+
+    private (int from, int length) Intersect(int aFrom, int aLength, int bFrom, int bLength)
+    {
+        var aTo = aFrom + aLength;
+        var bTo = bFrom + bLength;
+
+        if (aFrom >= bTo || bFrom >= aTo)
+            return (0, 0);
+
+        int from = Math.Max(aFrom, bFrom);
+        int to = Math.Min(aTo, bTo);
+        int length = to - from;
+
+        return (from, length);
     }
 }

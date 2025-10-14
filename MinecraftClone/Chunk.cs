@@ -190,6 +190,11 @@ public class Chunk : IDisposable
         return new IntVector3(globalX, globalY, globalZ);
     }
 
+    public IntVector3 GetLocalCoord(int x, int y, int z)
+    {
+        return GetLocalCoord(new IntVector3(x, y, z));
+    }
+
     public IntVector3 GetGlobalCoord(int x, int y, int z)
     {
         var globalX = x + Pos.X * 16;
