@@ -107,20 +107,31 @@ public static class Chunkloader
             }
         }
 
-
         //generate trees
-        var posX = GetRandomInt(pos with { Y = 0}, 606186665, 0, 15);
-        var posZ = GetRandomInt(pos with { Y = 0}, 1602518902, 0, 15);
-        var trunkHeight = GetRandomInt(pos, 494945145, 5, 9);
-        var global = chunk.GetGlobalCoord(posX, 0, posZ);
+        foreach (var offset in Game.HorizontalPermutationsWithDiagonal)
+        {
+            var newPos = pos + offset;
 
-        var terrainHeightUnderTree = GetTerrainHeightAt(global.X, global.Z);
+            var posX = GetRandomInt(newPos with { Y = 0}, 606186665, 0, 15);
+            var posZ = GetRandomInt(newPos with { Y = 0}, 1602518902, 0, 15);
 
-        var trunkRegion = new Region { Location = new IntVector3(global.X, terrainHeightUnderTree + 1, global.Z), Dimensions = new IntVector3(1, trunkHeight, 1)};
+            GenerateTree(chunk, newPos.X * 16 + posX, newPos.Z * 16 + posZ);
+        }
+
+        return chunk;
+    }
+
+    private static void GenerateTree(Chunk chunk, int globalX, int globalZ)
+    {
+        var trunkHeight = GetRandomInt(new IntVector3(globalX, 0, globalZ), 494945145, 5, 9);
+
+        var terrainHeightUnderTree = GetTerrainHeightAt(globalX, globalZ);
+
+        var trunkRegion = new Region { Location = new IntVector3(globalX, terrainHeightUnderTree + 1, globalZ), Dimensions = new IntVector3(1, trunkHeight, 1)};
         FillRegionInChunk(chunk, trunkRegion, Blocks.OakLog);
 
         var radius = 3;
-        var leaveRegion = new Region { Location = new IntVector3(global.X - radius, terrainHeightUnderTree + trunkHeight - radius, global.Z - radius), Dimensions = new IntVector3(radius * 2) };
+        var leaveRegion = new Region { Location = new IntVector3(globalX - radius, terrainHeightUnderTree + trunkHeight - radius, globalZ - radius), Dimensions = new IntVector3(radius * 2) };
         var origin = leaveRegion.Location + new IntVector3(radius);
 
         FillRegionInChunk(chunk, leaveRegion, (p, existingBlock) =>
@@ -130,8 +141,6 @@ public static class Chunkloader
 
             return IntVector3.Distance(origin, p) < radius ? Blocks.LeaveBlock : Blocks.Air;
         });
-
-        return chunk;
     }
 
     private static void FillRegionInChunk(Chunk chunk, Region region, BlockDefinition blockDefinition)
