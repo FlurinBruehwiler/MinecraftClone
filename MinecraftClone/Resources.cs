@@ -8,6 +8,7 @@ public static class Resources
     public const string grass_cross = "grass_cross.json";
     public const string husk = "husk.jem";
     public const string stairs = "stairs.json";
+    public const string water = "water.json";
 
     public static class Block
     {
@@ -27,6 +28,7 @@ public static class Resources
         public const string short_grass = "block/short_grass.png";
         public const string tall_grass_bottom = "block/tall_grass_bottom.png";
         public const string tall_grass_top = "block/tall_grass_top.png";
+        public const string water = "block/water.png";
 
     }
     public static class Shaders

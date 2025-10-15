@@ -59,12 +59,6 @@ public static class MeshGen
                 }
 
                 mat *= Matrix4x4.CreateTranslation(element.Rotation.OriginVector / 16);
-
-                // 0 => 0
-                // 30 => sqrt(1^2 + sin(0.523599)^2) => 1.117995347385379
-                // 45 => sqrt(1^2 + 1^2) => 1.414213562373095,
-                // 60 => sqrt(1^2 + sin(1.0472)^2) => 1.322876457089987
-                // 90 => sqrt(1^2 + sin(1.5708)^2) => 1.322876457089987
             }
 
             foreach (var (direction, face) in element.Faces)

@@ -29,6 +29,7 @@ public class Game
     public Shader ChunkShader;
 
     public static int ShaderLocSunDirection;
+    public static int ShaderLocAlphaCutout;
 
     public unsafe void Initialize()
     {
@@ -55,6 +56,7 @@ public class Game
 
         ChunkShader = Raylib.LoadShader(Resources.Shaders.chunkVertex.GetResourcesPath(), Resources.Shaders.chunkFragment.GetResourcesPath());
         ShaderLocSunDirection = Raylib.GetShaderLocation(ChunkShader, "sunDirection");
+        ShaderLocAlphaCutout = Raylib.GetShaderLocation(ChunkShader, "alphaCutout");
 
         HuskModel = Models.LoadModel(Resources.husk);
 
@@ -290,24 +292,52 @@ public class Game
         Raylib.SetShaderValue(ChunkShader, ShaderLocSunDirection, [sunDirection.X, sunDirection.Y, sunDirection.Z], ShaderUniformDataType.Vec3);
 
         // Rlgl.DisableColorBlend();
-        Game.Gl.Disable(GLEnum.Blend);
+        Gl.Disable(GLEnum.Blend);
         // Raylib.BeginBlendMode(BlendMode.);
+
+        Raylib.SetShaderValue(ChunkShader, ShaderLocAlphaCutout, [0.5f], ShaderUniformDataType.Float);
+
         foreach (var (_, chunk) in CurrentWorld.Chunks)
+        {
+            chunk.DistanceToPlayerAtRenderTime = GetDistanceToClosestCorner(chunk.Pos.ToVector3NonCenter());
+
+            var pos = new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16);
+
+            if (ChunkShouldBeRendered(chunk.Pos.ToVector3NonCenter()))
+            {
+                if (chunk.HasMesh)
+                {
+                    Raylib.DrawModel(chunk.Model, pos, 1, Color.White);
+                }
+            }
+        }
+
+        Gl.Enable(GLEnum.Blend);
+
+        Raylib.SetShaderValue(ChunkShader, ShaderLocAlphaCutout, [-1f], ShaderUniformDataType.Float); //2 means never in this case
+
+        foreach (var (_, chunk) in CurrentWorld.Chunks.OrderBy(x => x.Value.DistanceToPlayerAtRenderTime))
         {
             var pos = new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16);
 
             if (ChunkShouldBeRendered(chunk.Pos.ToVector3NonCenter()))
             {
-                if(chunk.HasMesh)
-                    Raylib.DrawModel(chunk.Model, pos, 1, Color.White);
-
-                // if(DevTools.DevToolsEnabled)
-                    // DrawCubeWiresV(pos + new Vector3(8), new Vector3(16), Color.RED);
+                if (chunk.HasSemitransparentMesh)
+                {
+                    Raylib.DrawModel(chunk.ModelSemiTransparent, pos, 1, Color.White);
+                }
             }
-            
-            
         }
-        Game.Gl.Enable(GLEnum.Blend);
+
+        if (_player.lookingAtBlock.HasValue)
+        {
+            var chunk = CurrentWorld.GetChunkContainingBlock(_player.lookingAtBlock.Value);
+            if (chunk != null)
+            {
+                DevTools.Print(chunk.DistanceToPlayerAtRenderTime, "Chunk Distance");
+            }
+        }
+
         // Rlgl.EnableColorBlend();
         // Raylib.EndBlendMode();
 
@@ -336,6 +366,26 @@ public class Game
         }
 
         return false;
+    }
+
+    public float GetDistanceToClosestCorner(Vector3 chunkPosition)
+    {
+        float minDistance = float.MaxValue;
+
+        foreach (var corner in CubeCorners)
+        {
+            var cornerPos = (chunkPosition + corner) * 16;
+
+            var cornerVector =  cornerPos - _player.Camera.Position;
+
+            var projectedDistance = Vector3.Dot(Vector3.Normalize(_player.Direction), cornerVector);
+
+            //var distance = Vector3.Distance(cornerPos, _player.Camera.Position);
+            if (projectedDistance < minDistance)
+                minDistance = projectedDistance;
+        }
+
+        return minDistance;
     }
     
     public static Vector3[] CubeCorners = [

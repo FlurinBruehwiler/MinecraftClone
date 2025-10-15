@@ -157,7 +157,7 @@ public class Player
         }
     }
 
-    private IntVector3? lookingAtBlock;
+    public IntVector3? lookingAtBlock;
     private IntVector3? lookingAtBlockBefore;
 
     public void Render()

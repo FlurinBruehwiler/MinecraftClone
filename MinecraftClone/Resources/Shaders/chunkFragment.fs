@@ -10,12 +10,13 @@ uniform vec4 colDiffuse;
 
 
 uniform vec3 sunDirection;
+uniform float alphaCutout;
 
 void main()
 {
     vec4 texelColor = texture(texture0, fragTexCoord);
 
-    if (texelColor.a < 0.5)
+    if (texelColor.a < alphaCutout)
         discard;
 
     float lightBrightness = 0.5;

@@ -33,6 +33,20 @@ public class World
         return new IntVector3(GetChunk(pos.X), GetChunk(pos.Y), GetChunk(pos.Z));
     }
 
+    public Chunk? GetChunkContainingBlock(IntVector3 blocKPos)
+    {
+        var chunkPos = new IntVector3(GetChunk(blocKPos.X),
+            GetChunk(blocKPos.Y),
+            GetChunk(blocKPos.Z));
+
+        if (Chunks.TryGetValue(chunkPos, out var chunk))
+        {
+            return chunk;
+        }
+
+        return null;
+    }
+
     public ref Block TryGetBlockAtPos(IntVector3 pos, out bool wasFound)
     {
         wasFound = true;

@@ -20,7 +20,7 @@ public static class Chunkloader
                     for (var y = -1; y < 5; y++)
                     {
                         var neededChunk = new IntVector3(chunkPos.X + x, y, chunkPos.Z + z);
-                        if (!CurrentWorld.Chunks.TryGetValue(neededChunk, out var chunk) || !chunk.HasMesh)
+                        if (!CurrentWorld.Chunks.TryGetValue(neededChunk, out var chunk) || chunk.NeedsMeshRefresh)
                         {
                             if (chunk is null)
                             {
@@ -48,7 +48,6 @@ public static class Chunkloader
                             {
                                 chunk.GenMesh();
 
-                                chunk.HasMesh = true;
 
                                 if (Stopwatch.GetElapsedTime(chunkGenTimer).TotalMilliseconds > 0.8f )
                                     return;
@@ -80,11 +79,20 @@ public static class Chunkloader
                 {
                     var idx = Chunk.GetIdx(x, y, z);
 
-                    if (chunk.Pos.Y * 16 + y > height)
+                    var blockY = chunk.Pos.Y * 16 + y;
+
+                    if (blockY > height)
                     {
-                        chunk.Blocks[idx].BlockId = Blocks.Air.Id;
+                        if (blockY < 27)
+                        {
+                            chunk.Blocks[idx].BlockId = Blocks.Water.Id;
+                        }
+                        else
+                        {
+                            chunk.Blocks[idx].BlockId = Blocks.Air.Id;
+                        }
                     }
-                    else if (chunk.Pos.Y * 16 + y == height)
+                    else if (blockY == height)
                     {
                         chunk.Blocks[idx].BlockId = Blocks.Grass.Id;
                     }
@@ -94,15 +102,18 @@ public static class Chunkloader
                     }
                 }
 
-                var grassRand = GetRandomInt(g, 742389, 0, 20);
-                if (grassRand >= 19)
+                if (height > 27)
                 {
-                    SetBlockIfWithinChunk(chunk, g with { Y = height + 1 }, Blocks.TallGrassBottom.Id);
-                    SetBlockIfWithinChunk(chunk, g with { Y = height + 2 }, Blocks.TallGrassTop.Id);
-                }
-                else if (grassRand > 10)
-                {
-                    SetBlockIfWithinChunk(chunk, g with { Y = height + 1 }, Blocks.ShortGrass.Id);
+                    var grassRand = GetRandomInt(g, 742389, 0, 20);
+                    if (grassRand >= 19)
+                    {
+                        SetBlockIfWithinChunk(chunk, g with { Y = height + 1 }, Blocks.TallGrassBottom.Id);
+                        SetBlockIfWithinChunk(chunk, g with { Y = height + 2 }, Blocks.TallGrassTop.Id);
+                    }
+                    else if (grassRand > 10)
+                    {
+                        SetBlockIfWithinChunk(chunk, g with { Y = height + 1 }, Blocks.ShortGrass.Id);
+                    }
                 }
             }
         }
@@ -126,6 +137,9 @@ public static class Chunkloader
         var trunkHeight = GetRandomInt(new IntVector3(globalX, 0, globalZ), 494945145, 5, 9);
 
         var terrainHeightUnderTree = GetTerrainHeightAt(globalX, globalZ);
+
+        if (terrainHeightUnderTree <= 27) //no trees under water
+            return;
 
         var trunkRegion = new Region { Location = new IntVector3(globalX, terrainHeightUnderTree + 1, globalZ), Dimensions = new IntVector3(1, trunkHeight, 1)};
         FillRegionInChunk(chunk, trunkRegion, Blocks.OakLog);

@@ -6,10 +6,14 @@ namespace RayLib3dTest;
 
 public class Chunk : IDisposable
 {
+    public float DistanceToPlayerAtRenderTime;
+
     private readonly World _world;
+    public bool NeedsMeshRefresh = true;
     public bool HasMesh;
-    public Mesh Mesh;
+    public bool HasSemitransparentMesh;
     public Model Model;
+    public Model ModelSemiTransparent;
     public Block[] Blocks;
     public required IntVector3 Pos;
 
@@ -69,14 +73,13 @@ public class Chunk : IDisposable
 
     public unsafe void GenMesh()
     {
-        if (Mesh.Vertices != (void*)IntPtr.Zero)
-        {
-            Raylib.UnloadModel(Model);
-        }
+        NeedsMeshRefresh = false;
 
-        var mesh = new Mesh();
+        Raylib.UnloadModel(Model);
+        Raylib.UnloadModel(ModelSemiTransparent);
 
         var verticesList = new List<Vertex>();
+        var verticesListSemiTransparentBlocks = new List<Vertex>();
 
         var startTime = Stopwatch.GetTimestamp();
 
@@ -93,15 +96,30 @@ public class Chunk : IDisposable
 
                     if (!block.IsAir())
                     {
-                        JsonBlockFaceDirection surroundingBlocks = 0;
-                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.North)) ? JsonBlockFaceDirection.North : 0;
-                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.East)) ? JsonBlockFaceDirection.East : 0;
-                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.South)) ? JsonBlockFaceDirection.South : 0;
-                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.West)) ? JsonBlockFaceDirection.West : 0;
-                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Up)) ? JsonBlockFaceDirection.Up : 0;
-                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Down)) ? JsonBlockFaceDirection.Down : 0;
+                        if (block.BlockId == RayLib3dTest.Blocks.Water.Id)
+                        {
+                            JsonBlockFaceDirection surroundingBlocks = 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.North), treatWaterAsSolid: true) ? JsonBlockFaceDirection.North : 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.East), treatWaterAsSolid: true) ? JsonBlockFaceDirection.East : 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.South), treatWaterAsSolid: true) ? JsonBlockFaceDirection.South : 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.West), treatWaterAsSolid: true) ? JsonBlockFaceDirection.West : 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Up), treatWaterAsSolid: true) ? JsonBlockFaceDirection.Up : 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Down), treatWaterAsSolid: true) ? JsonBlockFaceDirection.Down : 0;
 
-                        MeshGen.GenMeshForBlock(block, pos, surroundingBlocks, verticesList);
+                            MeshGen.GenMeshForBlock(block, pos, surroundingBlocks, verticesListSemiTransparentBlocks);
+                        }
+                        else
+                        {
+                            JsonBlockFaceDirection surroundingBlocks = 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.North)) ? JsonBlockFaceDirection.North : 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.East)) ? JsonBlockFaceDirection.East : 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.South)) ? JsonBlockFaceDirection.South : 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.West)) ? JsonBlockFaceDirection.West : 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Up)) ? JsonBlockFaceDirection.Up : 0;
+                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Down)) ? JsonBlockFaceDirection.Down : 0;
+
+                            MeshGen.GenMeshForBlock(block, pos, surroundingBlocks, verticesList);
+                        }
                     }
                 }
             }
@@ -112,10 +130,48 @@ public class Chunk : IDisposable
         if (verticesList.Count == 0)
         {
             HasMesh = false;
-            Mesh = default;
             Model = default;
-            return;
         }
+        else
+        {
+            HasMesh = true;
+
+            var mesh = MeshFromVertexList(verticesList);
+            Raylib.UploadMesh(ref mesh, false);
+
+            Model = Raylib.LoadModelFromMesh(mesh);
+            Model.Materials[0].Maps->Texture = _world.TextureAtlas;
+            Model.Materials[0].Shader = CurrentWorld.Game.ChunkShader;
+        }
+
+        //water etc.
+
+        if (verticesListSemiTransparentBlocks.Count == 0)
+        {
+            HasSemitransparentMesh = false;
+            ModelSemiTransparent = default;
+        }
+        else
+        {
+            HasSemitransparentMesh = true;
+
+            var semitransparentMesh = MeshFromVertexList(verticesListSemiTransparentBlocks);
+            Raylib.UploadMesh(ref semitransparentMesh, false);
+
+            ModelSemiTransparent = Raylib.LoadModelFromMesh(semitransparentMesh);
+            ModelSemiTransparent.Materials[0].Maps->Texture = _world.TextureAtlas;
+            ModelSemiTransparent.Materials[0].Shader = CurrentWorld.Game.ChunkShader;
+        }
+
+
+
+
+
+    }
+
+    private unsafe Mesh MeshFromVertexList(List<Vertex> verticesList)
+    {
+        var mesh = new Mesh();
 
         mesh.VertexCount = verticesList.Count;
         mesh.TriangleCount = verticesList.Count / 3;
@@ -152,15 +208,10 @@ public class Chunk : IDisposable
             colors[i * 4 + 3] = vertex.Color.A;
         }
 
-        Mesh = mesh;
-        Raylib.UploadMesh(ref Mesh, false);
-
-        Model = Raylib.LoadModelFromMesh(Mesh);
-        Model.Materials[0].Maps->Texture = _world.TextureAtlas;
-        Model.Materials[0].Shader = CurrentWorld.Game.ChunkShader;
+        return mesh;
     }
 
-    private bool IsSolidBlock(IntVector3 blockInChunk)
+    private bool IsSolidBlock(IntVector3 blockInChunk, bool treatWaterAsSolid = false)
     {
         if (blockInChunk.X is < 0 or > 15
             || blockInChunk.Y is < 0 or > 15
@@ -170,6 +221,9 @@ public class Chunk : IDisposable
 
             if (wasFound)
             {
+                if (treatWaterAsSolid && block.BlockId == RayLib3dTest.Blocks.Water.Id)
+                    return true;
+
                 return !RayLib3dTest.Blocks.BlockList[block.BlockId].IsTransparent;
             }
 
@@ -177,6 +231,10 @@ public class Chunk : IDisposable
         }
 
         var b = Blocks[GetIdx(blockInChunk.X, blockInChunk.Y, blockInChunk.Z)];
+
+        if (treatWaterAsSolid && b.BlockId == RayLib3dTest.Blocks.Water.Id)
+            return true;
+
         return !RayLib3dTest.Blocks.BlockList[b.BlockId].IsTransparent;
     }
 

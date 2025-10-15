@@ -12,6 +12,8 @@ public class Blocks
         IsTransparent = true
     };
 
+
+
     public static BlockDefinition Grass = new()
     {
         Id = 1,
@@ -131,6 +133,17 @@ public class Blocks
         Model = Resources.grass_cross,
         IsTransparent = true
     };
+
+    public static BlockDefinition Water = new()
+    {
+        Id = 13,
+        Name = "Water",
+        Textures = BlockDefinition.ConstructBlockTextures(all: Resources.Block.water),
+        Model = Resources.blocks,
+
+        IsTransparent = true
+    };
+
 
     public static Dictionary<ushort, BlockDefinition> BlockList;
 }
