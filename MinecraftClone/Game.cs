@@ -283,12 +283,15 @@ public class Game
             Rlgl.EnableDepthMask();
         }
 
+
         DevTools.Draw3d();
 
         var sunDirection = Vector3.Normalize(new Vector3(-0.2f, 1, -1));
         Raylib.SetShaderValue(ChunkShader, ShaderLocSunDirection, [sunDirection.X, sunDirection.Y, sunDirection.Z], ShaderUniformDataType.Vec3);
 
-        Raylib.BeginBlendMode(BlendMode.Alpha);
+        // Rlgl.DisableColorBlend();
+        Game.Gl.Disable(GLEnum.Blend);
+        // Raylib.BeginBlendMode(BlendMode.);
         foreach (var (_, chunk) in CurrentWorld.Chunks)
         {
             var pos = new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16);
@@ -304,7 +307,9 @@ public class Game
             
             
         }
-        Raylib.EndBlendMode();
+        Game.Gl.Enable(GLEnum.Blend);
+        // Rlgl.EnableColorBlend();
+        // Raylib.EndBlendMode();
 
         _player.Render();
         

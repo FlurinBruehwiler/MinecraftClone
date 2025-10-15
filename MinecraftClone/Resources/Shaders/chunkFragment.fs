@@ -15,7 +15,7 @@ void main()
 {
     vec4 texelColor = texture(texture0, fragTexCoord);
 
-    if (texelColor.a < 1)
+    if (texelColor.a < 0.5)
         discard;
 
     float lightBrightness = 0.5;
@@ -29,5 +29,5 @@ void main()
 
     //finalColor = vec4((fragNormal.xyz + 1) / 2, 1);
     finalColor = texelColor*colDiffuse*fragColor;
-    finalColor = vec4(finalColor.rgb * lightBrightness, finalColor.a);
+    finalColor = vec4(finalColor.rgb * lightBrightness, texelColor.a);
 }
