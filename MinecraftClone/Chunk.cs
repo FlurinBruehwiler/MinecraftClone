@@ -96,30 +96,19 @@ public class Chunk : IDisposable
 
                     if (!block.IsAir())
                     {
-                        if (block.BlockId == RayLib3dTest.Blocks.Water.Id)
-                        {
-                            JsonBlockFaceDirection surroundingBlocks = 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.North), treatWaterAsSolid: true) ? JsonBlockFaceDirection.North : 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.East), treatWaterAsSolid: true) ? JsonBlockFaceDirection.East : 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.South), treatWaterAsSolid: true) ? JsonBlockFaceDirection.South : 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.West), treatWaterAsSolid: true) ? JsonBlockFaceDirection.West : 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Up), treatWaterAsSolid: true) ? JsonBlockFaceDirection.Up : 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Down), treatWaterAsSolid: true) ? JsonBlockFaceDirection.Down : 0;
+                        var isWater = block.BlockId == RayLib3dTest.Blocks.Water.Id;
 
-                            MeshGen.GenMeshForBlock(block, pos, surroundingBlocks, verticesListSemiTransparentBlocks);
-                        }
-                        else
-                        {
-                            JsonBlockFaceDirection surroundingBlocks = 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.North)) ? JsonBlockFaceDirection.North : 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.East)) ? JsonBlockFaceDirection.East : 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.South)) ? JsonBlockFaceDirection.South : 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.West)) ? JsonBlockFaceDirection.West : 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Up)) ? JsonBlockFaceDirection.Up : 0;
-                            surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Down)) ? JsonBlockFaceDirection.Down : 0;
+                        JsonBlockFaceDirection surroundingBlocks = 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.North), treatWaterAsSolid: isWater) ? JsonBlockFaceDirection.North : 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.East), treatWaterAsSolid: isWater) ? JsonBlockFaceDirection.East : 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.South), treatWaterAsSolid: isWater) ? JsonBlockFaceDirection.South : 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.West), treatWaterAsSolid: isWater) ? JsonBlockFaceDirection.West : 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Up), treatWaterAsSolid: isWater) ? JsonBlockFaceDirection.Up : 0;
+                        surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.Down), treatWaterAsSolid: isWater) ? JsonBlockFaceDirection.Down : 0;
 
-                            MeshGen.GenMeshForBlock(block, pos, surroundingBlocks, verticesList);
-                        }
+                        var vertList = isWater ? verticesListSemiTransparentBlocks : verticesList;
+
+                        MeshGen.GenMeshForBlock(block, pos, surroundingBlocks, vertList);
                     }
                 }
             }
