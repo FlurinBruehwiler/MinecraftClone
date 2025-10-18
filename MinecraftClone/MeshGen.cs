@@ -118,13 +118,13 @@ public static class MeshGen
         p3 = Vector3.Transform(p3, mat);
         p4 = Vector3.Transform(p4, mat);
 
-        AddVertex(block, p1, vertices, uvCoordinates.topLeft, normal, color);
-        AddVertex(block, p2, vertices, uvCoordinates.bottomRight, normal, color);
-        AddVertex(block, p3, vertices, uvCoordinates.topRight, normal, color);
+        AddVertex(block, p1, vertices, uvCoordinates.topLeft(), normal, color);
+        AddVertex(block, p2, vertices, uvCoordinates.bottomRight(), normal, color);
+        AddVertex(block, p3, vertices, uvCoordinates.topRight(), normal, color);
 
-        AddVertex(block, p4, vertices, uvCoordinates.bottomLeft, normal, color);
-        AddVertex(block, p2, vertices, uvCoordinates.bottomRight, normal, color);
-        AddVertex(block, p1, vertices, uvCoordinates.topLeft, normal, color);
+        AddVertex(block, p4, vertices, uvCoordinates.bottomLeft(), normal, color);
+        AddVertex(block, p2, vertices, uvCoordinates.bottomRight(), normal, color);
+        AddVertex(block, p1, vertices, uvCoordinates.topLeft(), normal, color);
     }
 
     private static void AddVertex(IntVector3 blockPos, Vector3 corner, List<Vertex> vertices, Vector2 texCoord, Vector3 normal, Color color)

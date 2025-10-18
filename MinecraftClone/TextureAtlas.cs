@@ -13,29 +13,30 @@ public static class TextureAtlas
 
         Raylib.BeginTextureMode(renderTarget);
 
-        using var enumerator = Textures.TextureList.GetEnumerator();
-
         Raylib.ClearBackground(new Color(0, 0, 0, 0));
 
-        for (var y = 0; y < 10; y++)
+        int i = 0;
+
+        foreach (var (key, texture) in Textures.TextureList)
         {
-            for (var x = 0; x < 10; x++)
-            {
-                var dest = new Rectangle((x + 1) * 16, 160 - y * 16, 16, 16);
+            var img = Raylib.LoadImage($"Resources/{key}");
+            texture.Image = img;
 
-                if (!enumerator.MoveNext())
-                {
-                    Raylib.DrawRectanglePro(dest, Vector2.Zero, 180, Color.Red);
-                }
-                else
-                {
-                    var texture = enumerator.Current;
-                    var blockTexture = Raylib.LoadTexture($"Resources/{texture.Key}");
+            var blockTexture = Raylib.LoadTextureFromImage(img);
 
-                    Raylib.DrawTexturePro(blockTexture, new Rectangle(0, 0, blockTexture.Width, blockTexture.Height),
-                        dest, new Vector2(0, 0), 180, Color.White);
-                }
-            }
+            var x = i % 10;
+            var y = i / 10;
+            i++;
+
+            var dest = new Rectangle((x + 1) * 16, 160 - y * 16, 16, 16);
+
+            var src = new Rectangle(0, 0, blockTexture.Width, blockTexture.Width); //both here are with in case it is an animation
+
+            texture.UvCoordinates = new UvCoordinates(new Vector2((float)x / 10, (float)y / 10), new Vector2(1.0f / 10, 1.0f/10));
+
+            Raylib.DrawTexturePro(blockTexture, src, dest, new Vector2(0, 0), 180, Color.White);
+
+            // Raylib.UnloadTexture(blockTexture);
         }
 
         Raylib.EndTextureMode();
@@ -43,11 +44,14 @@ public static class TextureAtlas
         // Raylib.GenTextureMipmaps(ref renderTarget.Texture);
 
         var image = Raylib.LoadImageFromTexture(renderTarget.Texture);
+
+        Raylib.ExportImage(image, "TextureAtlas.png");
+
         Game.Gl.BindTexture(GLEnum.Texture2D, renderTarget.Texture.Id);
 
-        for (int i = 1; i <= 4; i++)
+        for (int m = 1; m <= 4; m++)
         {
-            GenerateCustomMipMap(i, image);
+            GenerateCustomMipMap(m, image);
         }
 
         Game.Gl.BindTexture(GLEnum.Texture2D, renderTarget.Texture.Id);
