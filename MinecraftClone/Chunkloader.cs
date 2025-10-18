@@ -73,7 +73,9 @@ public static class Chunkloader
                 var g = chunk.GetGlobalCoord(x, 0, z);
                 g.Y = 0;
 
-                var height = GetTerrainHeightAt(g.X, g.Z);
+                var terrainHeight = GetTerrainHeightAt(g.X, g.Z);
+
+                const int waterLevel = 27;
 
                 for (var y = 0; y < 16; y++)
                 {
@@ -81,9 +83,9 @@ public static class Chunkloader
 
                     var blockY = chunk.Pos.Y * 16 + y;
 
-                    if (blockY > height)
+                    if (blockY > terrainHeight)
                     {
-                        if (blockY < 27)
+                        if (blockY < waterLevel)
                         {
                             chunk.Blocks[idx].BlockId = Blocks.Water.Id;
                         }
@@ -92,9 +94,16 @@ public static class Chunkloader
                             chunk.Blocks[idx].BlockId = Blocks.Air.Id;
                         }
                     }
-                    else if (blockY == height)
+                    else if (blockY == terrainHeight)
                     {
-                        chunk.Blocks[idx].BlockId = Blocks.Grass.Id;
+                        if (blockY < waterLevel - 1)
+                        {
+                            chunk.Blocks[idx].BlockId = Blocks.Gravel.Id;
+                        }
+                        else
+                        {
+                            chunk.Blocks[idx].BlockId = Blocks.Grass.Id;
+                        }
                     }
                     else
                     {
@@ -102,17 +111,17 @@ public static class Chunkloader
                     }
                 }
 
-                if (height > 27)
+                if (terrainHeight > waterLevel)
                 {
                     var grassRand = GetRandomInt(g, 742389, 0, 20);
                     if (grassRand >= 19)
                     {
-                        SetBlockIfWithinChunk(chunk, g with { Y = height + 1 }, Blocks.TallGrassBottom.Id);
-                        SetBlockIfWithinChunk(chunk, g with { Y = height + 2 }, Blocks.TallGrassTop.Id);
+                        SetBlockIfWithinChunk(chunk, g with { Y = terrainHeight + 1 }, Blocks.TallGrassBottom.Id);
+                        SetBlockIfWithinChunk(chunk, g with { Y = terrainHeight + 2 }, Blocks.TallGrassTop.Id);
                     }
                     else if (grassRand > 10)
                     {
-                        SetBlockIfWithinChunk(chunk, g with { Y = height + 1 }, Blocks.ShortGrass.Id);
+                        SetBlockIfWithinChunk(chunk, g with { Y = terrainHeight + 1 }, Blocks.ShortGrass.Id);
                     }
                 }
             }

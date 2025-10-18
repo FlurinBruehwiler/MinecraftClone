@@ -5,14 +5,14 @@ namespace RayLib3dTest;
 
 public static class AssetLoader
 {
-    private static readonly string[] grayscaleTextures =
+    private static readonly string[] foliageTextures =
     [
         Resources.Block.grass_block_side_overlay,
         Resources.Block.grass_block_top,
         Resources.Block.short_grass,
         Resources.Block.tall_grass_top,
         Resources.Block.tall_grass_bottom,
-        Resources.Block.oak_leaves
+        Resources.Block.oak_leaves,
     ];
 
     public static void LoadAssets()
@@ -28,9 +28,20 @@ public static class AssetLoader
             {
                 var resourceIdentifier = file.Substring(file.LastIndexOf("Resources", StringComparison.InvariantCulture) + 10).Replace("\\", "/");
 
+                Color color = Color.White;
+
+                if (foliageTextures.Contains(resourceIdentifier))
+                {
+                    color = new Color(146, 193, 98);
+                }
+                else if(resourceIdentifier == Resources.Block.water)
+                {
+                    color = new Color(63, 118, 228);
+                }
+
                 Textures.TextureList.Add(resourceIdentifier, new TextureDefinition
                 {
-                    IsFoliage = grayscaleTextures.Contains(resourceIdentifier),
+                    ColorOverlay = color,
                     Id = id++
                 });
             }

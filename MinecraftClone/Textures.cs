@@ -51,9 +51,13 @@ public class TextureAttribute : Attribute
 public class TextureDefinition
 {
     public int Id;
-    public bool IsFoliage;
+    public Color ColorOverlay;
     public UvCoordinates UvCoordinates;
+    public Rectangle TextureAtlasRec;
     public Image Image;
+    public int CurrentAnimationFrame;
+
+    public bool IsAnimated() => Image.Width != Image.Height;
 }
 
 public static class Textures
@@ -72,13 +76,7 @@ public static class Textures
     {
         if (TextureList.TryGetValue(textureId, out var t))
         {
-
-            Color color = Color.White;
-
-            if (t.IsFoliage)
-            {
-                color = new Color(146, 193, 98);
-            }
+            Color color = t.ColorOverlay;
 
             var topLeftOffset = new Vector2(subUvCoordinates.X, subUvCoordinates.Y) / 16 / 10;
             var bottomRight = new Vector2(subUvCoordinates.Z, subUvCoordinates.W) / 16 / 10;

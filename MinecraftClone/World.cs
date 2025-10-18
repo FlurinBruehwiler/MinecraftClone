@@ -23,6 +23,21 @@ public class World
         // LoadFromDirectory(Game.SaveLocation);
     }
 
+    public void AdvanceTextureAnimation()
+    {
+        foreach (var (_, texture) in Textures.TextureList)
+        {
+            if (texture.IsAnimated())
+            {
+                var totalFrameCount = texture.Image.Height / texture.Image.Width;
+
+                texture.CurrentAnimationFrame++;
+                texture.CurrentAnimationFrame %= totalFrameCount;
+                RayLib3dTest.TextureAtlas.ChangeAnimationFrame(TextureAtlas, texture);
+            }
+        }
+    }
+
     public ref Block TryGetBlockAtPos(Vector3 pos, out bool wasFound)
     {
         return ref TryGetBlockAtPos(new IntVector3((int)pos.X, (int)pos.Y, (int)pos.Z), out wasFound);

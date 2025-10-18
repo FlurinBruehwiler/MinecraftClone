@@ -144,6 +144,16 @@ public class Blocks
         IsTransparent = true
     };
 
+    public static BlockDefinition Gravel = new()
+    {
+        Id = 14,
+        Name = "Gravel",
+        Textures = BlockDefinition.ConstructBlockTextures(all: Resources.Block.gravel),
+        Model = Resources.blocks,
+
+        IsTransparent = true
+    };
+
 
     public static Dictionary<ushort, BlockDefinition> BlockList;
 }

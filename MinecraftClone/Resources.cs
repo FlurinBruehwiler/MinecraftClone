@@ -8,7 +8,6 @@ public static class Resources
     public const string grass_cross = "grass_cross.json";
     public const string husk = "husk.jem";
     public const string stairs = "stairs.json";
-    public const string water = "water.json";
 
     public static class Block
     {
@@ -20,6 +19,7 @@ public static class Resources
         public const string grass_block_side = "block/grass_block_side.png";
         public const string grass_block_side_overlay = "block/grass_block_side_overlay.png";
         public const string grass_block_top = "block/grass_block_top.png";
+        public const string gravel = "block/gravel.png";
         public const string log_oak = "block/log_oak.png";
         public const string log_oak_top = "block/log_oak_top.png";
         public const string oak_leaves = "block/oak_leaves.png";

@@ -222,7 +222,7 @@ public static class Physics
             {
                 if (collisionMask == CollisionMask.IgnoreAir)
                 {
-                    if (!b.IsAir())
+                    if (!b.IsAir() && b.BlockId != Blocks.Water.Id)
                     {
                         if (debug)
                         {
@@ -232,7 +232,7 @@ public static class Physics
                     }
                 }else if (collisionMask == CollisionMask.IgnoreNonSolidBlocks)
                 {
-                    if (b.BlockId != Blocks.Air.Id && b.BlockId != Blocks.ShortGrass.Id && b.BlockId != Blocks.TallGrassBottom.Id && b.BlockId != Blocks.TallGrassTop.Id)
+                    if (b.BlockId != Blocks.Air.Id && b.BlockId != Blocks.ShortGrass.Id && b.BlockId != Blocks.TallGrassBottom.Id && b.BlockId != Blocks.TallGrassTop.Id && b.BlockId != Blocks.Water.Id)
                         return start;
                 }
 

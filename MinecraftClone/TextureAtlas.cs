@@ -7,6 +7,32 @@ namespace RayLib3dTest;
 
 public static class TextureAtlas
 {
+    public static unsafe void ChangeAnimationFrame(Texture2D textureAtlas, TextureDefinition textureDefinition)
+    {
+        var image = new ReadOnlySpan<byte>(textureDefinition.Image.Data, textureDefinition.Image.Width * textureDefinition.Image.Height * 4);
+
+        var offset = textureDefinition.Image.Width * textureDefinition.Image.Width * 4 * textureDefinition.CurrentAnimationFrame;
+        var frameSlice = image.Slice(offset);
+
+        var subImage = new Image
+        {
+            Width = textureDefinition.Image.Width,
+            Height = textureDefinition.Image.Width,
+            Format = textureDefinition.Image.Format,
+            Data = (byte*)textureDefinition.Image.Data + offset,
+            Mipmaps = 1
+        };
+
+        Raylib.UpdateTextureRec(textureAtlas, textureDefinition.TextureAtlasRec, frameSlice);
+
+        Game.Gl.BindTexture(GLEnum.Texture2D, textureAtlas.Id);
+
+        for (int m = 1; m <= 4; m++)
+        {
+            GenerateCustomMipMap(m, subImage, textureAtlas, textureDefinition.TextureAtlasRec);
+        }
+    }
+
     public static Texture2D Create()
     {
         RenderTexture2D renderTarget = Raylib.LoadRenderTexture(160, 160);
@@ -30,6 +56,14 @@ public static class TextureAtlas
 
             var dest = new Rectangle((x + 1) * 16, 160 - y * 16, 16, 16);
 
+            texture.TextureAtlasRec = new Rectangle
+            {
+                Width = 16,
+                Height = 16,
+                X = x * 16,
+                Y = y * 16
+            };
+
             var src = new Rectangle(0, 0, blockTexture.Width, blockTexture.Width); //both here are with in case it is an animation
 
             texture.UvCoordinates = new UvCoordinates(new Vector2((float)x / 10, (float)y / 10), new Vector2(1.0f / 10, 1.0f/10));
@@ -51,7 +85,7 @@ public static class TextureAtlas
 
         for (int m = 1; m <= 4; m++)
         {
-            GenerateCustomMipMap(m, image);
+            GenerateCustomMipMap(m, image, renderTarget.Texture, new Rectangle(0, 0, 160, 160));
         }
 
         Game.Gl.BindTexture(GLEnum.Texture2D, renderTarget.Texture.Id);
@@ -62,7 +96,7 @@ public static class TextureAtlas
         return renderTarget.Texture;
     }
 
-    private static unsafe void GenerateCustomMipMap(int level, Image image)
+    private static unsafe void GenerateCustomMipMap(int level, Image image, Texture2D textureToUpdate, Rectangle targetRec)
     {
         var factor = (int)Math.Pow(2, level);
 
@@ -82,7 +116,19 @@ public static class TextureAtlas
             }
         }
 
-        Game.Gl.TexImage2D(TextureTarget.Texture2D, level, InternalFormat.Rgba8, (uint)width, (uint)height, 0, Silk.NET.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
+        if (targetRec.X == 0 && targetRec.Y == 0 && (int)targetRec.Width == textureToUpdate.Width && (int)targetRec.Height == textureToUpdate.Height)
+        {
+            Game.Gl.TexImage2D(TextureTarget.Texture2D, level, InternalFormat.Rgba8, (uint)width, (uint)height, 0, Silk.NET.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
+        }
+        else
+        {
+            Game.Gl.TexSubImage2D(GLEnum.Texture2D, level, (int)targetRec.X / factor, (int)targetRec.Y / factor, (uint)(targetRec.Width / factor), (uint)(targetRec.Height / factor), GLEnum.Rgba, GLEnum.UnsignedByte, ptr);
+            var err = Game.Gl.GetError();
+            if (err != GLEnum.None)
+                throw new Exception(err.ToString());
+        }
+
+        NativeMemory.Free(ptr);
     }
 
     private static CustomColor GetAverageColor(Span<CustomColor> data, int width, int sampleX, int sampleY, int sampleSize)

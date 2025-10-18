@@ -168,6 +168,11 @@ public class Game
                 Update();
             }
 
+            if (TickCounter % 40 == 0) //every 10 ticks
+            {
+                CurrentWorld.AdvanceTextureAnimation();
+            }
+
             Raylib.BeginDrawing();
 
             Raylib.ClearBackground(Color.Black);
@@ -177,6 +182,7 @@ public class Game
             {
                 camera = debugCamera;
             }
+
             Raylib.BeginMode3D(camera);
 
                 Draw3d();
@@ -189,8 +195,12 @@ public class Game
         }
     }
 
+
+    private int TickCounter = 0;
+
     private void RunTickStep()
     {
+        TickCounter++;
         DevTools.Tick();
 
         _player.Tick();
