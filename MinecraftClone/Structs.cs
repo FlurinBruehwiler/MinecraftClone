@@ -1,4 +1,4 @@
-﻿namespace RayLib3dTest;
+﻿namespace MinecraftClone;
 
 record struct DebugLine(Vector3 Start, Vector3 Direction, Color Color);
 record struct DebugLine2d(Vector2 Direction, Color Color);
@@ -6,6 +6,8 @@ record struct DebugLine2d(Vector2 Direction, Color Color);
 public record struct Block
 {
     public ushort BlockId;
+    public byte SkyLight; //todo, could combine both the light info into a single byte
+    public byte LightSourceLevel;
 
     public bool IsAir()
     {
@@ -16,16 +18,6 @@ public record struct Block
     {
         return BlockId == Blocks.Air.Id || BlockId == Blocks.ShortGrass.Id;
     }
-}
-
-public enum BlockFace
-{
-    Left,
-    Right,
-    Bottom,
-    Top,
-    Back,
-    Front
 }
 
 public struct IntVector3 : IEquatable<IntVector3 >

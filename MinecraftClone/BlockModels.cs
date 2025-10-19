@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace RayLib3dTest;
+namespace MinecraftClone;
 
 public class JsonBlockModel
 {

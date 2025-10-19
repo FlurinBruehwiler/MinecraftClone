@@ -1,17 +1,16 @@
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
-using System.Drawing;
 using Flamui;
+using Flamui.Components;
 using Flamui.Drawing;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
-using SourceGen;
 using Color = Raylib_cs.Color;
+using MouseButton = Raylib_cs.MouseButton;
 using PixelFormat = Raylib_cs.PixelFormat;
 using Rectangle = Raylib_cs.Rectangle;
 using Shader = Raylib_cs.Shader;
 
-namespace RayLib3dTest;
+namespace MinecraftClone;
 
 public class Game
 {
@@ -30,6 +29,7 @@ public class Game
 
     public static int ShaderLocSunDirection;
     public static int ShaderLocAlphaCutout;
+    public static int ShaderLocTime;
 
     public unsafe void Initialize()
     {
@@ -57,6 +57,8 @@ public class Game
         ChunkShader = Raylib.LoadShader(Resources.Shaders.chunkVertex.GetResourcesPath(), Resources.Shaders.chunkFragment.GetResourcesPath());
         ShaderLocSunDirection = Raylib.GetShaderLocation(ChunkShader, "sunDirection");
         ShaderLocAlphaCutout = Raylib.GetShaderLocation(ChunkShader, "alphaCutout");
+        ShaderLocTime = Raylib.GetShaderLocation(ChunkShader, "time");
+
 
         HuskModel = Models.LoadModel(Resources.husk);
 
@@ -68,7 +70,6 @@ public class Game
         Gl = GL.GetApi(new RaylibGlContext());
         _renderer.Initialize(Gl, host);
 
-
         UiTree = new UiTree(host, RenderUI);
     }
 
@@ -76,20 +77,13 @@ public class Game
 
     public JemFile HuskModel; //should not be here
 
+    public bool ChatIsActive;
+    public static bool UiShouldReceiveInput;
+
     public void RenderUI(Ui ui)
     {
         using (ui.Rect().MainAlign(MAlign.End).CrossAlign(XAlign.Center))
         {
-            // using (ui.Rect().Color(C.Red4.WithAlpha(100)).Width(500).Height(500))
-            // {
-            //     ui.Image(new GpuTexture
-            //     {
-            //         TextureId = CurrentWorld.BlockPreviewAtlas.Id,
-            //         Height = CurrentWorld.BlockPreviewAtlas.Height,
-            //         Width = CurrentWorld.BlockPreviewAtlas.Width
-            //     }).SubImage(new Bounds(0, 0, 1000, 1000)).FlipVertically();
-            // }
-
             //Hotbar
             using (ui.Rect().Height(80).ShrinkWidth().Color(C.Black.WithAlpha(100)).Direction(Dir.Horizontal))
             {
@@ -120,7 +114,7 @@ public class Game
 
 
                             using (ui.Rect().AbsolutePosition().AbsoluteSize(widthOffsetParent: 0, heightOffsetParent:0)
-                                       .CrossAlign(XAlign.End).MainAlign(MAlign.End).Padding(5))
+                                       .CrossAlign(XAlign.End).MainAlign(MAlign.End).PaddingHorizontal(2))
                             {
                                 ui.Text(slot.Count.ToArenaString()).Size(30).Color(C.White);
                             }
@@ -129,6 +123,72 @@ public class Game
                 }
             }
         }
+
+        //chat log
+        using (ui.Rect().AbsoluteSize(0, 0).AbsolutePosition().MainAlign(MAlign.End))
+        {
+            ui.CascadingValues.TextColor = C.White;
+            ui.CascadingValues.TextSize = 30;
+
+            foreach (var logEntry in chatLog)
+            {
+                using (ui.Rect().ShrinkHeight().WidthFraction(30).Color(C.Black.WithAlpha(200)).Padding(5))
+                {
+                    ui.Text(logEntry);
+                }
+            }
+
+            using (ui.Rect().HeightFraction(20))
+            {
+
+            }
+        }
+
+        //chat
+        if (ChatIsActive)
+        {
+            ref string input = ref ui.GetString("");
+
+            if (ui.Tree.IsKeyPressed(Key.Enter))
+            {
+                if (input.StartsWith("/"))
+                {
+                    ExecuteCommand(input.AsSpan(1));
+                }
+                else
+                {
+                    chatLog.Add(input);
+                }
+
+                CloseChat();
+            }else if (ui.Tree.IsKeyPressed(Key.Escape))
+            {
+                CloseChat();
+            }
+
+            using (ui.Rect().AbsoluteSize(0, 0).AbsolutePosition().MainAlign(MAlign.End))
+            {
+                ui.CascadingValues.TextColor = C.White;
+                ui.CascadingValues.TextSize = 30;
+
+                using (ui.Rect().ShrinkHeight().Color(C.Black.WithAlpha(200)).Margin(5).Padding(5))
+                {
+                    ui.Input(ref input, true);
+                }
+            }
+        }
+    }
+
+    private void ExecuteCommand(ReadOnlySpan<char> input)
+    {
+
+    }
+
+    private void CloseChat()
+    {
+        UiShouldReceiveInput = false;
+        ChatIsActive = false;
+        Raylib.DisableCursor();
     }
 
     private Camera3D debugCamera = new(new Vector3(0, 100, 0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 100,
@@ -137,11 +197,18 @@ public class Game
     private bool isDebugCamera = false;
     private bool isDebugControls = false;
 
+    private List<string> chatLog = [];
+
     public void GameLoop()
     {
         while (!Raylib.WindowShouldClose())
         {
-            if (Raylib.IsKeyPressed(KeyboardKey.G))
+            if (Game.IsKeyPressed(KeyboardKey.Escape))
+            {
+                break;
+            }
+
+            if (Game.IsKeyPressed(KeyboardKey.G))
             {
                 isDebugCamera = !isDebugCamera;
                 isDebugControls = isDebugCamera;
@@ -154,7 +221,7 @@ public class Game
                 }
             }
 
-            if (Raylib.IsKeyPressed(KeyboardKey.K))
+            if (Game.IsKeyPressed(KeyboardKey.K))
             {
                 isDebugControls = !isDebugControls;
             }
@@ -166,11 +233,6 @@ public class Game
             else
             {
                 Update();
-            }
-
-            if (TickCounter % 40 == 0) //every 10 ticks
-            {
-                CurrentWorld.AdvanceTextureAnimation();
             }
 
             Raylib.BeginDrawing();
@@ -200,6 +262,8 @@ public class Game
 
     private void RunTickStep()
     {
+        CurrentWorld.AdvanceTextureAnimation();
+
         TickCounter++;
         DevTools.Tick();
 
@@ -217,7 +281,43 @@ public class Game
 
     private void Update()
     {
-        //todo pass MousePosition
+        if (UiShouldReceiveInput)
+        {
+            string textInput = "";
+            while (true)
+            {
+                var key = Raylib.GetCharPressed();
+                if(key <= 0)
+                    break;
+
+                textInput += (char)key;
+            }
+
+            UiTree.TextInput = textInput;
+
+            while (true)
+            {
+                var key = (KeyboardKey)Raylib.GetKeyPressed();
+
+                if(key == 0)
+                    break;
+
+                UiTree.KeyPressed.Add((Key)key);
+                UiTree.KeyDown.Add((Key)key);
+            }
+
+            foreach (var key in UiTree.KeyDown.ToArray())
+            {
+                if (Raylib.IsKeyUp((KeyboardKey)key))
+                {
+                    UiTree.KeyDown.Remove(key);
+                    UiTree.KeyUp.Add(key);
+                }
+            }
+        }
+
+
+
         UiTree.Update(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
 
         var timeSinceLastTick = Stopwatch.GetElapsedTime(_lastTickTimestamp);
@@ -232,21 +332,67 @@ public class Game
 
         _player.Update();
 
-        if (Raylib.IsKeyPressed(KeyboardKey.F3))
+        if (Game.IsKeyPressed(KeyboardKey.F3))
         {
             DevTools.DevToolsEnabled = !DevTools.DevToolsEnabled;
         }
 
-        if (Raylib.IsKeyDown(KeyboardKey.LeftControl) && Raylib.IsKeyPressed(KeyboardKey.S))
+        if (Game.IsKeyDown(KeyboardKey.LeftControl) && Game.IsKeyPressed(KeyboardKey.S))
         {
             CurrentWorld.SaveToDirectory(SaveLocation);
         }
 
-        if (Raylib.IsKeyReleased(KeyboardKey.M))
+        if (Game.IsKeyPressed(KeyboardKey.T))
         {
-            Thread.Sleep(1000);
+            ChatIsActive = true;
+            UiShouldReceiveInput = true;
+            Raylib.EnableCursor();
         }
     }
+
+    public static bool IsMouseButtonPressed(MouseButton mouseButton)
+    {
+        return !UiShouldReceiveInput && Raylib.IsMouseButtonPressed(mouseButton);
+    }
+
+    public static Vector2 GetMouseDelta()
+    {
+        if (UiShouldReceiveInput)
+            return Vector2.Zero;
+
+        return Raylib.GetMouseDelta();
+    }
+
+    public static float GetMouseWheelMove()
+    {
+        if (UiShouldReceiveInput)
+            return 0;
+
+        return Raylib.GetMouseWheelMove();
+    }
+
+    public static bool IsKeyDown(KeyboardKey key)
+    {
+        return !UiShouldReceiveInput && Raylib.IsKeyDown(key);
+    }
+
+    public static bool IsKeyPressed(KeyboardKey key)
+    {
+        return !UiShouldReceiveInput && Raylib.IsKeyPressed(key);
+    }
+
+
+    public static bool IsKeyUp(KeyboardKey key)
+    {
+        return !UiShouldReceiveInput && Raylib.IsKeyUp(key);
+    }
+
+
+    public static bool IsKeyReleased(KeyboardKey key)
+    {
+        return !UiShouldReceiveInput && Raylib.IsKeyReleased(key);
+    }
+
 
     public static string SaveLocation = Path.GetFullPath(Path.Combine(Directory.GetParent(typeof(Game).Assembly.FullName).FullName, "../../../../World1"));
 
@@ -306,6 +452,7 @@ public class Game
         // Raylib.BeginBlendMode(BlendMode.);
 
         Raylib.SetShaderValue(ChunkShader, ShaderLocAlphaCutout, [0.5f], ShaderUniformDataType.Float);
+        Raylib.SetShaderValue(ChunkShader, ShaderLocTime, (float)Raylib.GetTime(), ShaderUniformDataType.Float);
 
         foreach (var (_, chunk) in CurrentWorld.Chunks)
         {

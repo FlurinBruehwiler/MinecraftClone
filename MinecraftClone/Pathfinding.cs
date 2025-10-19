@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace RayLib3dTest;
+﻿namespace MinecraftClone;
 
 public unsafe class Node
 {

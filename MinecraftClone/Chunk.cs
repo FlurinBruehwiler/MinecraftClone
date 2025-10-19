@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
-namespace RayLib3dTest;
+namespace MinecraftClone;
 
 public class Chunk : IDisposable
 {
@@ -96,7 +95,7 @@ public class Chunk : IDisposable
 
                     if (!block.IsAir())
                     {
-                        var isWater = block.BlockId == RayLib3dTest.Blocks.Water.Id;
+                        var isWater = block.BlockId == MinecraftClone.Blocks.Water.Id;
 
                         JsonBlockFaceDirection surroundingBlocks = 0;
                         surroundingBlocks |= IsSolidBlock(pos + GetOffset(JsonBlockFaceDirection.North), treatWaterAsSolid: isWater) ? JsonBlockFaceDirection.North : 0;
@@ -151,11 +150,6 @@ public class Chunk : IDisposable
             ModelSemiTransparent.Materials[0].Maps->Texture = _world.TextureAtlas;
             ModelSemiTransparent.Materials[0].Shader = CurrentWorld.Game.ChunkShader;
         }
-
-
-
-
-
     }
 
     private unsafe Mesh MeshFromVertexList(List<Vertex> verticesList)
@@ -165,17 +159,20 @@ public class Chunk : IDisposable
         mesh.VertexCount = verticesList.Count;
         mesh.TriangleCount = verticesList.Count / 3;
 
-        mesh.Vertices = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
-        Span<float> vertices = new Span<float>(mesh.Vertices, verticesList.Count * 3);
+        mesh.AllocVertices();
+        Span<float> vertices = mesh.VerticesAs<float>();
 
-        mesh.Normals = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 3, sizeof(float));
-        Span<float> normals = new Span<float>(mesh.Normals, verticesList.Count * 3);
+        mesh.AllocNormals();
+        Span<float> normals = mesh.NormalsAs<float>();
 
-        mesh.TexCoords = (float*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 2, sizeof(float));
-        Span<float> texcoords = new Span<float>(mesh.TexCoords, verticesList.Count * 2);
+        mesh.AllocTexCoords();
+        Span<float> texcoords = mesh.TexCoordsAs<float>();
 
-        mesh.Colors = (byte*)NativeMemory.AllocZeroed((UIntPtr)verticesList.Count * 4, sizeof(byte));
-        Span<byte> colors = new Span<byte>(mesh.Colors, verticesList.Count * 4);
+        mesh.AllocColors();
+        Span<byte> colors = mesh.ColorsAs<byte>();
+
+        mesh.AllocTangents();
+        Span<float> tangents = mesh.TangentsAs<float>();
 
         for (var i = 0; i < verticesList.Count; i++)
         {
@@ -195,9 +192,19 @@ public class Chunk : IDisposable
             colors[i * 4 + 1] = vertex.Color.G;
             colors[i * 4 + 2] = vertex.Color.B;
             colors[i * 4 + 3] = vertex.Color.A;
+
+            tangents[i * 4] = (int)vertex.BlockType;
         }
 
         return mesh;
+    }
+
+    public void CalculateSkyLighting()
+    {
+        for (int y = 15; y >= 0; y++)
+        {
+
+        }
     }
 
     private bool IsSolidBlock(IntVector3 blockInChunk, bool treatWaterAsSolid = false)
@@ -210,10 +217,10 @@ public class Chunk : IDisposable
 
             if (wasFound)
             {
-                if (treatWaterAsSolid && block.BlockId == RayLib3dTest.Blocks.Water.Id)
+                if (treatWaterAsSolid && block.BlockId == MinecraftClone.Blocks.Water.Id)
                     return true;
 
-                return !RayLib3dTest.Blocks.BlockList[block.BlockId].IsTransparent;
+                return !MinecraftClone.Blocks.BlockList[block.BlockId].IsTransparent;
             }
 
             return false;
@@ -221,10 +228,10 @@ public class Chunk : IDisposable
 
         var b = Blocks[GetIdx(blockInChunk.X, blockInChunk.Y, blockInChunk.Z)];
 
-        if (treatWaterAsSolid && b.BlockId == RayLib3dTest.Blocks.Water.Id)
+        if (treatWaterAsSolid && b.BlockId == MinecraftClone.Blocks.Water.Id)
             return true;
 
-        return !RayLib3dTest.Blocks.BlockList[b.BlockId].IsTransparent;
+        return !MinecraftClone.Blocks.BlockList[b.BlockId].IsTransparent;
     }
 
 
@@ -271,4 +278,4 @@ public class Chunk : IDisposable
     }
 }
 
-public record struct Vertex(Vector3 Pos, Vector2 TextCoord, Color Color, Vector3 Normal);
+public record struct Vertex(Vector3 Pos, Vector2 TextCoord, Color Color, Vector3 Normal, MeshBlockType BlockType);

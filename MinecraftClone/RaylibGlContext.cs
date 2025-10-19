@@ -1,9 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using Microsoft.DotNet.PlatformAbstractions;
 using Silk.NET.Core.Contexts;
 
-namespace RayLib3dTest;
+namespace MinecraftClone;
 
 public class RaylibGlContext : IGLContext
 {

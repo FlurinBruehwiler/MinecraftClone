@@ -1,4 +1,4 @@
-namespace SourceGen;
+namespace MinecraftClone;
 public static class Resources
 {
     public const string beacon = "beacon.json";

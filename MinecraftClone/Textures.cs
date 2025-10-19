@@ -1,7 +1,4 @@
-﻿using System.Net.Quic;
-using System.Reflection;
-
-namespace RayLib3dTest;
+﻿namespace MinecraftClone;
 
 public struct BlockDev
 {

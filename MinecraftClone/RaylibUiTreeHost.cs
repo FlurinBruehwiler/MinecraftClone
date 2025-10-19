@@ -1,6 +1,6 @@
 ﻿using Flamui;
 
-namespace RayLib3dTest;
+namespace MinecraftClone;
 
 public class RaylibUiTreeHost : IUiTreeHost
 {

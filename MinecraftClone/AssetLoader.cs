@@ -1,18 +1,16 @@
 ﻿using System.Reflection;
-using SourceGen;
 
-namespace RayLib3dTest;
+namespace MinecraftClone;
 
 public static class AssetLoader
 {
-    private static readonly string[] foliageTextures =
+    private static readonly string[] grassTextures =
     [
         Resources.Block.grass_block_side_overlay,
         Resources.Block.grass_block_top,
         Resources.Block.short_grass,
         Resources.Block.tall_grass_top,
-        Resources.Block.tall_grass_bottom,
-        Resources.Block.oak_leaves,
+        Resources.Block.tall_grass_bottom
     ];
 
     public static void LoadAssets()
@@ -30,13 +28,16 @@ public static class AssetLoader
 
                 Color color = Color.White;
 
-                if (foliageTextures.Contains(resourceIdentifier))
+                if (grassTextures.Contains(resourceIdentifier))
                 {
                     color = new Color(146, 193, 98);
                 }
                 else if(resourceIdentifier == Resources.Block.water)
                 {
                     color = new Color(63, 118, 228);
+                }else if (resourceIdentifier == Resources.Block.oak_leaves)
+                {
+                    color = new Color(119, 171, 47);
                 }
 
                 Textures.TextureList.Add(resourceIdentifier, new TextureDefinition

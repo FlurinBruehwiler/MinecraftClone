@@ -1,9 +1,8 @@
 using System.Runtime.InteropServices;
 using Silk.NET.OpenGL;
-using PixelFormat = Raylib_cs.PixelFormat;
 using Shader = Raylib_cs.Shader;
 
-namespace RayLib3dTest;
+namespace MinecraftClone;
 
 public static class TextureAtlas
 {

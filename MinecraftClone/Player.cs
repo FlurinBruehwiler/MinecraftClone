@@ -1,6 +1,4 @@
-﻿using SourceGen;
-
-namespace RayLib3dTest;
+﻿namespace MinecraftClone;
 
 public struct InventorySlot
 {
@@ -85,7 +83,7 @@ public class Player
         const float speedMultiplier = 1.3f;
         var config = MovementConfig.Default;
 
-        if (Raylib.IsKeyDown(KeyboardKey.LeftControl) || Raylib.IsKeyDown(KeyboardKey.Q))
+        if (Game.IsKeyDown(KeyboardKey.LeftControl) || Game.IsKeyDown(KeyboardKey.Q))
             config.HorizontalAcceleration *= speedMultiplier;
 
         var halfWidth = Physics.PlayerWidth / 2f;
@@ -105,7 +103,7 @@ public class Player
 
     public void Update()
     {
-        if (Raylib.IsKeyDown(KeyboardKey.Space))
+        if (Game.IsKeyDown(KeyboardKey.Space))
             isJumpPressed = true;
 
         HandleDirectionChange();
@@ -138,7 +136,7 @@ public class Player
             DevTools.Print(Raylib.GetFPS(), "FPS");
 
             //handle bot target
-            if (Raylib.IsMouseButtonPressed(MouseButton.Middle) && lookingAtBlockBefore != null)
+            if (Game.IsMouseButtonPressed(MouseButton.Middle) && lookingAtBlockBefore != null)
             {
                 foreach (var bot in CurrentWorld.bots)
                 {
@@ -146,7 +144,7 @@ public class Player
                 }
             }
 
-            if (Raylib.IsKeyPressed(KeyboardKey.E) && lookingAtBlockBefore != null)
+            if (Game.IsKeyPressed(KeyboardKey.E) && lookingAtBlockBefore != null)
             {
                 CurrentWorld.bots.Add(new Bot
                 {
@@ -184,7 +182,7 @@ public class Player
 
     private void HandleDirectionChange()
     {
-        var rotationInput = Raylib.GetMouseDelta() * 0.2f;
+        var rotationInput = Game.GetMouseDelta() * 0.2f;
 
         yaw += rotationInput.X * Raylib.DEG2RAD;
         pitch += -rotationInput.Y * Raylib.DEG2RAD;
@@ -216,22 +214,22 @@ public class Player
     {
         var inputDirection = new Vector3();
 
-        if (Raylib.IsKeyDown(KeyboardKey.W))
+        if (Game.IsKeyDown(KeyboardKey.W))
         {
             inputDirection.Z -= 1;
         }
 
-        if (Raylib.IsKeyDown(KeyboardKey.S))
+        if (Game.IsKeyDown(KeyboardKey.S))
         {
             inputDirection.Z += 1;
         }
 
-        if (Raylib.IsKeyDown(KeyboardKey.D))
+        if (Game.IsKeyDown(KeyboardKey.D))
         {
             inputDirection.X += 1;
         }
 
-        if (Raylib.IsKeyDown(KeyboardKey.A))
+        if (Game.IsKeyDown(KeyboardKey.A))
         {
             inputDirection.X -= 1;
         }
@@ -248,7 +246,7 @@ public class Player
             SelectedHotbarSlot = x - 49;
         }
 
-        var input = Raylib.GetMouseWheelMove();
+        var input = Game.GetMouseWheelMove();
         if (input < 0)
         {
             SelectedHotbarSlot++;
@@ -264,7 +262,7 @@ public class Player
 
     private void HandleBlockPlacement()
     {
-        if (Raylib.IsMouseButtonPressed(MouseButton.Right))
+        if (Game.IsMouseButtonPressed(MouseButton.Right))
         {
             var col = Physics.Raycast(Camera.Position, Direction, 10, out var previousBlock, out _, true);
             if (col is not null)
@@ -295,7 +293,7 @@ public class Player
 
     private void HandleBlockDestroy()
     {
-        if (Raylib.IsMouseButtonPressed(MouseButton.Left))
+        if (Game.IsMouseButtonPressed(MouseButton.Left))
         {
             var col = Physics.Raycast(Camera.Position, Direction, 10, out _, out _, true);
             if (col is not null)

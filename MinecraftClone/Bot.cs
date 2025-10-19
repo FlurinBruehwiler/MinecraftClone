@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace RayLib3dTest;
+namespace MinecraftClone;
 
 public class Bot
 {

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Security.Cryptography;
 
-namespace RayLib3dTest;
+namespace MinecraftClone;
 
 public static class Chunkloader
 {

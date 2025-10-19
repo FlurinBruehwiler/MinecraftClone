@@ -1,6 +1,4 @@
-using SourceGen;
-
-namespace RayLib3dTest;
+namespace MinecraftClone;
 
 public class Blocks
 {

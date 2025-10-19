@@ -1,6 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
-namespace RayLib3dTest;
+namespace MinecraftClone;
 
 public class World
 {
@@ -17,11 +18,12 @@ public class World
     public World(Game game)
     {
         Game = game;
-        TextureAtlas = RayLib3dTest.TextureAtlas.Create();
-        BlockPreviewAtlas = RayLib3dTest.TextureAtlas.GenerateBlockPreviews(TextureAtlas, game.ChunkShader);
+        TextureAtlas = MinecraftClone.TextureAtlas.Create();
+        BlockPreviewAtlas = MinecraftClone.TextureAtlas.GenerateBlockPreviews(TextureAtlas, game.ChunkShader);
 
         // LoadFromDirectory(Game.SaveLocation);
     }
+
 
     public void AdvanceTextureAnimation()
     {
@@ -33,7 +35,9 @@ public class World
 
                 texture.CurrentAnimationFrame++;
                 texture.CurrentAnimationFrame %= totalFrameCount;
-                RayLib3dTest.TextureAtlas.ChangeAnimationFrame(TextureAtlas, texture);
+
+                MinecraftClone.TextureAtlas.ChangeAnimationFrame(TextureAtlas, texture);
+                return;
             }
         }
     }
@@ -120,13 +124,13 @@ public class World
 
     public static unsafe Chunk? LoadFromDirectory(IntVector3 chunkPos)
     {
-        if (!Directory.Exists(RayLib3dTest.Game.SaveLocation))
+        if (!Directory.Exists(Game.SaveLocation))
         {
-            Console.WriteLine($"Directory {RayLib3dTest.Game.SaveLocation} does not exist");
+            Console.WriteLine($"Directory {Game.SaveLocation} does not exist");
             return null;
         }
 
-        var chunkFilePath = Path.Combine(RayLib3dTest.Game.SaveLocation, $"{chunkPos.X}.{chunkPos.Y}.{chunkPos.Z}.chunk");
+        var chunkFilePath = Path.Combine(Game.SaveLocation, $"{chunkPos.X}.{chunkPos.Y}.{chunkPos.Z}.chunk");
 
         if (!File.Exists(chunkFilePath))
         {

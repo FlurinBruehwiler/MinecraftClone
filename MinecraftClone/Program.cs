@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using RayLib3dTest;
+using MinecraftClone;
 
 
 /*
@@ -28,12 +28,11 @@ Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);    // Window configuration f
 
 Raylib.InitWindow(screenWidth, screenHeight, "3dtest");
 
-if (!Debugger.IsAttached)
-    Raylib.DisableCursor();
+Raylib.DisableCursor();
 
 //Raylib.SetTargetFPS(120);
 // Raylib.SetConfigFlags(ConfigFlags.Msaa4xHint);
-// Raylib.SetExitKey(KeyboardKey.Back);
+Raylib.SetExitKey(KeyboardKey.F12);
 // RaylibSetTraceLogLevel(TraceLogLevel.LOG_ERROR);
 
 

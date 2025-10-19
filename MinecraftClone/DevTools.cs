@@ -1,4 +1,4 @@
-﻿namespace RayLib3dTest;
+﻿namespace MinecraftClone;
 
 public struct Debug3dInstruction
 {
