@@ -66,15 +66,27 @@ public static class MeshGen
                 var t = blockDefinition.Textures[face.Texture];
                 var (uvs, color) = Textures.GetUvCoordinatesForTexture(t, face.UvVector);
 
-                MeshBlockType meshBlockType = MeshBlockType.Normal;
-                if (direction == JsonBlockFaceDirection.Up &&  block.BlockId == Blocks.Water.Id)
+                Vector4 topAnimationOffset = new Vector4();
+                Vector4 bottomAnimationOffset = new Vector4();
+                if (direction == JsonBlockFaceDirection.Up && block.BlockId == Blocks.Water.Id)
                 {
-                    meshBlockType = MeshBlockType.Water;
+                    topAnimationOffset = new Vector4(0, 0.125f, 0, -1);
                 }
 
-                if (block.BlockId == Blocks.ShortGrass.Id)
+                if (block.BlockId == Blocks.ShortGrass.Id || block.BlockId == Blocks.TallGrassBottom.Id)
                 {
+                    topAnimationOffset = new Vector4(1.0f/16, 0, 1.0f/16, 0);
+                }
 
+                if(block.BlockId == Blocks.TallGrassTop.Id)
+                {
+                    bottomAnimationOffset = new Vector4(1.0f/16, 0, 1.0f/16, 0);
+                    topAnimationOffset = new Vector4(1.0f/8, 0, 1.0f/8, 0);
+                }
+
+                if (block.BlockId == Blocks.LeaveBlock.Id)
+                {
+                    topAnimationOffset = bottomAnimationOffset = new Vector4(1.0f/16, 0, 1.0f/16, 0);
                 }
 
                 bool cullFace = face.CullfaceDirection != JsonBlockFaceDirection.None;
@@ -82,39 +94,39 @@ public static class MeshGen
                 //is solid block
                 if (!cullFace || (surroundingBlocks & direction) == 0)
                 {
-                    AddQuadFor(pos, uvs, color, direction, element.BlockDev, verticesList, mat, meshBlockType);
+                    AddQuadFor(pos, uvs, color, direction, element.BlockDev, verticesList, mat, topAnimationOffset, bottomAnimationOffset);
                 }
             }
         }
     }
 
-    private static void AddQuadFor(IntVector3 block, UvCoordinates uvCoordinates, Color color, JsonBlockFaceDirection blockFace, BlockDev blockDev, List<Vertex> vertices, Matrix4x4 mat, MeshBlockType meshBlockType)
+    private static void AddQuadFor(IntVector3 block, UvCoordinates uvCoordinates, Color color, JsonBlockFaceDirection blockFace, BlockDev blockDev, List<Vertex> vertices, Matrix4x4 mat, Vector4 topOffset, Vector4 bottomOffset)
     {
         switch (blockFace)
         {
             case JsonBlockFaceDirection.West:
                 AddVertices(block, blockDev.TopLeftFront(), blockDev.BottomLeftBack(), blockDev.TopLeftBack(), blockDev.BottomLeftFront(), vertices,
-                    uvCoordinates, new Vector3(-1, 0, 0), color, mat, meshBlockType);
+                    uvCoordinates, new Vector3(-1, 0, 0), color, mat, topOffset, bottomOffset);
                 break;
             case JsonBlockFaceDirection.East:
                 AddVertices(block, blockDev.TopRightBack(), blockDev.BottomRightFront(), blockDev.TopRightFront(), blockDev.BottomRightBack(), vertices,
-                    uvCoordinates, new Vector3(1, 0, 0), color, mat, meshBlockType);
+                    uvCoordinates, new Vector3(1, 0, 0), color, mat, topOffset, bottomOffset);
                 break;
             case JsonBlockFaceDirection.Down:
                 AddVertices(block, blockDev.BottomRightFront(), blockDev.BottomLeftBack(), blockDev.BottomLeftFront(), blockDev.BottomRightBack(),
-                    vertices, uvCoordinates, new Vector3(0, -1, 0), color, mat, meshBlockType);
+                    vertices, uvCoordinates, new Vector3(0, -1, 0), color, mat, bottomOffset, bottomOffset);
                 break;
             case JsonBlockFaceDirection.Up:
                 AddVertices(block, blockDev.TopRightBack(), blockDev.TopLeftFront(), blockDev.TopLeftBack(), blockDev.TopRightFront(),
-                    vertices, uvCoordinates, new Vector3(0, 1, 0), color, mat, meshBlockType);
+                    vertices, uvCoordinates, new Vector3(0, 1, 0), color, mat, topOffset, topOffset);
                 break;
             case JsonBlockFaceDirection.South:
                 AddVertices(block, blockDev.TopLeftBack(), blockDev.BottomRightBack(), blockDev.TopRightBack(), blockDev.BottomLeftBack(), vertices,
-                    uvCoordinates, new Vector3(0, 0, 1), color, mat, meshBlockType);
+                    uvCoordinates, new Vector3(0, 0, 1), color, mat, topOffset, bottomOffset);
                 break;
             case JsonBlockFaceDirection.North:
                 AddVertices(block, blockDev.TopRightFront(), blockDev.BottomLeftFront(), blockDev.TopLeftFront(), blockDev.BottomRightFront(), vertices,
-                    uvCoordinates, new Vector3(0, 0, -1), color, mat, meshBlockType);
+                    uvCoordinates, new Vector3(0, 0, -1), color, mat, topOffset, bottomOffset);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -124,30 +136,31 @@ public static class MeshGen
 
     private static void AddVertices(IntVector3 block, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4,
         List<Vertex> vertices,
-        UvCoordinates uvCoordinates, Vector3 normal, Color color, Matrix4x4 mat, MeshBlockType meshBlockType)
+        UvCoordinates uvCoordinates, Vector3 normal, Color color, Matrix4x4 mat, Vector4 topOffset, Vector4 bottomOffset)
     {
         p1 = Vector3.Transform(p1, mat);
         p2 = Vector3.Transform(p2, mat);
         p3 = Vector3.Transform(p3, mat);
         p4 = Vector3.Transform(p4, mat);
 
-        AddVertex(block, p1, vertices, uvCoordinates.topLeft(), normal, color, meshBlockType);
-        AddVertex(block, p2, vertices, uvCoordinates.bottomRight(), normal, color, meshBlockType);
-        AddVertex(block, p3, vertices, uvCoordinates.topRight(), normal, color, meshBlockType);
+        AddVertex(block, p1, vertices, uvCoordinates.topLeft(), normal, color, topOffset);
+        AddVertex(block, p2, vertices, uvCoordinates.bottomRight(), normal, color, bottomOffset);
+        AddVertex(block, p3, vertices, uvCoordinates.topRight(), normal, color, topOffset);
 
-        AddVertex(block, p4, vertices, uvCoordinates.bottomLeft(), normal, color, meshBlockType);
-        AddVertex(block, p2, vertices, uvCoordinates.bottomRight(), normal, color, meshBlockType);
-        AddVertex(block, p1, vertices, uvCoordinates.topLeft(), normal, color, meshBlockType);
+        AddVertex(block, p4, vertices, uvCoordinates.bottomLeft(), normal, color, bottomOffset);
+        AddVertex(block, p2, vertices, uvCoordinates.bottomRight(), normal, color, bottomOffset);
+        AddVertex(block, p1, vertices, uvCoordinates.topLeft(), normal, color, topOffset);
     }
 
-    private static void AddVertex(IntVector3 blockPos, Vector3 corner, List<Vertex> vertices, Vector2 texCoord, Vector3 normal, Color color, MeshBlockType blockType)
+    private static void AddVertex(IntVector3 blockPos, Vector3 corner, List<Vertex> vertices, Vector2 texCoord, Vector3 normal, Color color, Vector4 animationOffset)
     {
-        vertices.Add(new Vertex(blockPos.ToVector3NonCenter() + corner, texCoord, color, normal, blockType));
+        vertices.Add(new Vertex(blockPos.ToVector3NonCenter() + corner, texCoord, color, normal, animationOffset));
     }
 }
 
 public enum MeshBlockType
 {
     Normal = 0,
-    Water = 1
+    Water = 1,
+    Foliage = 2,
 }

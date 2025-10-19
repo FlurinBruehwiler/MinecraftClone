@@ -25,12 +25,9 @@ void main()
     fragColor = vertexColor;
     fragNormal = vertexNormal;
 
-    if(vertexTangent.x != 0)
-    {
-        float negativeOneToOne = (sin(time + mapTo4PI(position.x) + mapTo4PI(position.z)) - 1) * 0.125f;
+    float offset = sin(time + mapTo4PI(position.x) + mapTo4PI(position.z));
 
-        position.y += negativeOneToOne;
-    }
+    position += (offset + vertexTangent.w) * vertexTangent.xyz;
 
     gl_Position = mvp*vec4(position, 1.0);
 }

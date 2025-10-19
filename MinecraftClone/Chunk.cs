@@ -193,7 +193,10 @@ public class Chunk : IDisposable
             colors[i * 4 + 2] = vertex.Color.B;
             colors[i * 4 + 3] = vertex.Color.A;
 
-            tangents[i * 4] = (int)vertex.BlockType;
+            tangents[i * 4] = vertex.AnimationOffset.X;
+            tangents[i * 4 + 1] = vertex.AnimationOffset.Y;
+            tangents[i * 4 + 2] = vertex.AnimationOffset.Z;
+            tangents[i * 4 + 3] = vertex.AnimationOffset.W;
         }
 
         return mesh;
@@ -278,4 +281,4 @@ public class Chunk : IDisposable
     }
 }
 
-public record struct Vertex(Vector3 Pos, Vector2 TextCoord, Color Color, Vector3 Normal, MeshBlockType BlockType);
+public record struct Vertex(Vector3 Pos, Vector2 TextCoord, Color Color, Vector3 Normal, Vector4 AnimationOffset);
