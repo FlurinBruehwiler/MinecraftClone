@@ -32,7 +32,7 @@ Raylib.DisableCursor();
 
 //Raylib.SetTargetFPS(120);
 // Raylib.SetConfigFlags(ConfigFlags.Msaa4xHint);
-Raylib.SetExitKey(KeyboardKey.F12);
+Raylib.SetExitKey(KeyboardKey.F11);
 // RaylibSetTraceLogLevel(TraceLogLevel.LOG_ERROR);
 
 

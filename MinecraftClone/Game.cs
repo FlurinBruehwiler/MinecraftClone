@@ -5,6 +5,7 @@ using Flamui.Drawing;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Color = Raylib_cs.Color;
+using MatrixMode = Raylib_cs.MatrixMode;
 using MouseButton = Raylib_cs.MouseButton;
 using PixelFormat = Raylib_cs.PixelFormat;
 using Rectangle = Raylib_cs.Rectangle;
@@ -59,6 +60,7 @@ public class Game
         ShaderLocAlphaCutout = Raylib.GetShaderLocation(ChunkShader, "alphaCutout");
         ShaderLocTime = Raylib.GetShaderLocation(ChunkShader, "time");
 
+        sunRenderTexture = Raylib.LoadRenderTexture(1000, 1000); //todo, what resolution should we pick?
 
         HuskModel = Models.LoadModel(Resources.husk);
 
@@ -245,17 +247,56 @@ public class Game
                 camera = debugCamera;
             }
 
+            //Render sun depth map
+            {
+                Raylib.BeginTextureMode(sunRenderTexture);
+
+
+                Raylib.ClearBackground(new Color(0, 0, 0, 0));
+
+                // Rlgl.ColorMask(false, false, false, false);
+
+                var preViewModel = Rlgl.GetMatrixModelview();
+                var preProjection = Rlgl.GetMatrixProjection();
+
+                float orthoSize = 100.0f;
+                float nearPlane = 0;
+                float farPlane  = 10000.0f;
+                Matrix4x4 proj = Raymath.MatrixOrtho(-orthoSize, orthoSize, -orthoSize, orthoSize, nearPlane, farPlane);
+                Rlgl.SetMatrixProjection(proj);
+
+                Matrix4x4 view = Raymath.MatrixLookAt(
+                    sunDirection * 2000.0f,
+                    _player.Position,
+                    new Vector3( 0.0f, 1.0f, 0.0f )
+                );
+                Rlgl.SetMatrixModelView(view);
+
+                RenderSolidChunks();
+
+                Rlgl.SetMatrixModelView(preViewModel);
+                Rlgl.SetMatrixProjection(preProjection);
+
+                // Rlgl.ColorMask(true, true, true, true);
+
+                Raylib.EndTextureMode();
+            }
+
             Raylib.BeginMode3D(camera);
 
                 Draw3d();
 
-                Raylib.EndMode3D();
+            Raylib.EndMode3D();
 
             Draw2d();
+
+            Raylib.DrawTexturePro(sunRenderTexture.Texture, new Rectangle(0, 1000, 1000, -1000), new Rectangle(0, 0, 600, 600), new Vector2(0, 0), 0, Color.White);
 
             Raylib.EndDrawing();
         }
     }
+
+    private RenderTexture2D sunRenderTexture;
 
 
     private int TickCounter = 0;
@@ -425,6 +466,8 @@ public class Game
         Raylib.DrawTexturePro(raylibTexture, src, dst, new Vector2(0, 0), 0, Color.White);
     }
 
+    private Vector3 sunDirection = Vector3.Normalize(new Vector3(-0.2f, 1, -1));
+
     private void Draw3d()
     {
         { //Draw Skybox
@@ -433,45 +476,17 @@ public class Game
 
             Rlgl.DisableDepthMask();
 
-
             Raylib.DrawModel(_skyBox, Vector3.Zero, 1, Color.White);
-
 
             Rlgl.EnableBackfaceCulling();
             Rlgl.EnableDepthMask();
         }
 
-
         DevTools.Draw3d();
 
-        var sunDirection = Vector3.Normalize(new Vector3(-0.2f, 1, -1));
-        Raylib.SetShaderValue(ChunkShader, ShaderLocSunDirection, [sunDirection.X, sunDirection.Y, sunDirection.Z], ShaderUniformDataType.Vec3);
+        RenderSolidChunks();
 
-        // Rlgl.DisableColorBlend();
-        Gl.Disable(GLEnum.Blend);
-        // Raylib.BeginBlendMode(BlendMode.);
-
-        Raylib.SetShaderValue(ChunkShader, ShaderLocAlphaCutout, [0.5f], ShaderUniformDataType.Float);
-        Raylib.SetShaderValue(ChunkShader, ShaderLocTime, (float)Raylib.GetTime(), ShaderUniformDataType.Float);
-
-        foreach (var (_, chunk) in CurrentWorld.Chunks)
-        {
-            chunk.DistanceToPlayerAtRenderTime = GetDistanceToClosestCorner(chunk.Pos.ToVector3NonCenter());
-
-            var pos = new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16);
-
-            if (ChunkShouldBeRendered(chunk.Pos.ToVector3NonCenter()))
-            {
-                if (chunk.HasMesh)
-                {
-                    Raylib.DrawModel(chunk.Model, pos, 1, Color.White);
-                }
-            }
-        }
-
-        Gl.Enable(GLEnum.Blend);
-
-        Raylib.SetShaderValue(ChunkShader, ShaderLocAlphaCutout, [-1f], ShaderUniformDataType.Float); //2 means never in this case
+        Raylib.SetShaderValue(ChunkShader, ShaderLocAlphaCutout, [-1f], ShaderUniformDataType.Float);
 
         foreach (var (_, chunk) in CurrentWorld.Chunks.OrderBy(x => x.Value.DistanceToPlayerAtRenderTime))
         {
@@ -505,6 +520,32 @@ public class Game
         {
             bot.Render();
         }
+    }
+
+    public void RenderSolidChunks()
+    {
+        Gl.Disable(GLEnum.Blend);
+
+        Raylib.SetShaderValue(ChunkShader, ShaderLocSunDirection, [sunDirection.X, sunDirection.Y, sunDirection.Z], ShaderUniformDataType.Vec3);
+        Raylib.SetShaderValue(ChunkShader, ShaderLocAlphaCutout, [0.5f], ShaderUniformDataType.Float);
+        Raylib.SetShaderValue(ChunkShader, ShaderLocTime, (float)Raylib.GetTime(), ShaderUniformDataType.Float);
+
+        foreach (var (_, chunk) in CurrentWorld.Chunks)
+        {
+            // chunk.DistanceToPlayerAtRenderTime = GetDistanceToClosestCorner(chunk.Pos.ToVector3NonCenter());
+
+            var pos = new Vector3(chunk.Pos.X * 16, chunk.Pos.Y * 16, chunk.Pos.Z * 16);
+
+            // if (ChunkShouldBeRendered(chunk.Pos.ToVector3NonCenter()))
+            {
+                if (chunk.HasMesh)
+                {
+                    Raylib.DrawModel(chunk.Model, pos, 1, Color.White);
+                }
+            }
+        }
+
+        Gl.Enable(GLEnum.Blend);
     }
 
     public bool ChunkShouldBeRendered(Vector3 chunkPosition)
