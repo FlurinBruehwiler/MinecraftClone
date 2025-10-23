@@ -1,4 +1,3 @@
-﻿// fragment shader (fs.glsl)
 #version 330
 
 in vec2 fragTexCoord;
