@@ -526,6 +526,9 @@ public class Game
     {
         Gl.Disable(GLEnum.Blend);
 
+        Gl.Enable(GLEnum.DepthTest);
+        Gl.DepthFunc(GLEnum.Less);
+
         Raylib.SetShaderValue(ChunkShader, ShaderLocSunDirection, [sunDirection.X, sunDirection.Y, sunDirection.Z], ShaderUniformDataType.Vec3);
         Raylib.SetShaderValue(ChunkShader, ShaderLocAlphaCutout, [0.5f], ShaderUniformDataType.Float);
         Raylib.SetShaderValue(ChunkShader, ShaderLocTime, (float)Raylib.GetTime(), ShaderUniformDataType.Float);
